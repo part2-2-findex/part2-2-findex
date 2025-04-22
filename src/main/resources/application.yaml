@@ -28,3 +28,6 @@ spring:
     sql:
         init:
             mode: always
+batch:
+    index-data-sync:
+        cron: "*/10 * * * * *"  # 10초마다 실행
