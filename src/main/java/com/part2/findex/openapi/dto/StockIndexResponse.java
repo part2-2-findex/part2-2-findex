@@ -5,26 +5,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record StockIndexResponse (
-    Header header,
-    Body body
-) {
+public record StockIndexResponse(Response response) {
   @JsonIgnoreProperties(ignoreUnknown = true)
-  public record Header (
-      String resultCode,
-      String resultMsg
-  ){}
+  public record Response(Header header, Body body) {}
 
   @JsonIgnoreProperties(ignoreUnknown = true)
-  public record Body(
-      int numOfRows,
-      int pageNo,
-      int totalCount,
-      Items items
-  ) {}
+  public record Header(String resultCode, String resultMsg) {}
 
   @JsonIgnoreProperties(ignoreUnknown = true)
-  public record Items(
-      @JsonProperty("item") List<StockItem> item
-  ) {}
+  public record Body(int numOfRows, int pageNo, int totalCount, Items items) {}
+
+  @JsonIgnoreProperties(ignoreUnknown = true)
+  public record Items(@JsonProperty("item") List<StockItem> item) {}
 }

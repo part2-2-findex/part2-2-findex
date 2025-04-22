@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record StockItem(
     String basDt,
-    String idxCsf,
     String idxNm,
+    String idxCsf,
     int epyItmsCnt,
     double clpr,
     double vs,
