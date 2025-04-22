@@ -9,9 +9,10 @@ import lombok.Getter;
 public class StockIndexRequestParam {
   private int numOfRows;
   private int pageNo;
+
   @Default
   private String resultType = "json";
-  private String serviceKey;    // 필수
+  private final String serviceKey;    // 필수, final을 통해 builer 패턴 사용시 serviceKey 주입 강제
 
   private String basDt;
   private String beginBasDt;
