@@ -1,9 +1,12 @@
 package com.part2.findex.autosyncconfig.service;
 import com.part2.findex.autosyncconfig.dto.AutoSyncConfigDto;
+import com.part2.findex.autosyncconfig.dto.response.CursorPageResponse;
 import com.part2.findex.autosyncconfig.entity.AutoSyncConfig;
-import com.part2.findex.autosyncconfig.entity.IndexInfo;
 import com.part2.findex.autosyncconfig.repository.AutoSyncConfigRepository;
+import com.part2.findex.indexinfo.entity.IndexInfo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,5 +35,29 @@ public class AutoSyncConfigService {
         config.changeEnabled(enabled);
 
         return AutoSyncConfigDto.fromEntity(config);
+    }
+
+    @Transactional(readOnly = true)
+    public CursorPageResponse<AutoSyncConfigDto> findAll(Long indexInfoId, Boolean enabled, Long idAfter, Long cursor, Pageable pageable) {
+        Slice<AutoSyncConfigDto> slice = autoSyncConfigRepository.findByConditionsWithCursor(indexInfoId, enabled, cursor, pageable)
+                .map(AutoSyncConfigDto::fromEntity);
+
+        Long nextCursor = null;
+
+        if (!slice.getContent().isEmpty()) {
+            nextCursor = slice.getContent().get(slice.getContent().size() - 1)
+                    .id();
+        }
+
+        long totalElements = autoSyncConfigRepository.count();
+
+        return CursorPageResponse.<AutoSyncConfigDto>builder()
+                .content(slice.getContent())
+                .nextCursor(String.valueOf(nextCursor))
+                .nextIdAfter(String.valueOf(nextCursor))
+                .size(pageable.getPageSize())
+                .totalElements(totalElements)
+                .hasNext(slice.hasNext())
+                .build();
     }
 }
