@@ -1,6 +1,7 @@
 package com.part2.findex.openapi.dto;
 
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Getter;
 
 @Getter
@@ -8,7 +9,8 @@ import lombok.Getter;
 public class StockIndexRequestParam {
   private int numOfRows;
   private int pageNo;
-  private String resultType;
+  @Default
+  private String resultType = "json";
   private String serviceKey;    // 필수
 
   private String basDt;
