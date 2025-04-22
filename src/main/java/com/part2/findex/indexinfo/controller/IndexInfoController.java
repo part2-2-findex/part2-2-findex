@@ -9,10 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.hibernate.query.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 import java.awt.print.Pageable;
 
@@ -25,7 +24,7 @@ public class IndexInfoController {
 
     @GetMapping
     public ResponseEntity<PageResponse<IndexInfoDto>> findAllBySearchItem(
-            IndexSearchRequest indexSearchRequest
+            @Validated @ModelAttribute IndexSearchRequest indexSearchRequest
     ) {
         System.out.println(indexSearchRequest.toString());
 

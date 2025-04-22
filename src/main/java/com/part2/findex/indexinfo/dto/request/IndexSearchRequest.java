@@ -1,5 +1,7 @@
 package com.part2.findex.indexinfo.dto.request;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
 @Getter
@@ -19,8 +21,10 @@ public class IndexSearchRequest {
     private String sortField = "indexClassification"; // 정렬 필드
 
     @Builder.Default
+    @Pattern(regexp = "asc|desc")
     private String sortDirection = "asc";             // 정렬 방향
 
+    @Min(value = 1, message = "{Min}")
     @Builder.Default
     private Integer size = 10;                        // 페이지 크기
 
