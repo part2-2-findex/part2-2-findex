@@ -1,4 +1,4 @@
-CREATE TABLE index_info (
+CREATE TABLE IF NOT EXISTS index_info (
     id BIGINT NOT NULL PRIMARY KEY,
     index_classification VARCHAR(255) NOT NULL,
     index_name VARCHAR(255) NOT NULL,
@@ -9,7 +9,7 @@ CREATE TABLE index_info (
     source_type VARCHAR(50) NOT NULL
 );
 
-CREATE TABLE index_data (
+CREATE TABLE IF NOT EXISTS index_data (
     id BIGINT PRIMARY KEY,
     index_info_id BIGINT NOT NULL,
     trade_date DATE NOT NULL,
@@ -30,7 +30,7 @@ CREATE TABLE index_data (
 );
 
 
-CREATE TABLE sync_jobs (
+CREATE TABLE IF NOT EXISTS sync_jobs (
     id BIGINT PRIMARY KEY,
     job_type VARCHAR(10) NOT NULL,
     target_date DATE NOT NULL,
@@ -41,7 +41,7 @@ CREATE TABLE sync_jobs (
     CONSTRAINT fk_indexinfo FOREIGN KEY (index_info_id) REFERENCES index_info(id)
 );
 
-CREATE TABLE auto_sync_config (
+CREATE TABLE IF NOT EXISTS auto_sync_config (
     id BIGINT PRIMARY KEY,
     index_info_id BIGINT NOT NULL UNIQUE,
     enabled BOOLEAN NOT NULL,
