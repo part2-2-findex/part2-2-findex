@@ -3,6 +3,8 @@ spring:
         name: findex
     config:
         import: optional:file:.env[.properties]
+    messages:
+        encoding: UTF-8
     datasource:
         url: ${SPRING_DATASOURCE_URL}
         username: ${SPRING_DATASOURCE_USERNAME}

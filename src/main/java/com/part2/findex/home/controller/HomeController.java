@@ -1,4 +1,4 @@
-package com.part2.findex.controller;
+package com.part2.findex.home.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
