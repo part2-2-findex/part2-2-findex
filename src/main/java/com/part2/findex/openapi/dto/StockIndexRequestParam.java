@@ -1,18 +1,20 @@
 package com.part2.findex.openapi.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Getter;
 
 @Getter
 @Builder
+@AllArgsConstructor
 public class StockIndexRequestParam {
   private int numOfRows;      // 한 페이지 결과 수
   private int pageNo;         // 페이지 번호
 
   @Default
   private String resultType = "json";
-  private final String serviceKey;    // 유일한 필수, final을 통해 builer 패턴 사용시 serviceKey 주입 강제
+  private String serviceKey;    // 유일한 필수, decoding 키를 넣어야함.
 
   private String basDt;           // 기준일자, 검색값과 기준일자가 일치하는 데이터를 검색
   private String beginBasDt;      // 기준일자, 기준일자가 검색값보다 크거나 같은 데이터를 검색
