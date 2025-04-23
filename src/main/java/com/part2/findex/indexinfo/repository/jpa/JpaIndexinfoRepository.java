@@ -32,4 +32,9 @@ public class JpaIndexinfoRepository implements IndexInfoRepository {
         return indexInfoRepository.findById(id);
     }
 
+    @Override
+    public void deleteById(Long id) {
+        indexInfoRepository.deleteById(id);
+    }
+
 }

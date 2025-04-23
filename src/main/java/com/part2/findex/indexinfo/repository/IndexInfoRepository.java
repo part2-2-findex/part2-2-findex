@@ -14,4 +14,6 @@ public interface IndexInfoRepository {
 
     Optional<IndexInfo> findById(Long id);
 
+    void deleteById(Long id);
+
 }
