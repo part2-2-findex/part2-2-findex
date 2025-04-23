@@ -28,7 +28,7 @@ public class JpaIndexinfoRepository implements IndexInfoRepository {
     }
 
     @Override
-    public List<IndexInfo> findAll(){
+    public List<IndexInfo> findAll() {
         return indexInfoRepository.findAll();
     }
 }

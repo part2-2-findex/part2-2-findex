@@ -1,17 +1,20 @@
 package com.part2.findex.indexinfo.service;
 
+import com.part2.findex.indexinfo.dto.request.IndexInfoCreateRequest;
 import com.part2.findex.indexinfo.dto.request.IndexSearchRequest;
 import com.part2.findex.indexinfo.dto.response.IndexInfoDto;
 import com.part2.findex.indexinfo.dto.response.PageResponse;
+import com.part2.findex.indexinfo.entity.IndexInfo;
 import com.part2.findex.indexinfo.mapper.IndexInfoMapper;
 import com.part2.findex.indexinfo.mapper.PageResponseMapper;
 import com.part2.findex.indexinfo.repository.IndexInfoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +36,23 @@ public class IndexInfoServiceImpl implements IndexInfoService {
         return pageResponseMapper.fromPage(indexInfos);
     }
 
+    @Override
+    @Transactional
+    public IndexInfoDto create(IndexInfoCreateRequest indexInfoCreateRequest) {
+
+        IndexInfo indexInfo = indexInfoRepository.save(
+                new IndexInfo(
+                        indexInfoCreateRequest.getIndexClassification(),
+                        indexInfoCreateRequest.getIndexName(),
+                        indexInfoCreateRequest.getEmployedItemsCount(),
+                        indexInfoCreateRequest.getBasePointInTime().toString(),
+                        indexInfoCreateRequest.getBaseIndex(),
+                        indexInfoCreateRequest.getFavorite())
+        );
+
+        return indexInfoMapper.toDto(indexInfo);
+    }
+
     private Pageable toPageable(IndexSearchRequest request) {
         String sortField = request.getSortField() != null ? request.getSortField() : "indexClassification";
         String sortDirection = request.getSortDirection() != null ? request.getSortDirection() : "asc";
@@ -47,14 +67,11 @@ public class IndexInfoServiceImpl implements IndexInfoService {
     }
 
     private String mapSortField(String sortField) {
-        switch (sortField) {
-            case "indexClassification":
-                return "indexInfoBusinessKey.indexClassification";
-            case "indexName":
-                return "indexInfoBusinessKey.indexName";
-            default:
-                return sortField;
-        }
+        return switch (sortField) {
+            case "indexClassification" -> "indexInfoBusinessKey.indexClassification";
+            case "indexName" -> "indexInfoBusinessKey.indexName";
+            default -> sortField;
+        };
     }
 
     private String makeLikeParam(String value) {

@@ -1,5 +1,6 @@
 package com.part2.findex.indexinfo.controller;
 
+import com.part2.findex.indexinfo.dto.request.IndexInfoCreateRequest;
 import com.part2.findex.indexinfo.dto.request.IndexSearchRequest;
 import com.part2.findex.indexinfo.dto.response.IndexInfoDto;
 import com.part2.findex.indexinfo.dto.response.PageResponse;
@@ -21,10 +22,17 @@ public class IndexInfoController {
     public ResponseEntity<PageResponse<IndexInfoDto>> findAllBySearchItem(
             @Validated @ModelAttribute IndexSearchRequest indexSearchRequest
     ) {
-        System.out.println(indexSearchRequest.toString());
-
         PageResponse<IndexInfoDto> indexInfos = indexInfoService.findAllBySearchItem(indexSearchRequest);
 
         return ResponseEntity.status(HttpStatus.OK).body(indexInfos);
+    }
+
+    @PostMapping
+    public ResponseEntity<IndexInfoDto> save(
+            @Validated @RequestBody IndexInfoCreateRequest indexInfoCreateRequest
+    ) {
+
+        IndexInfoDto indexInfo = indexInfoService.create(indexInfoCreateRequest);
+        return ResponseEntity.status(HttpStatus.OK).body(indexInfo);
     }
 }

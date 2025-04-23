@@ -40,14 +40,17 @@ public class IndexInfo {
                      double employedItemsCount, String basePointInTime,
                      double baseIndex, boolean favorite) {
         this.indexInfoBusinessKey = new IndexInfoBusinessKey(indexClassification, indexName);
-        this.employedItemsCount = employedItemsCount;
-        this.basePointInTime = basePointInTime;
-        this.baseIndex = baseIndex;
-        this.favorite = favorite;
-        this.sourceType = "사용자 등록";
+        {
+            this.employedItemsCount = employedItemsCount;
+            this.basePointInTime = basePointInTime;
+            this.baseIndex = baseIndex;
+            this.favorite = favorite;
+            this.sourceType = "OPEN_API";
+        }
     }
 
-    public void update(double employedItemsCount, String basePointInTime, double baseIndex, Boolean favorite, double baseIndexTolerance) {
+    public void update(double employedItemsCount, String basePointInTime, double baseIndex, Boolean favorite,
+                       double baseIndexTolerance) {
         if (Math.abs(this.employedItemsCount - employedItemsCount) > baseIndexTolerance) {
             this.employedItemsCount = employedItemsCount;
         }
