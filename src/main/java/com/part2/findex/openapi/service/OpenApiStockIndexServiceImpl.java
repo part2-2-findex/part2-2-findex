@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.function.Function;
@@ -36,7 +36,6 @@ public class OpenApiStockIndexServiceImpl implements OpenApiStockIndexService {
                 .totalCount();
         StockIndexResponse totalStockIndex = getStockIndicesByDate(totalCount);
 
-
         return totalStockIndex.response().body().items()
                 .item()
                 .stream()
@@ -48,14 +47,21 @@ public class OpenApiStockIndexServiceImpl implements OpenApiStockIndexService {
     }
 
     private StockIndexResponse getStockIndicesByDate(int totalNumber) {
-        String yesterday = LocalDate.now().minusDays(1)
-                .format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime targetDate;
 
+        if (now.getHour() < 12) {
+            targetDate = now.minusDays(2);
+        } else {
+            targetDate = now.minusDays(1);
+        }
+
+        String formattedTargetDate = targetDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         StockIndexRequestParam getTotalDataParam = StockIndexRequestParam.builder()
                 .serviceKey(serviceKey)
                 .pageNo(1)
                 .numOfRows(totalNumber)
-                .basDt(yesterday)
+                .basDt(formattedTargetDate)
                 .build();
 
         return apiClient.fetchStockIndices(getTotalDataParam);

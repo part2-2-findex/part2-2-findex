@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS index_info (
     id BIGINT NOT NULL PRIMARY KEY  GENERATED ALWAYS AS IDENTITY,
     index_classification VARCHAR(255) NOT NULL,
     index_name VARCHAR(255) NOT NULL,
-    employed_items_count INTEGER NOT NULL,
+    employed_items_count DOUBLE NOT NULL,
     base_point_in_time VARCHAR(255) NOT NULL,
     base_index DOUBLE PRECISION NOT NULL,
     favorite BOOLEAN NOT NULL,
