@@ -20,4 +20,9 @@ public class JpaIndexinfoRepository implements IndexInfoRepository {
     public Page<IndexInfo> findAllBySearchItem(String indexClassification, String indexName, Boolean favorite, Pageable pageable) {
         return indexInfoRepository.findAllBySearch(indexClassification, indexName, favorite, pageable);
     }
+
+    @Override
+    public IndexInfo save(IndexInfo indexInfo) {
+        return indexInfoRepository.save(indexInfo);
+    }
 }
