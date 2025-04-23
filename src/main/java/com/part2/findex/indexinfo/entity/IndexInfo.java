@@ -20,7 +20,7 @@ public class IndexInfo {
     private String indexName;
 
     @Column(name = "employed_items_count", nullable = false)
-    private int employedItemsCount;
+    private double employedItemsCount;
 
     @Column(name = "base_point_in_time", nullable = false, length = 255)
     private String basePointInTime;
@@ -37,7 +37,7 @@ public class IndexInfo {
     protected IndexInfo() {}
 
     public IndexInfo(String indexClassification, String indexName,
-                     int employedItemsCount, String basePointInTime,
+                     double employedItemsCount, String basePointInTime,
                      double baseIndex, boolean favorite) {
 
         this.indexClassification = indexClassification;
@@ -50,7 +50,7 @@ public class IndexInfo {
 
     }
 
-    public void update(int employedItemsCount, String basePointInTime, double baseIndex, boolean favorite){
+    public void update(double employedItemsCount, String basePointInTime, double baseIndex, boolean favorite){
         this.employedItemsCount = employedItemsCount;
         this.basePointInTime = basePointInTime;
         this.baseIndex = baseIndex;
