@@ -5,12 +5,14 @@ import com.part2.findex.autosyncconfig.entity.AutoSyncConfig;
 import com.part2.findex.autosyncconfig.repository.AutoSyncConfigRepository;
 import com.part2.findex.indexinfo.entity.IndexInfo;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.NoSuchElementException;
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AutoSyncConfigService {
@@ -38,26 +40,28 @@ public class AutoSyncConfigService {
     }
 
     @Transactional(readOnly = true)
-    public CursorPageResponse<AutoSyncConfigDto> findAll(Long indexInfoId, Boolean enabled, Long idAfter, Long cursor, Pageable pageable) {
-        Slice<AutoSyncConfigDto> slice = autoSyncConfigRepository.findByConditionsWithCursor(indexInfoId, enabled, cursor, pageable)
-                .map(AutoSyncConfigDto::fromEntity);
+    public CursorPageResponse<AutoSyncConfigDto> findAll(Long indexInfoId, Boolean enabled, Long idAfter, Long cursor, int size, String sortField, String sortDirection) {
+        List<AutoSyncConfigDto> results = autoSyncConfigRepository.findByConditions(indexInfoId, enabled, idAfter, sortField, sortDirection, size + 1)
+                .stream()
+                .map(AutoSyncConfigDto::fromEntity)
+                .toList();
 
+        boolean hasNext = results.size() > size;
+        List<AutoSyncConfigDto> content = hasNext ? results.subList(0, size) : results;
         Long nextCursor = null;
-
-        if (!slice.getContent().isEmpty()) {
-            nextCursor = slice.getContent().get(slice.getContent().size() - 1)
-                    .id();
+        if (!content.isEmpty()) {
+            nextCursor = content.get(content.size() - 1).id();
         }
 
         long totalElements = autoSyncConfigRepository.count();
 
         return CursorPageResponse.<AutoSyncConfigDto>builder()
-                .content(slice.getContent())
+                .content(content)
                 .nextCursor(String.valueOf(nextCursor))
                 .nextIdAfter(String.valueOf(nextCursor))
-                .size(pageable.getPageSize())
+                .size(size)
                 .totalElements(totalElements)
-                .hasNext(slice.hasNext())
+                .hasNext(hasNext)
                 .build();
     }
 }
