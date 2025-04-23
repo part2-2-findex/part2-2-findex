@@ -46,8 +46,15 @@ public class IndexInfo {
         this.basePointInTime = basePointInTime;
         this.baseIndex = baseIndex;
         this.favorite = favorite;
-        this.sourceType = "OPEN_API";
+        this.sourceType = "사용자 등록";
 
+    }
+
+    public void update(int employedItemsCount, String basePointInTime, double baseIndex, boolean favorite){
+        this.employedItemsCount = employedItemsCount;
+        this.basePointInTime = basePointInTime;
+        this.baseIndex = baseIndex;
+        this.favorite = favorite;
     }
 
     @Override
