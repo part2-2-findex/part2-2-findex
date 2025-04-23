@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -79,10 +80,17 @@ public class IndexSyncJobService {
                                   SyncJobStatus status) {
         String clientIp = clientIpResolver.getClientIp();
         String basePointInTime = indexInfo.getBasePointInTime();
+        LocalDate baseDate;
+        if (basePointInTime.contains("-")) {
+            baseDate = LocalDate.parse(basePointInTime);
+        } else {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+            baseDate = LocalDate.parse(basePointInTime, formatter);
+        }
 
         return new SyncJob(
                 jobType,
-                LocalDate.parse(basePointInTime),
+                baseDate,
                 clientIp,
                 Instant.now(),
                 status,

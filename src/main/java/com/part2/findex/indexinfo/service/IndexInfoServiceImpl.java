@@ -27,7 +27,7 @@ public class IndexInfoServiceImpl implements IndexInfoService {
         String indexName = makeLikeParam(indexSearchRequest.getIndexName());
 
         Page<IndexInfoDto> indexInfos = indexInfoRepository
-                .findAllBySearchItem(indexClassification, indexName, indexSearchRequest.getFavorite(),toPageable(indexSearchRequest))
+                .findAllBySearchItem(indexClassification, indexName, indexSearchRequest.getFavorite(), toPageable(indexSearchRequest))
                 .map(indexInfoMapper::toDto);
 
         return pageResponseMapper.fromPage(indexInfos);
