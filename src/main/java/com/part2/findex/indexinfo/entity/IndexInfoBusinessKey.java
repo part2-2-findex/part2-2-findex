@@ -1,7 +1,6 @@
 package com.part2.findex.indexinfo.entity;
 
 import com.part2.findex.syncjob.dto.StockIndexInfoResult;
-import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.Getter;
 
@@ -10,11 +9,7 @@ import java.util.Objects;
 @Getter
 @Embeddable
 public class IndexInfoBusinessKey {
-
-    @Column(name = "index_classification", nullable = false, length = 255)
     private String indexClassification;
-
-    @Column(name = "index_name", nullable = false, length = 255)
     private String indexName;
 
     protected IndexInfoBusinessKey() {

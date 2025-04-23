@@ -40,10 +40,21 @@ public class IndexInfoServiceImpl implements IndexInfoService {
         int page = 0;
 
         Sort sort = sortDirection.equalsIgnoreCase("desc") ?
-                Sort.by(sortField).descending() :
-                Sort.by(sortField).ascending();
+                Sort.by(mapSortField(sortField)).descending() :
+                Sort.by(mapSortField(sortField)).ascending();
 
         return PageRequest.of(page, size, sort);
+    }
+
+    private String mapSortField(String sortField) {
+        switch (sortField) {
+            case "indexClassification":
+                return "indexInfoBusinessKey.indexClassification";
+            case "indexName":
+                return "indexInfoBusinessKey.indexName";
+            default:
+                return sortField;
+        }
     }
 
     private String makeLikeParam(String value) {

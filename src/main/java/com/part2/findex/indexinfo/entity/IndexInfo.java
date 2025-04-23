@@ -3,8 +3,6 @@ package com.part2.findex.indexinfo.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 
-import java.util.Objects;
-
 @Entity
 @Getter
 @Table(name = "index_info")
@@ -14,6 +12,10 @@ public class IndexInfo {
     private Long id;
 
     @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "indexClassification", column = @Column(name = "index_classification", nullable = false, length = 255)),
+            @AttributeOverride(name = "indexName", column = @Column(name = "index_name", nullable = false, length = 255))
+    })
     private IndexInfoBusinessKey indexInfoBusinessKey;
 
     @Column(name = "employed_items_count", nullable = false)
