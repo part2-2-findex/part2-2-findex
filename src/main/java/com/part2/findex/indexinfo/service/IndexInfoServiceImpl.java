@@ -1,5 +1,6 @@
 package com.part2.findex.indexinfo.service;
 
+import com.part2.findex.indexinfo.dto.request.IndexInfoCreateRequest;
 import com.part2.findex.indexinfo.dto.request.IndexSearchRequest;
 import com.part2.findex.indexinfo.dto.response.IndexInfoDto;
 import com.part2.findex.indexinfo.dto.response.PageResponse;
@@ -34,6 +35,21 @@ public class IndexInfoServiceImpl implements IndexInfoService {
                 .map(indexInfoMapper::toDto);
 
         return pageResponseMapper.fromPage(indexInfos);
+    }
+
+    @Override
+    public IndexInfoDto create(IndexInfoCreateRequest indexInfoCreateRequest) {
+
+        IndexInfo indexInfo = indexInfoRepository.save(
+                new IndexInfo(
+                        indexInfoCreateRequest.getIndexClassification(),
+                        indexInfoCreateRequest.getIndexName(),
+                        indexInfoCreateRequest.getEmployedItemsCount(),
+                        indexInfoCreateRequest.getBasePointInTime().toString(),
+                        indexInfoCreateRequest.getBaseIndex(),
+                        indexInfoCreateRequest.getFavorite()));
+
+        return indexInfoMapper.toDto(indexInfo);
     }
 
     private Pageable toPageable(IndexSearchRequest request) {

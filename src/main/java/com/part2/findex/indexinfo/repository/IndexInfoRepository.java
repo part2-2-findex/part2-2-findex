@@ -7,4 +7,6 @@ import org.springframework.data.domain.Pageable;
 
 public interface IndexInfoRepository {
     Page<IndexInfo> findAllBySearchItem(String indexClassification, String indexName, Boolean favorite,Pageable pageable);
+
+    IndexInfo save(IndexInfo indexInfo);
 }

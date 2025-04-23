@@ -38,7 +38,7 @@ public class IndexInfo {
 
     public IndexInfo(String indexClassification, String indexName,
                      int employedItemsCount, String basePointInTime,
-                     double baseIndex, boolean favorite, String sourceType) {
+                     double baseIndex, boolean favorite) {
 
         this.indexClassification = indexClassification;
         this.indexName = indexName;
@@ -46,7 +46,7 @@ public class IndexInfo {
         this.basePointInTime = basePointInTime;
         this.baseIndex = baseIndex;
         this.favorite = favorite;
-        this.sourceType = sourceType;
+        this.sourceType = "OPEN_API";
 
     }
 

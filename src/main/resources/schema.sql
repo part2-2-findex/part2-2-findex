@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS index_info (
-    id BIGINT NOT NULL PRIMARY KEY,
+    id BIGINT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     index_classification VARCHAR(255) NOT NULL,
     index_name VARCHAR(255) NOT NULL,
     employed_items_count INTEGER NOT NULL,
