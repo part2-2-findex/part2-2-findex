@@ -34,15 +34,13 @@ public class IndexInfoBusinessKey {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof IndexInfo)) return false;
-        if (indexName == null || indexClassification == null) {
-            return false;
-        }
-        IndexInfo indexInfo = (IndexInfo) o;
-        boolean isSameName = Objects.equals(indexName, indexInfo.getIndexInfoBusinessKey().indexName);
-        boolean isIndexClassification = Objects.equals(indexClassification, indexInfo.getIndexInfoBusinessKey().indexClassification);
+        if (!(o instanceof IndexInfoBusinessKey)) return false;
 
-        return isSameName && isIndexClassification;
+        IndexInfoBusinessKey infoBusinessKey = (IndexInfoBusinessKey) o;
+        boolean isSameName = Objects.equals(indexName, infoBusinessKey.indexName);
+        boolean isSameIndexClassification = Objects.equals(indexClassification, infoBusinessKey.indexClassification);
+
+        return isSameName && isSameIndexClassification;
     }
 
     @Override

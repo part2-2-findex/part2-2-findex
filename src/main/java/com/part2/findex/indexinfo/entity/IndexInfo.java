@@ -3,6 +3,8 @@ package com.part2.findex.indexinfo.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 
+import java.util.Objects;
+
 @Entity
 @Getter
 @Table(name = "index_info")
@@ -71,7 +73,11 @@ public class IndexInfo {
 
     @Override
     public boolean equals(Object o) {
-        return indexInfoBusinessKey.equals(o);
+        if (this == o) return true;
+        if (!(o instanceof IndexInfo)) return false;
+
+        IndexInfo indexInfo = (IndexInfo) o;
+        return indexInfoBusinessKey.equals(indexInfo.indexInfoBusinessKey);
     }
 
     @Override

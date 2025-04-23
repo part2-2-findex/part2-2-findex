@@ -24,6 +24,10 @@ public class IndexSyncBatchService {
                 results.add(result);
             }
 
+            if(result == null){
+                continue;
+            }
+
             if (++count % BATCH_SIZE == 0) {
                 flushAndClear();
             }

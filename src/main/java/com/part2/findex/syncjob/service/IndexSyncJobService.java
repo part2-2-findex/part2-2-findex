@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @Service
 public class IndexSyncJobService {
     private final IndexSyncBatchService indexSyncBatchService;
-    private final IndexInfoSyncService indexInfoService;
+    private final IndexInfoSyncService indexInfoSyncService;
     private final ClientIpResolver clientIpResolver;
 
     public List<SyncJob> createSyncJobsForNewIndexes(
@@ -31,7 +31,7 @@ public class IndexSyncJobService {
         List<StockIndexInfoResult> onlyNewStockIndexInfos =
                 filterNewIndexInfoResults(indexInfosFromOpenAPI, existingIndexInfos);
 
-        Function<StockIndexInfoResult, IndexInfo> saveFunction = indexInfoService::saveNewIndexInfo;
+        Function<StockIndexInfoResult, IndexInfo> saveFunction = indexInfoSyncService::saveNewIndexInfo;
 
         return this.processWithIndexInfoSyncJobs(
                 onlyNewStockIndexInfos,
@@ -44,9 +44,13 @@ public class IndexSyncJobService {
             List<IndexInfo> existingIndexInfos
     ) {
         Function<IndexInfo, IndexInfo> updateFunction = existingIndexInfo -> {
-            StockIndexInfoResult updated = indexInfosFromOpenAPI.get(
-                    existingIndexInfo.getIndexInfoBusinessKey().toString());
-            return indexInfoService.updateIndexInfo(existingIndexInfo, updated);
+
+            StockIndexInfoResult latestIndexData = indexInfosFromOpenAPI.get(existingIndexInfo.getIndexInfoBusinessKey().toString());
+            if (latestIndexData == null || latestIndexData.basePointInTime().equals(existingIndexInfo.getBasePointInTime())) {
+                return null;
+            }
+
+            return indexInfoSyncService.updateIndexInfo(existingIndexInfo, latestIndexData);
         };
 
         return this.processWithIndexInfoSyncJobs(
@@ -70,7 +74,10 @@ public class IndexSyncJobService {
                 status = SyncJobStatus.FAILED;
             }
 
-            assert indexInfo != null;
+            if (indexInfo == null) {
+                return null;
+            }
+
             return createSyncJob(SyncJobType.INDEX_INFO, indexInfo, status);
         });
     }
@@ -80,13 +87,8 @@ public class IndexSyncJobService {
                                   SyncJobStatus status) {
         String clientIp = clientIpResolver.getClientIp();
         String basePointInTime = indexInfo.getBasePointInTime();
-        LocalDate baseDate;
-        if (basePointInTime.contains("-")) {
-            baseDate = LocalDate.parse(basePointInTime);
-        } else {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-            baseDate = LocalDate.parse(basePointInTime, formatter);
-        }
+
+        LocalDate baseDate = getLocalDate(basePointInTime);
 
         return new SyncJob(
                 jobType,
@@ -96,6 +98,18 @@ public class IndexSyncJobService {
                 status,
                 indexInfo
         );
+    }
+
+    private LocalDate getLocalDate(String basePointInTime) {
+        LocalDate baseDate;
+        if (basePointInTime.contains("-")) {
+            baseDate = LocalDate.parse(basePointInTime);
+        } else {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+            baseDate = LocalDate.parse(basePointInTime, formatter);
+        }
+
+        return baseDate;
     }
 
     private List<StockIndexInfoResult> filterNewIndexInfoResults(
