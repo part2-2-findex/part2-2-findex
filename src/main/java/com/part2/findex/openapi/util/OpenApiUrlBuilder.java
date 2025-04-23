@@ -2,6 +2,8 @@ package com.part2.findex.openapi.util;
 
 import com.part2.findex.openapi.dto.StockIndexRequestParam;
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import lombok.experimental.UtilityClass;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -12,7 +14,7 @@ public final class OpenApiUrlBuilder {
   public static String buildUrl(StockIndexRequestParam param) {
     URI uri = URI.create(BASE_URL);   // URI.create() 메서드가 유효한 URI 인지 검증
     UriComponentsBuilder builder = UriComponentsBuilder.newInstance().uri(uri)
-        .queryParam("serviceKey", param.getServiceKey())
+        .queryParam("serviceKey", URLEncoder.encode(param.getServiceKey(), StandardCharsets.UTF_8))
         .queryParam("resultType", param.getResultType())
         .queryParam("pageNo", param.getPageNo())
         .queryParam("numOfRows", param.getNumOfRows());
@@ -38,6 +40,6 @@ public final class OpenApiUrlBuilder {
     if (param.getBeginLsYrEdVsFltRt() != null) builder.queryParam("beginLsYrEdVsFltRt", param.getBeginLsYrEdVsFltRt());
     if (param.getEndLsYrEdVsFltRt() != null) builder.queryParam("endLsYrEdVsFltRt", param.getEndLsYrEdVsFltRt());
 
-    return builder.toUriString();
+    return builder.build().toUriString();   // encoding 하지 않고 반환
   }
 }
