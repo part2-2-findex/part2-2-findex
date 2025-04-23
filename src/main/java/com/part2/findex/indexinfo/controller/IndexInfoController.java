@@ -28,6 +28,11 @@ public class IndexInfoController {
         return ResponseEntity.status(HttpStatus.OK).body(indexInfos);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<IndexInfoDto> findById(@PathVariable("id") Long id){
+        return ResponseEntity.status(HttpStatus.OK).body(indexInfoService.findById(id));
+    }
+
     @PostMapping
     public ResponseEntity<IndexInfoDto> save(
             @Validated @RequestBody IndexInfoCreateRequest indexInfoCreateRequest

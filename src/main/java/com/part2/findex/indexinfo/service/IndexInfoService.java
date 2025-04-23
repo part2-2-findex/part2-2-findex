@@ -9,6 +9,8 @@ import com.part2.findex.indexinfo.dto.response.PageResponse;
 public interface IndexInfoService {
     PageResponse<IndexInfoDto> findAllBySearchItem(IndexSearchRequest indexSearchRequest);
 
+    IndexInfoDto findById(Long id);
+
     IndexInfoDto create(IndexInfoCreateRequest indexInfoCreateRequest);
 
     IndexInfoDto update(Long id, IndexInfoUpdateRequest indexInfoUpdateRequest);
