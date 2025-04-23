@@ -2,6 +2,8 @@ package com.part2.findex.autosyncconfig.service;
 import com.part2.findex.autosyncconfig.dto.AutoSyncConfigDto;
 import com.part2.findex.autosyncconfig.dto.response.CursorPageResponse;
 import com.part2.findex.autosyncconfig.entity.AutoSyncConfig;
+import com.part2.findex.autosyncconfig.exception.AutoSyncConfigErrorCode;
+import com.part2.findex.autosyncconfig.exception.AutoSyncConfigException;
 import com.part2.findex.autosyncconfig.repository.AutoSyncConfigRepository;
 import com.part2.findex.indexinfo.entity.IndexInfo;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +34,7 @@ public class AutoSyncConfigService {
     @Transactional
     public AutoSyncConfigDto updateEnabled(Long configId, boolean enabled) {
         AutoSyncConfig config = autoSyncConfigRepository.findById(configId)
-                .orElseThrow(() -> new NoSuchElementException("Auto sync config not found"));
+                .orElseThrow(() -> new AutoSyncConfigException(AutoSyncConfigErrorCode.CONFIG_NOT_FOUND));
 
         config.changeEnabled(enabled);
 
