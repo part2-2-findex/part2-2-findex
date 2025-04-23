@@ -3,7 +3,6 @@ package com.part2.findex.indexinfo.service;
 import com.part2.findex.indexinfo.dto.request.IndexSearchRequest;
 import com.part2.findex.indexinfo.dto.response.IndexInfoDto;
 import com.part2.findex.indexinfo.dto.response.PageResponse;
-import com.part2.findex.indexinfo.entity.IndexInfo;
 import com.part2.findex.indexinfo.mapper.IndexInfoMapper;
 import com.part2.findex.indexinfo.mapper.PageResponseMapper;
 import com.part2.findex.indexinfo.repository.IndexInfoRepository;
@@ -13,8 +12,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor

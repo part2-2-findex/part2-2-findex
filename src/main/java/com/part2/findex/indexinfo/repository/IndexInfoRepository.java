@@ -4,7 +4,13 @@ import com.part2.findex.indexinfo.entity.IndexInfo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 
 public interface IndexInfoRepository {
-    Page<IndexInfo> findAllBySearchItem(String indexClassification, String indexName, Boolean favorite,Pageable pageable);
+    Page<IndexInfo> findAllBySearchItem(String indexClassification, String indexName, Boolean favorite, Pageable pageable);
+
+    IndexInfo save(IndexInfo indexInfo);
+
+    List<IndexInfo> findAll();
 }

@@ -1,4 +1,4 @@
-package com.part2.findex.sync.dto;
+package com.part2.findex.syncjob.dto;
 
 import java.util.List;
 

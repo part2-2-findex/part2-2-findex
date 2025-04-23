@@ -1,5 +1,6 @@
-package com.part2.findex.sync.entity;
+package com.part2.findex.syncjob.entity;
 
+import com.part2.findex.indexinfo.entity.IndexInfo;
 import jakarta.persistence.*;
 import lombok.Getter;
 
@@ -24,14 +25,14 @@ public class SyncJob {
     @Column(name = "worker", nullable = false)
     String worker;
 
-    @Column(name = "job_time", nullable = false)
+    @Column(name = "job_time", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
     Instant jobTime;
 
     @Column(name = "result", nullable = false)
     SyncJobStatus result;
 
-    @Column(name = "index_info_id", nullable = false)
     @ManyToOne
+    @JoinColumn(name = "index_info_id", nullable = false)
     IndexInfo indexInfo;
 
     protected SyncJob() {

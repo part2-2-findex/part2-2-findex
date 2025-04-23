@@ -7,7 +7,7 @@ public record IndexInfoDto(
     Long id,
     String indexClassification,
     String indexName,
-    Integer employedItemsCount,
+    Double employedItemsCount,
     String basePointInTime,
     Double baseIndex,
     String sourceType,

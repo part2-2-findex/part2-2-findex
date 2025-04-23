@@ -1,30 +1,34 @@
 spring:
-    application:
-        name: findex
-    config:
-        import: optional:file:.env[.properties]
-    messages:
-        encoding: UTF-8
-    datasource:
-        url: ${SPRING_DATASOURCE_URL}
-        username: ${SPRING_DATASOURCE_USERNAME}
-        password: ${SPRING_DATASOURCE_PASSWORD}
-        driver-class-name: org.postgresql.Driver
-        hikari:
-            maximum-pool-size: 10
-            minimum-idle: 5
-            idle-timeout: 60000
-    jpa:
-        hibernate:
-            ddl-auto: none
-        defer-datasource-initialization: true
-        show-sql: true
-        properties:
-            hibernate:
-                format_sql: true
-                use_sql_comments: true
-                dialect: org.hibernate.dialect.PostgreSQLDialect
-        open-in-view: false
-    sql:
-        init:
-            mode: always
+  application:
+    name: findex
+  config:
+    import: optional:file:.env[.properties]
+  messages:
+    encoding: UTF-8
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 60000
+  jpa:
+    hibernate:
+      ddl-auto: none
+    defer-datasource-initialization: true
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+  sql:
+    init:
+      mode: always
+
+public-data:
+  api:
+    key: ${OPEN_API_KEY}

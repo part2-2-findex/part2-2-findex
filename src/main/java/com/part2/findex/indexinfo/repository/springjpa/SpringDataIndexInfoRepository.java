@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 @Component
 public interface SpringDataIndexInfoRepository extends JpaRepository<IndexInfo, Long> {
-    @Query("SELECT i FROM IndexInfo i WHERE i.indexClassification LIKE :indexClassification AND i.indexName LIKE :indexName AND (:favorite IS NULL OR i.favorite = :favorite)")
+    @Query("SELECT i FROM IndexInfo i WHERE i.indexInfoBussinessKey.indexClassification LIKE :indexClassification AND i.indexInfoBussinessKey.indexName LIKE :indexName AND (:favorite IS NULL OR i.favorite = :favorite)")
     Page<IndexInfo> findAllBySearch(@Param("indexClassification") String indexClassification,
                                     @Param("indexName") String indexName,
                                     @Param("favorite") Boolean favorite,

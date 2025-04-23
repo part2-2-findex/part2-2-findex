@@ -3,24 +3,19 @@ package com.part2.findex.indexinfo.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 
-import java.util.Objects;
-
 @Entity
 @Getter
-@Table(name="index_info")
+@Table(name = "index_info")
 public class IndexInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "index_classification", nullable = false, length = 255)
-    private String indexClassification;
-
-    @Column(name = "index_name", nullable = false, length = 255)
-    private String indexName;
+    @Embedded
+    private IndexInfoBussinessKey indexInfoBussinessKey;
 
     @Column(name = "employed_items_count", nullable = false)
-    private int employedItemsCount;
+    private double employedItemsCount;
 
     @Column(name = "base_point_in_time", nullable = false, length = 255)
     private String basePointInTime;
@@ -34,32 +29,53 @@ public class IndexInfo {
     @Column(name = "source_type", nullable = false, length = 50)
     private String sourceType;
 
-    protected IndexInfo() {}
+    protected IndexInfo() {
+    }
 
     public IndexInfo(String indexClassification, String indexName,
-                     int employedItemsCount, String basePointInTime,
-                     double baseIndex, boolean favorite, String sourceType) {
-
-        this.indexClassification = indexClassification;
-        this.indexName = indexName;
+                     double employedItemsCount, String basePointInTime,
+                     double baseIndex, boolean favorite) {
+        this.indexInfoBussinessKey = new IndexInfoBussinessKey(indexClassification, indexName);
         this.employedItemsCount = employedItemsCount;
         this.basePointInTime = basePointInTime;
         this.baseIndex = baseIndex;
         this.favorite = favorite;
-        this.sourceType = sourceType;
+        this.sourceType = "사용자 등록";
+    }
 
+    public void update(double employedItemsCount, String basePointInTime, double baseIndex, Boolean favorite, double baseIndexTolerance) {
+        if (Math.abs(this.employedItemsCount - employedItemsCount) > baseIndexTolerance) {
+            this.employedItemsCount = employedItemsCount;
+        }
+
+        if (basePointInTime != null && !this.basePointInTime.equals(basePointInTime)) {
+            this.basePointInTime = basePointInTime;
+        }
+
+        if (Math.abs(this.baseIndex - baseIndex) > baseIndexTolerance) {
+            this.baseIndex = baseIndex;
+        }
+
+        if (favorite != null && this.favorite != favorite) {
+            this.favorite = favorite;
+        }
+    }
+
+    public String getIndexClassification() {
+        return indexInfoBussinessKey.getIndexClassification();
+    }
+
+    public String getIndexName() {
+        return indexInfoBussinessKey.getIndexName();
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        IndexInfo indexInfo = (IndexInfo) o;
-        return id != null && Objects.equals(id, indexInfo.id);
+        return indexInfoBussinessKey.equals(o);
     }
 
     @Override
     public int hashCode() {
-        return getClass().hashCode();
+        return indexInfoBussinessKey.hashCode();
     }
 }
