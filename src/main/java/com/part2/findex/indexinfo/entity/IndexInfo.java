@@ -12,7 +12,7 @@ public class IndexInfo {
     private Long id;
 
     @Embedded
-    private IndexInfoBussinessKey indexInfoBussinessKey;
+    private IndexInfoBusinessKey indexInfoBusinessKey;
 
     @Column(name = "employed_items_count", nullable = false)
     private double employedItemsCount;
@@ -35,7 +35,7 @@ public class IndexInfo {
     public IndexInfo(String indexClassification, String indexName,
                      double employedItemsCount, String basePointInTime,
                      double baseIndex, boolean favorite) {
-        this.indexInfoBussinessKey = new IndexInfoBussinessKey(indexClassification, indexName);
+        this.indexInfoBusinessKey = new IndexInfoBusinessKey(indexClassification, indexName);
         this.employedItemsCount = employedItemsCount;
         this.basePointInTime = basePointInTime;
         this.baseIndex = baseIndex;
@@ -62,20 +62,20 @@ public class IndexInfo {
     }
 
     public String getIndexClassification() {
-        return indexInfoBussinessKey.getIndexClassification();
+        return indexInfoBusinessKey.getIndexClassification();
     }
 
     public String getIndexName() {
-        return indexInfoBussinessKey.getIndexName();
+        return indexInfoBusinessKey.getIndexName();
     }
 
     @Override
     public boolean equals(Object o) {
-        return indexInfoBussinessKey.equals(o);
+        return indexInfoBusinessKey.equals(o);
     }
 
     @Override
     public int hashCode() {
-        return indexInfoBussinessKey.hashCode();
+        return indexInfoBusinessKey.hashCode();
     }
 }

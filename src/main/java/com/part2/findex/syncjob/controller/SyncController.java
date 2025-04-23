@@ -2,7 +2,7 @@ package com.part2.findex.syncjob.controller;
 
 import com.part2.findex.syncjob.dto.IndexDataSyncRequest;
 import com.part2.findex.syncjob.dto.SyncJobResult;
-import com.part2.findex.syncjob.service.SyncJobRecordService;
+import com.part2.findex.syncjob.service.IndexSyncOrchestratorService;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,20 +17,20 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("api/sync-jobs")
 public class SyncController {
-    private final SyncJobRecordService syncJobRecordService;
+    private final IndexSyncOrchestratorService indexSyncOrchestratorService;
 
     @PostMapping("index-infos")
     public ResponseEntity<List<SyncJobResult>> synchronizeIndexInfos() {
-        return ResponseEntity.ok(syncJobRecordService.synchronizeIndexInfo());
+        return ResponseEntity.ok(indexSyncOrchestratorService.syncIndexInfoWithOpenAPI());
     }
 
     @PostMapping("index-data")
     public ResponseEntity<List<SyncJobResult>> synchronizeIndexData(@RequestBody IndexDataSyncRequest indexDataSyncRequest) {
-        return ResponseEntity.ok(syncJobRecordService.synchronizeIndexData(indexDataSyncRequest));
+        return ResponseEntity.ok(indexSyncOrchestratorService.synchronizeIndexData(indexDataSyncRequest));
     }
 
     @GetMapping
     public ResponseEntity<List<SyncJobResult>> getIndexSyncHistories() {
-        return ResponseEntity.ok(syncJobRecordService.getIndexSyncHistories());
+        return ResponseEntity.ok(indexSyncOrchestratorService.getIndexSyncHistories());
     }
 }

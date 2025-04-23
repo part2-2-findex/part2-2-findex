@@ -4,7 +4,7 @@ import com.part2.findex.openapi.client.StockIndexApiClient;
 import com.part2.findex.openapi.dto.StockIndexRequestParam;
 import com.part2.findex.openapi.dto.StockIndexResponse;
 import com.part2.findex.syncjob.dto.StockIndexInfoResult;
-import com.part2.findex.indexinfo.entity.IndexInfoBussinessKey;
+import com.part2.findex.indexinfo.entity.IndexInfoBusinessKey;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -29,7 +29,7 @@ public class OpenApiStockIndexServiceImpl implements OpenApiStockIndexService {
     }
 
     @Override
-    public Map<IndexInfoBussinessKey, StockIndexInfoResult> getAllIndexInfoFromOpenAPI() {
+    public Map<String, StockIndexInfoResult> getAllIndexInfoFromOpenAPI() {
         StockIndexResponse stockIndexes = getStockIndicesByDate(0);
         int totalCount = stockIndexes.response()
                 .body()
@@ -42,7 +42,7 @@ public class OpenApiStockIndexServiceImpl implements OpenApiStockIndexService {
                 .stream()
                 .map(StockIndexInfoResult::from)
                 .collect(Collectors.toMap(
-                        IndexInfoBussinessKey::from,
+                        stockIndexInfo -> IndexInfoBusinessKey.from(stockIndexInfo).toString(),
                         Function.identity()
                 ));
     }

@@ -9,7 +9,7 @@ import java.util.Objects;
 
 @Getter
 @Embeddable
-public class IndexInfoBussinessKey {
+public class IndexInfoBusinessKey {
 
     @Column(name = "index_classification", nullable = false, length = 255)
     private String indexClassification;
@@ -17,16 +17,16 @@ public class IndexInfoBussinessKey {
     @Column(name = "index_name", nullable = false, length = 255)
     private String indexName;
 
-    protected IndexInfoBussinessKey() {
+    protected IndexInfoBusinessKey() {
     }
 
-    public IndexInfoBussinessKey(String classification, String name) {
+    public IndexInfoBusinessKey(String classification, String name) {
         this.indexClassification = classification;
         this.indexName = name;
     }
 
-    public static IndexInfoBussinessKey from(StockIndexInfoResult stockIndexInfoResult) {
-        return new IndexInfoBussinessKey(
+    public static IndexInfoBusinessKey from(StockIndexInfoResult stockIndexInfoResult) {
+        return new IndexInfoBusinessKey(
                 stockIndexInfoResult.indexClassification(),
                 stockIndexInfoResult.indexName());
     }
@@ -39,8 +39,8 @@ public class IndexInfoBussinessKey {
             return false;
         }
         IndexInfo indexInfo = (IndexInfo) o;
-        boolean isSameName = Objects.equals(indexName, indexInfo.getIndexInfoBussinessKey().indexName);
-        boolean isIndexClassification = Objects.equals(indexClassification, indexInfo.getIndexInfoBussinessKey().indexClassification);
+        boolean isSameName = Objects.equals(indexName, indexInfo.getIndexInfoBusinessKey().indexName);
+        boolean isIndexClassification = Objects.equals(indexClassification, indexInfo.getIndexInfoBusinessKey().indexClassification);
 
         return isSameName && isIndexClassification;
     }
@@ -51,5 +51,13 @@ public class IndexInfoBussinessKey {
         result = 31 * result + indexClassification.hashCode();
 
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "IndexInfoBusinessKey{" +
+                "indexClassification='" + indexClassification + '\'' +
+                ", indexName='" + indexName + '\'' +
+                '}';
     }
 }
