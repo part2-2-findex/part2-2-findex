@@ -40,6 +40,13 @@ public class IndexInfoServiceImpl implements IndexInfoService {
     }
 
     @Override
+    public IndexInfoDto findById(Long id) {
+        return indexInfoRepository.findById(id)
+                .map(indexInfoMapper::toDto)
+                .orElseThrow(() -> new NoSuchElementException("IndexInfo with id " + id + " not found") );
+    }
+
+    @Override
     @Transactional
     public IndexInfoDto create(IndexInfoCreateRequest indexInfoCreateRequest) {
 
