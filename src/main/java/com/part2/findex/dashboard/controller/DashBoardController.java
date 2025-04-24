@@ -2,6 +2,7 @@ package com.part2.findex.dashboard.controller;
 
 import com.part2.findex.dashboard.dto.IndexChartDto;
 import com.part2.findex.dashboard.dto.IndexPerformanceDto;
+import com.part2.findex.dashboard.dto.RankedIndexPerformanceDto;
 import com.part2.findex.dashboard.service.DashBoardService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -34,5 +35,15 @@ public class DashBoardController {
   ) {
     return ResponseEntity.status(HttpStatus.OK)
         .body(dashBoardService.getIndexChart(id, periodType));
+  }
+
+  @GetMapping("/performance/rank")
+  ResponseEntity<List<RankedIndexPerformanceDto>> getPerformanceRank(
+      @RequestParam(value = "indexInfoId", required = false) Long indexInfoId,
+      @RequestParam("periodType") String periodType,
+      @RequestParam(value = "limit", defaultValue = "10") int limit
+  ) {
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(dashBoardService.getRankedIndexPerformance(indexInfoId, periodType, limit));
   }
 }
