@@ -32,6 +32,7 @@ public class DashBoardController {
       @PathVariable Long id,
       @RequestParam("periodType") String periodType
   ) {
-
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(dashBoardService.getIndexChart(id, periodType));
   }
 }
