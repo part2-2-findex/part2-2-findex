@@ -1,7 +1,7 @@
 package com.part2.findex.autosyncconfig.dto;
 
 import com.part2.findex.autosyncconfig.entity.AutoSyncConfig;
-import com.part2.findex.autosyncconfig.entity.IndexInfo;
+import com.part2.findex.indexinfo.entity.IndexInfo;
 
 public record AutoSyncConfigDto(
         Long id,
