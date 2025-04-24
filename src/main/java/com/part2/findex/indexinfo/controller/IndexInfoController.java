@@ -1,19 +1,16 @@
 package com.part2.findex.indexinfo.controller;
 
+import com.part2.findex.indexinfo.dto.request.IndexInfoCreateRequest;
+import com.part2.findex.indexinfo.dto.request.IndexInfoUpdateRequest;
 import com.part2.findex.indexinfo.dto.request.IndexSearchRequest;
 import com.part2.findex.indexinfo.dto.response.IndexInfoDto;
 import com.part2.findex.indexinfo.dto.response.PageResponse;
-import com.part2.findex.indexinfo.entity.IndexInfo;
 import com.part2.findex.indexinfo.service.IndexInfoService;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.query.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.awt.print.Pageable;
 
 @RestController
 @RequestMapping("/api/index-infos")
@@ -26,10 +23,39 @@ public class IndexInfoController {
     public ResponseEntity<PageResponse<IndexInfoDto>> findAllBySearchItem(
             @Validated @ModelAttribute IndexSearchRequest indexSearchRequest
     ) {
-        System.out.println(indexSearchRequest.toString());
-
         PageResponse<IndexInfoDto> indexInfos = indexInfoService.findAllBySearchItem(indexSearchRequest);
 
         return ResponseEntity.status(HttpStatus.OK).body(indexInfos);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<IndexInfoDto> findById(@PathVariable("id") Long id){
+        return ResponseEntity.status(HttpStatus.OK).body(indexInfoService.findById(id));
+    }
+
+    @PostMapping
+    public ResponseEntity<IndexInfoDto> save(
+            @Validated @RequestBody IndexInfoCreateRequest indexInfoCreateRequest
+    ){
+
+        IndexInfoDto indexinfo = indexInfoService.create(indexInfoCreateRequest);
+        return ResponseEntity.status(HttpStatus.OK).body(indexinfo);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<IndexInfoDto> update(
+            @PathVariable("id") Long id,
+            @Validated @RequestBody IndexInfoUpdateRequest indexInfoUpdateRequest
+    ){
+        IndexInfoDto indexinfo = indexInfoService.update(id, indexInfoUpdateRequest);
+        return ResponseEntity.status(HttpStatus.OK).body(indexinfo);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> Delete(@PathVariable("id") Long id){
+        indexInfoService.delete(id);
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .build();
     }
 }

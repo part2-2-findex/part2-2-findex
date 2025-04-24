@@ -10,11 +10,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.NoSuchElementException;
 
 @Slf4j
+import java.util.NoSuchElementException;
 @Service
 @RequiredArgsConstructor
 public class AutoSyncConfigService {
@@ -35,7 +35,6 @@ public class AutoSyncConfigService {
     public AutoSyncConfigDto updateEnabled(Long configId, boolean enabled) {
         AutoSyncConfig config = autoSyncConfigRepository.findById(configId)
                 .orElseThrow(() -> new AutoSyncConfigException(AutoSyncConfigErrorCode.CONFIG_NOT_FOUND));
-
         config.changeEnabled(enabled);
 
         return AutoSyncConfigDto.fromEntity(config);

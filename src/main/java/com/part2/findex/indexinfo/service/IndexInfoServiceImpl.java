@@ -1,5 +1,7 @@
 package com.part2.findex.indexinfo.service;
 
+import com.part2.findex.indexinfo.dto.request.IndexInfoCreateRequest;
+import com.part2.findex.indexinfo.dto.request.IndexInfoUpdateRequest;
 import com.part2.findex.indexinfo.dto.request.IndexSearchRequest;
 import com.part2.findex.indexinfo.dto.response.IndexInfoDto;
 import com.part2.findex.indexinfo.dto.response.PageResponse;
@@ -10,11 +12,12 @@ import com.part2.findex.indexinfo.repository.IndexInfoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +37,54 @@ public class IndexInfoServiceImpl implements IndexInfoService {
                 .map(indexInfoMapper::toDto);
 
         return pageResponseMapper.fromPage(indexInfos);
+    }
+
+    @Override
+    public IndexInfoDto findById(Long id) {
+        return indexInfoRepository.findById(id)
+                .map(indexInfoMapper::toDto)
+                .orElseThrow(() -> new NoSuchElementException("IndexInfo with id " + id + " not found") );
+    }
+
+    @Override
+    @Transactional
+    public IndexInfoDto create(IndexInfoCreateRequest indexInfoCreateRequest) {
+
+        IndexInfo indexInfo = indexInfoRepository.save(
+                new IndexInfo(
+                        indexInfoCreateRequest.getIndexClassification(),
+                        indexInfoCreateRequest.getIndexName(),
+                        indexInfoCreateRequest.getEmployedItemsCount(),
+                        indexInfoCreateRequest.getBasePointInTime().toString(),
+                        indexInfoCreateRequest.getBaseIndex(),
+                        indexInfoCreateRequest.getFavorite()));
+
+        return indexInfoMapper.toDto(indexInfo);
+    }
+
+    @Override
+    @Transactional
+    public IndexInfoDto update(Long id, IndexInfoUpdateRequest indexInfoUpdateRequest) {
+        IndexInfo indexInfo = indexInfoRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("IndexInfo with id " + id + " not found") );
+
+        double employedItemsCount = indexInfoUpdateRequest.getEmployedItemsCount() == 0 ? indexInfo.getEmployedItemsCount() : indexInfoUpdateRequest.getEmployedItemsCount();
+        String basePointInTime = indexInfoUpdateRequest.getBasePointInTime() == null ? indexInfo.getBasePointInTime() : indexInfoUpdateRequest.getBasePointInTime().toString();
+        double baseIndex = indexInfoUpdateRequest.getBaseIndex() == 0 ? indexInfo.getBaseIndex() : indexInfoUpdateRequest.getBaseIndex();
+        boolean favorite = indexInfoUpdateRequest.getFavorite() == null ? indexInfo.isFavorite() : indexInfoUpdateRequest.getFavorite();
+
+
+        indexInfo.update(employedItemsCount, basePointInTime, baseIndex, favorite);
+
+        return indexInfoMapper.toDto(indexInfoRepository.save(indexInfo));
+    }
+
+    @Override
+    public void delete(Long id) {
+        IndexInfo indexInfo = indexInfoRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("IndexInfo with id " + id + " not found") );
+
+        indexInfoRepository.deleteById(id);
     }
 
     private Pageable toPageable(IndexSearchRequest request) {

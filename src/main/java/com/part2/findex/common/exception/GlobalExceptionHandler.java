@@ -12,9 +12,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.NoSuchElementException;
 
 @RestControllerAdvice
 @RequiredArgsConstructor
+@ResponseBody
 public class GlobalExceptionHandler {
 
     private final ErrorMapper errorMapper;
@@ -29,13 +34,9 @@ public class GlobalExceptionHandler {
 
         HttpStatus status = HttpStatus.BAD_REQUEST;
 
-        ApiErrorStatus errorStatus = ApiErrorStatus.fromStatus(HttpStatus.BAD_REQUEST);
+        ApiErrorStatus errorStatus = ApiErrorStatus.fromStatus(status);
 
-        ErrorResponse errorDto = errorMapper.toDto(
-                errorStatus.getHttpStatus(),
-                errorStatus.getMessage(),
-                errorMessage
-        );
+        ErrorDto errorDto = errorMapper.toDto(errorStatus.getHttpStatus(), errorStatus.getMessage(), errorMessage);
 
         return ResponseEntity
                 .status(status)
