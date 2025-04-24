@@ -1,21 +1,16 @@
 package com.part2.findex.indexinfo.controller;
 
 import com.part2.findex.indexinfo.dto.request.IndexInfoCreateRequest;
+import com.part2.findex.indexinfo.dto.request.IndexInfoUpdateRequest;
 import com.part2.findex.indexinfo.dto.request.IndexSearchRequest;
 import com.part2.findex.indexinfo.dto.response.IndexInfoDto;
 import com.part2.findex.indexinfo.dto.response.PageResponse;
-import com.part2.findex.indexinfo.entity.IndexInfo;
 import com.part2.findex.indexinfo.service.IndexInfoService;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.query.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.awt.print.Pageable;
-import java.util.ResourceBundle;
 
 @RestController
 @RequestMapping("/api/index-infos")
@@ -39,6 +34,15 @@ public class IndexInfoController {
     ){
 
         IndexInfoDto indexinfo = indexInfoService.create(indexInfoCreateRequest);
+        return ResponseEntity.status(HttpStatus.OK).body(indexinfo);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<IndexInfoDto> update(
+            @PathVariable("id") Long id,
+            @Validated @RequestBody IndexInfoUpdateRequest indexInfoUpdateRequest
+    ){
+        IndexInfoDto indexinfo = indexInfoService.update(id, indexInfoUpdateRequest);
         return ResponseEntity.status(HttpStatus.OK).body(indexinfo);
     }
 }

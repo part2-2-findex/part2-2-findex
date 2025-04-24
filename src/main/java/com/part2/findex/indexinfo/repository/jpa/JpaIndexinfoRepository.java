@@ -3,11 +3,12 @@ package com.part2.findex.indexinfo.repository.jpa;
 import com.part2.findex.indexinfo.entity.IndexInfo;
 import com.part2.findex.indexinfo.repository.IndexInfoRepository;
 import com.part2.findex.indexinfo.repository.springjpa.SpringDataIndexInfoRepository;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
 
 
 @Repository
@@ -25,4 +26,10 @@ public class JpaIndexinfoRepository implements IndexInfoRepository {
     public IndexInfo save(IndexInfo indexInfo) {
         return indexInfoRepository.save(indexInfo);
     }
+
+    @Override
+    public Optional<IndexInfo> findById(Long id) {
+        return indexInfoRepository.findById(id);
+    }
+
 }

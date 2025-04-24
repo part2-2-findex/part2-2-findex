@@ -1,6 +1,7 @@
 package com.part2.findex.indexinfo.service;
 
 import com.part2.findex.indexinfo.dto.request.IndexInfoCreateRequest;
+import com.part2.findex.indexinfo.dto.request.IndexInfoUpdateRequest;
 import com.part2.findex.indexinfo.dto.request.IndexSearchRequest;
 import com.part2.findex.indexinfo.dto.response.IndexInfoDto;
 import com.part2.findex.indexinfo.dto.response.PageResponse;
@@ -15,6 +16,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -50,6 +53,23 @@ public class IndexInfoServiceImpl implements IndexInfoService {
                         indexInfoCreateRequest.getFavorite()));
 
         return indexInfoMapper.toDto(indexInfo);
+    }
+
+    @Override
+    @Transactional
+    public IndexInfoDto update(Long id, IndexInfoUpdateRequest indexInfoUpdateRequest) {
+        IndexInfo indexInfo = indexInfoRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("IndexInfo with id " + id + " not found") );
+
+        int employedItemsCount = indexInfoUpdateRequest.getEmployedItemsCount() == 0 ? indexInfo.getEmployedItemsCount() : indexInfoUpdateRequest.getEmployedItemsCount();
+        String basePointInTime = indexInfoUpdateRequest.getBasePointInTime() == null ? indexInfo.getBasePointInTime() : indexInfoUpdateRequest.getBasePointInTime().toString();
+        double baseIndex = indexInfoUpdateRequest.getBaseIndex() == 0 ? indexInfo.getBaseIndex() : indexInfoUpdateRequest.getBaseIndex();
+        boolean favorite = indexInfoUpdateRequest.getFavorite() == null ? indexInfo.isFavorite() : indexInfoUpdateRequest.getFavorite();
+
+
+        indexInfo.update(employedItemsCount, basePointInTime, baseIndex, favorite);
+
+        return indexInfoMapper.toDto(indexInfoRepository.save(indexInfo));
     }
 
     private Pageable toPageable(IndexSearchRequest request) {
