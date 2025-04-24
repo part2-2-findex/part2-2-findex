@@ -11,63 +11,84 @@ import java.util.List;
 @Repository
 public interface AutoSyncConfigRepository extends JpaRepository<AutoSyncConfig, Long> {
     @Query("""
-        SELECT a FROM AutoSyncConfig a
-        LEFT JOIN FETCH a.indexInfo i
-        WHERE (:indexInfoId IS NULL OR i.id = :indexInfoId)
-          AND (:enabled IS NULL OR a.enabled = :enabled)
-          AND (:idAfter IS NULL OR 
-               (CASE 
-                    WHEN :sortField = 'indexInfo.indexName' AND :sortDirection = 'asc' 
-                        THEN (i.indexName > (SELECT ii.indexName FROM IndexInfo ii WHERE ii.id = 
-                            (SELECT ai.indexInfo.id FROM AutoSyncConfig ai WHERE ai.id = :idAfter)) 
-                            OR (i.indexName = (SELECT ii.indexName FROM IndexInfo ii WHERE ii.id = 
-                            (SELECT ai.indexInfo.id FROM AutoSyncConfig ai WHERE ai.id = :idAfter)) 
-                            AND a.id > :idAfter))
-                    WHEN :sortField = 'indexInfo.indexName' AND :sortDirection = 'desc' 
-                        THEN (i.indexName < (SELECT ii.indexName FROM IndexInfo ii WHERE ii.id = 
-                            (SELECT ai.indexInfo.id FROM AutoSyncConfig ai WHERE ai.id = :idAfter)) 
-                            OR (i.indexName = (SELECT ii.indexName FROM IndexInfo ii WHERE ii.id = 
-                            (SELECT ai.indexInfo.id FROM AutoSyncConfig ai WHERE ai.id = :idAfter)) 
-                            AND a.id < :idAfter))
-                    WHEN :sortField = 'enabled' AND :sortDirection = 'asc' 
-                        THEN (a.enabled > (SELECT ae.enabled FROM AutoSyncConfig ae WHERE ae.id = :idAfter) 
-                            OR (a.enabled = (SELECT ae.enabled FROM AutoSyncConfig ae WHERE ae.id = :idAfter) 
-                            AND a.id > :idAfter))
-                    WHEN :sortField = 'enabled' AND :sortDirection = 'desc' 
-                        THEN (a.enabled < (SELECT ae.enabled FROM AutoSyncConfig ae WHERE ae.id = :idAfter) 
-                            OR (a.enabled = (SELECT ae.enabled FROM AutoSyncConfig ae WHERE ae.id = :idAfter) 
-                            AND a.id < :idAfter))
-                    ELSE a.id > :idAfter
-                END))
-        ORDER BY 
-            CASE 
-                WHEN :sortField = 'indexInfo.indexName' AND :sortDirection = 'asc' THEN i.indexName
-            END ASC,
-            CASE 
-                WHEN :sortField = 'indexInfo.indexName' AND :sortDirection = 'desc' THEN i.indexName
-            END DESC,
-            CASE 
-                WHEN :sortField = 'enabled' AND :sortDirection = 'asc' THEN a.enabled
-            END ASC,
-            CASE 
-                WHEN :sortField = 'enabled' AND :sortDirection = 'desc' THEN a.enabled
-            END DESC,
-            CASE 
-                WHEN :sortDirection = 'asc' THEN a.id
-            END ASC,
-            CASE 
-                WHEN :sortDirection = 'desc' THEN a.id
-            END DESC
-        LIMIT :size
-        """
-    )
-    List<AutoSyncConfig> findByConditions(
+    SELECT a FROM AutoSyncConfig a
+    LEFT JOIN FETCH a.indexInfo i
+    WHERE (:indexInfoId IS NULL OR i.id = :indexInfoId)
+      AND (:enabled IS NULL OR a.enabled = :enabled)
+      AND (:idAfter IS NULL OR 
+           (i.indexName > (SELECT ii.indexName FROM IndexInfo ii WHERE ii.id = 
+               (SELECT ai.indexInfo.id FROM AutoSyncConfig ai WHERE ai.id = :idAfter))
+           OR (i.indexName = (SELECT ii.indexName FROM IndexInfo ii WHERE ii.id = 
+               (SELECT ai.indexInfo.id FROM AutoSyncConfig ai WHERE ai.id = :idAfter))
+           AND a.id > :idAfter)))
+    ORDER BY i.indexName ASC, a.id ASC
+    LIMIT :size
+""")
+    List<AutoSyncConfig> findAllByIndexNameAsc(
             @Param("indexInfoId") Long indexInfoId,
             @Param("enabled") Boolean enabled,
             @Param("idAfter") Long idAfter,
-            @Param("sortField") String sortField,
-            @Param("sortDirection") String sortDirection,
-            @Param("size") int size);
+            @Param("size") int size
+    );
+
+    @Query("""
+    SELECT a FROM AutoSyncConfig a
+    LEFT JOIN FETCH a.indexInfo i
+    WHERE (:indexInfoId IS NULL OR i.id = :indexInfoId)
+      AND (:enabled IS NULL OR a.enabled = :enabled)
+      AND (:idAfter IS NULL OR 
+           (i.indexName < (SELECT ii.indexName FROM IndexInfo ii WHERE ii.id = 
+               (SELECT ai.indexInfo.id FROM AutoSyncConfig ai WHERE ai.id = :idAfter))
+           OR (i.indexName = (SELECT ii.indexName FROM IndexInfo ii WHERE ii.id = 
+               (SELECT ai.indexInfo.id FROM AutoSyncConfig ai WHERE ai.id = :idAfter))
+           AND a.id < :idAfter)))
+    ORDER BY i.indexName DESC, a.id DESC
+    LIMIT :size
+""")
+    List<AutoSyncConfig> findAllByIndexNameDesc(
+            @Param("indexInfoId") Long indexInfoId,
+            @Param("enabled") Boolean enabled,
+            @Param("idAfter") Long idAfter,
+            @Param("size") int size
+    );
+
+    @Query("""
+    SELECT a FROM AutoSyncConfig a
+    LEFT JOIN FETCH a.indexInfo i
+    WHERE (:indexInfoId IS NULL OR i.id = :indexInfoId)
+      AND (:enabled IS NULL OR a.enabled = :enabled)
+      AND (:idAfter IS NULL OR 
+           (a.enabled > (SELECT ae.enabled FROM AutoSyncConfig ae WHERE ae.id = :idAfter)
+           OR (a.enabled = (SELECT ae.enabled FROM AutoSyncConfig ae WHERE ae.id = :idAfter)
+           AND a.id > :idAfter)))
+    ORDER BY a.enabled ASC, a.id ASC
+    LIMIT :size
+""")
+    List<AutoSyncConfig> findAllByEnabledAsc(
+            @Param("indexInfoId") Long indexInfoId,
+            @Param("enabled") Boolean enabled,
+            @Param("idAfter") Long idAfter,
+            @Param("size") int size
+    );
+
+    @Query("""
+    SELECT a FROM AutoSyncConfig a
+    LEFT JOIN FETCH a.indexInfo i
+    WHERE (:indexInfoId IS NULL OR i.id = :indexInfoId)
+      AND (:enabled IS NULL OR a.enabled = :enabled)
+      AND (:idAfter IS NULL OR 
+           (a.enabled < (SELECT ae.enabled FROM AutoSyncConfig ae WHERE ae.id = :idAfter)
+           OR (a.enabled = (SELECT ae.enabled FROM AutoSyncConfig ae WHERE ae.id = :idAfter)
+           AND a.id < :idAfter)))
+    ORDER BY a.enabled DESC, a.id DESC
+    LIMIT :size
+""")
+    List<AutoSyncConfig> findAllByEnabledDesc(
+            @Param("indexInfoId") Long indexInfoId,
+            @Param("enabled") Boolean enabled,
+            @Param("idAfter") Long idAfter,
+            @Param("size") int size
+    );
 
     List<AutoSyncConfig> findByEnabledTrue();
 }

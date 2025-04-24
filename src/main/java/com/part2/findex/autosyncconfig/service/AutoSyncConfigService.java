@@ -43,8 +43,23 @@ public class AutoSyncConfigService {
 
     @Transactional(readOnly = true)
     public CursorPageResponse<AutoSyncConfigDto> findAll(Long indexInfoId, Boolean enabled, Long idAfter, Long cursor, int size, String sortField, String sortDirection) {
-        List<AutoSyncConfigDto> results = autoSyncConfigRepository.findByConditions(indexInfoId, enabled, idAfter, sortField, sortDirection, size + 1)
-                .stream()
+        List<AutoSyncConfig> autoSyncConfigs = List.of();
+
+        if ("indexInfo.indexName".equals(sortField)) {
+            if ("asc".equalsIgnoreCase(sortDirection)) {
+                autoSyncConfigs = autoSyncConfigRepository.findAllByIndexNameAsc(indexInfoId, enabled, idAfter, size + 1);
+            } else {
+                autoSyncConfigs = autoSyncConfigRepository.findAllByIndexNameDesc(indexInfoId, enabled, idAfter, size + 1);
+            }
+        } else if ("enabled".equals(sortField)) {
+            if ("asc".equalsIgnoreCase(sortDirection)) {
+                autoSyncConfigs = autoSyncConfigRepository.findAllByEnabledAsc(indexInfoId, enabled, idAfter, size + 1);
+            } else {
+                autoSyncConfigs = autoSyncConfigRepository.findAllByEnabledDesc(indexInfoId, enabled, idAfter, size + 1);
+            }
+        }
+
+        List<AutoSyncConfigDto> results = autoSyncConfigs.stream()
                 .map(AutoSyncConfigDto::fromEntity)
                 .toList();
 
