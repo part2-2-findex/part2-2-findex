@@ -5,9 +5,11 @@ import com.part2.findex.indexinfo.dto.request.IndexInfoCreateRequest;
 import com.part2.findex.indexinfo.dto.request.IndexInfoUpdateRequest;
 import com.part2.findex.indexinfo.dto.request.IndexSearchRequest;
 import com.part2.findex.indexinfo.dto.response.IndexInfoDto;
+import com.part2.findex.indexinfo.dto.response.IndexSummariesInfoResponse;
 import com.part2.findex.indexinfo.dto.response.PageResponse;
 import com.part2.findex.indexinfo.entity.IndexInfo;
 import com.part2.findex.indexinfo.mapper.IndexInfoMapper;
+import com.part2.findex.indexinfo.mapper.IndexSummariesInfoMapper;
 import com.part2.findex.indexinfo.repository.IndexInfoRepository;
 import com.part2.findex.indexinfo.service.strategy.SortStrategyContext;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,12 @@ public class IndexInfoServiceImpl implements IndexInfoService {
     private final IndexInfoRepository indexInfoRepository;
     private final IndexInfoMapper indexInfoMapper;
     private final SortStrategyContext sortStrategyContext;
+    private final IndexSummariesInfoMapper indexSummariesInfoMapper;
+    
+    @Override
+    public List<IndexSummariesInfoResponse> findAllBySummeriesItem() {
+        return indexInfoRepository.findAll().stream().map(indexSummariesInfoMapper::toDto).toList();
+    }
 
     @Override
     public PageResponse<IndexInfoDto> findAllBySearchItem(IndexSearchRequest indexSearchRequest) {

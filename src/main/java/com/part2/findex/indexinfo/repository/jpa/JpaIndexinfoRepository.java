@@ -18,6 +18,11 @@ public class JpaIndexinfoRepository implements IndexInfoRepository {
     private final SpringDataIndexInfoRepository indexInfoRepository;
 
     @Override
+    public List<IndexInfo> findAll() {
+        return indexInfoRepository.findAll();
+    }
+
+    @Override
     public List<IndexInfo> findAllByClassificationAsc(String indexClassification, String indexName, Boolean favorite, String classificationCursor, Long idCursor
     ) {
         return indexInfoRepository.findAllByClassificationAsc(indexClassification, indexName, favorite, classificationCursor, idCursor);
