@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import java.time.ZonedDateTime;
 
 @Builder
-public record ErrorDto(
+public record ErrorResponse(
     ZonedDateTime timestamp,
     HttpStatus status,
     String message,
