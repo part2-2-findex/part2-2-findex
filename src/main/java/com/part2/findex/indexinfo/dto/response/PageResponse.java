@@ -7,9 +7,10 @@ import java.util.List;
 @Builder
 public record PageResponse<T>(
         List<T> content,
-        int number,
+        String nextCursor,
+        Long nextIdAfter,
         int size,
-        boolean hasNext,
-        Long totalElements
+        Long totalElements,
+        boolean hasNext
 ) {
 }

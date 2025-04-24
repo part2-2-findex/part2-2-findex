@@ -1,8 +1,8 @@
 package com.part2.findex.autosyncconfig.service;
 import com.part2.findex.autosyncconfig.dto.AutoSyncConfigDto;
 import com.part2.findex.autosyncconfig.entity.AutoSyncConfig;
-import com.part2.findex.autosyncconfig.entity.IndexInfo;
 import com.part2.findex.autosyncconfig.repository.AutoSyncConfigRepository;
+import com.part2.findex.indexinfo.entity.IndexInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
