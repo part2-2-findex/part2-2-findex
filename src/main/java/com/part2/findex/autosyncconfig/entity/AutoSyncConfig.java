@@ -1,5 +1,6 @@
 package com.part2.findex.autosyncconfig.entity;
 
+import com.part2.findex.indexinfo.entity.IndexInfo;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,7 +19,7 @@ public class AutoSyncConfig {
     @Column(nullable = false)
     private boolean enabled;
 
-    @OneToOne(optional = false)
+    @OneToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "index_info_id", nullable = false, unique = true)
     private IndexInfo indexInfo;
 
