@@ -72,6 +72,14 @@ public class IndexInfoServiceImpl implements IndexInfoService {
         return indexInfoMapper.toDto(indexInfoRepository.save(indexInfo));
     }
 
+    @Override
+    public void delete(Long id) {
+        IndexInfo indexInfo = indexInfoRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("IndexInfo with id " + id + " not found") );
+
+        indexInfoRepository.deleteById(id);
+    }
+
     private Pageable toPageable(IndexSearchRequest request) {
         String sortField = request.getSortField() != null ? request.getSortField() : "indexClassification";
         String sortDirection = request.getSortDirection() != null ? request.getSortDirection() : "asc";

@@ -45,4 +45,12 @@ public class IndexInfoController {
         IndexInfoDto indexinfo = indexInfoService.update(id, indexInfoUpdateRequest);
         return ResponseEntity.status(HttpStatus.OK).body(indexinfo);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> Delete(@PathVariable("id") Long id){
+        indexInfoService.delete(id);
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .build();
+    }
 }
