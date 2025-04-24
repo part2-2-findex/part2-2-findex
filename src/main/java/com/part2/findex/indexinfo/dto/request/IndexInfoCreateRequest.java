@@ -17,13 +17,13 @@ public class IndexInfoCreateRequest {
 
     @NotNull
     @Min(value = 1)
-    int employedItemsCount;
+    double employedItemsCount;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     LocalDate basePointInTime;
 
     @Min(value = 1)
-    int baseIndex;
+    double baseIndex;
 
     @NotNull
     Boolean favorite;

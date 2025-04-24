@@ -6,11 +6,11 @@ import java.time.LocalDate;
 
 @Getter
 public class IndexInfoUpdateRequest {
-    int employedItemsCount;
+    double employedItemsCount;
 
     LocalDate basePointInTime;
 
-    int baseIndex;
+    double baseIndex;
 
     Boolean favorite;
 
