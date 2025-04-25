@@ -15,20 +15,19 @@ public interface DashBoardIndexDataRepository extends JpaRepository<IndexData, L
   @Query("""
     SELECT new com.part2.findex.dashboard.dto.IndexPerformanceDto(
         i.id,
-        i.indexClassification,
-        i.indexName,
-        CAST(d1.closePrice - d2.closePrice AS double),
-        CAST(((d1.closePrice - d2.closePrice) / d2.closePrice) * 100 AS double),
-        CAST(d1.closePrice AS double),
-        CAST(d2.closePrice AS double)
+        i.indexInfoBusinessKey,
+        CAST(d1.closingPrice - d2.closingPrice AS double),
+        CAST(((d1.closingPrice - d2.closingPrice) / d2.closingPrice) * 100 AS double),
+        CAST(d1.closingPrice AS double),
+        CAST(d2.closingPrice AS double)
     )
     FROM IndexData d1
     JOIN d1.indexInfo i
     JOIN IndexData d2 ON d1.indexInfo = d2.indexInfo
     WHERE i.favorite = true
-      AND d1.tradeDate = :currentDate
-      AND d2.tradeDate = :pastDate
-    ORDER BY ((d1.closePrice - d2.closePrice) / d2.closePrice) * 100 DESC
+      AND d1.baseDate = :currentDate
+      AND d2.baseDate = :pastDate
+    ORDER BY ((d1.closingPrice - d2.closingPrice) / d2.closingPrice) * 100 DESC
 """)
   List<IndexPerformanceDto> findIndexPerformances(
       @Param("currentDate") LocalDate currentDate,
@@ -37,13 +36,13 @@ public interface DashBoardIndexDataRepository extends JpaRepository<IndexData, L
 
   @Query("""
     SELECT new com.part2.findex.dashboard.dto.ChartDataPoint(
-        d.tradeDate,
-        CAST(d.closePrice AS double)
+        d.baseDate,
+        CAST(d.closingPrice AS double)
     )
     FROM IndexData d
     WHERE d.indexInfo.id = :indexInfoId
-      AND d.tradeDate BETWEEN :pastDate AND :currentDate
-    ORDER BY d.tradeDate DESC
+      AND d.baseDate BETWEEN :pastDate AND :currentDate
+    ORDER BY d.baseDate DESC
 """)
   List<ChartDataPoint> findChartDataPoints(
       @Param("indexInfoId") Long indexInfoId,
@@ -54,19 +53,18 @@ public interface DashBoardIndexDataRepository extends JpaRepository<IndexData, L
   @Query("""
     SELECT new com.part2.findex.dashboard.dto.IndexPerformanceDto(
         i.id,
-        i.indexClassification,
-        i.indexName,
-        CAST(d1.closePrice - d2.closePrice AS double),
-        CAST(((d1.closePrice - d2.closePrice) / d2.closePrice) * 100 AS double),
-        CAST(d1.closePrice AS double),
-        CAST(d2.closePrice AS double)
+        i.indexInfoBusinessKey,
+        CAST(d1.closingPrice - d2.closingPrice AS double),
+        CAST(((d1.closingPrice - d2.closingPrice) / d2.closingPrice) * 100 AS double),
+        CAST(d1.closingPrice AS double),
+        CAST(d2.closingPrice AS double)
     )
     FROM IndexData d1
     JOIN d1.indexInfo i
     JOIN IndexData d2 ON d1.indexInfo = d2.indexInfo
-    WHERE d1.tradeDate = :currentDate
-      AND d2.tradeDate = :pastDate
-    ORDER BY ((d1.closePrice - d2.closePrice) / d2.closePrice) * 100 DESC
+    WHERE d1.baseDate = :currentDate
+      AND d2.baseDate = :pastDate
+    ORDER BY ((d1.closingPrice - d2.closingPrice) / d2.closingPrice) * 100 DESC
 """)
   List<IndexPerformanceDto> findAllIndexPerformances(
       @Param("currentDate") LocalDate currentDate,
