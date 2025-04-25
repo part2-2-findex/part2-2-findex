@@ -15,6 +15,10 @@ public class JpaIndexDataRepository implements IndexDataRepository {
 
     private final SpringDataIndexDataRepository indexDataRepository;
 
+    public void save(IndexData indexData) {
+        indexDataRepository.save(indexData);
+    }
+
     public Optional<IndexData> findById(Long indexDataId) {
         return indexDataRepository.findById(indexDataId);
     }
