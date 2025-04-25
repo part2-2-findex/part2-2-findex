@@ -1,5 +1,7 @@
 package com.part2.findex.indexdata.controller;
 
+import com.part2.findex.indexdata.dto.IndexDataCreateRequest;
+import com.part2.findex.indexdata.dto.IndexDataDto;
 import com.part2.findex.indexdata.dto.IndexDataUpdateRequest;
 import com.part2.findex.indexdata.service.IndexDataService;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +14,12 @@ import org.springframework.web.bind.annotation.*;
 public class IndexDataController {
 
     private final IndexDataService indexDataService;
+
+    @PostMapping
+    public ResponseEntity<?> createIndexData(@RequestBody IndexDataCreateRequest indexDataCreateRequest) {
+        IndexDataDto indexDataDto = indexDataService.createIndexData(indexDataCreateRequest);
+        return ResponseEntity.status(201).body(indexDataDto);
+    }
 
     @PatchMapping("/{indexDataId}")
     public ResponseEntity<?> updateIndexData(@PathVariable Long indexDataId, @RequestBody IndexDataUpdateRequest indexDataUpdateRequest) {
