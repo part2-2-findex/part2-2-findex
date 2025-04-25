@@ -1,5 +1,6 @@
 package com.part2.findex.indexinfo.service;
 
+import com.part2.findex.indexinfo.dto.CursorInfoDto;
 import com.part2.findex.indexinfo.dto.request.IndexInfoCreateRequest;
 import com.part2.findex.indexinfo.dto.request.IndexInfoUpdateRequest;
 import com.part2.findex.indexinfo.dto.request.IndexSearchRequest;
@@ -7,16 +8,14 @@ import com.part2.findex.indexinfo.dto.response.IndexInfoDto;
 import com.part2.findex.indexinfo.dto.response.PageResponse;
 import com.part2.findex.indexinfo.entity.IndexInfo;
 import com.part2.findex.indexinfo.mapper.IndexInfoMapper;
-import com.part2.findex.indexinfo.mapper.PageResponseMapper;
 import com.part2.findex.indexinfo.repository.IndexInfoRepository;
+import com.part2.findex.indexinfo.service.strategy.SortStrategyContext;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Base64;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -24,19 +23,50 @@ import java.util.NoSuchElementException;
 public class IndexInfoServiceImpl implements IndexInfoService {
 
     private final IndexInfoRepository indexInfoRepository;
-    private final PageResponseMapper pageResponseMapper;
     private final IndexInfoMapper indexInfoMapper;
+    private final SortStrategyContext sortStrategyContext;
 
     @Override
     public PageResponse<IndexInfoDto> findAllBySearchItem(IndexSearchRequest indexSearchRequest) {
-        String indexClassification = makeLikeParam(indexSearchRequest.getIndexClassification());
-        String indexName = makeLikeParam(indexSearchRequest.getIndexName());
+        // 1. 커서 파싱 (ID 기준)
+        Long cursorValue = parseCursor(indexSearchRequest.getCursor());
 
-        Page<IndexInfoDto> indexInfos = indexInfoRepository
-                .findAllBySearchItem(indexClassification, indexName, indexSearchRequest.getFavorite(),toPageable(indexSearchRequest))
-                .map(indexInfoMapper::toDto);
+        CursorInfoDto cursorInfo =  prepareCursor(indexSearchRequest, cursorValue);
 
-        return pageResponseMapper.fromPage(indexInfos);
+        // 2. 데이터 조회 (정렬 없음)
+        List<IndexInfo> result = sortStrategyContext.findAllBySearch(indexSearchRequest, cursorInfo);
+
+        // 3. 다음 커서 계산 (ID 기준)
+        String nextCursor = null;
+        Long nextIdAfter = null;
+        boolean hasNext = !result.isEmpty() && result.size() >= indexSearchRequest.getSize();
+        if (hasNext) {
+            IndexInfo lastItem = result.get(result.size() - 1);
+            nextIdAfter = lastItem.getId();  // 여기서 nextIdAfter 설정
+            nextCursor = encodeCursor(nextIdAfter); // 필요하면 커서도 세팅
+        }
+
+        // 3. 전체 개수 조회
+        Long totalSize = indexInfoRepository.countAllByFilters(
+                indexSearchRequest.getIndexClassification(),
+                indexSearchRequest.getIndexName(),
+                indexSearchRequest.getFavorite()
+        );
+
+
+        // 4. DTO 변환
+        List<IndexInfoDto> content = result.stream()
+                .map(indexInfoMapper::toDto)
+                .toList();
+
+        return PageResponse.<IndexInfoDto>builder()
+                .content(content)
+                .nextCursor(nextCursor)
+                .nextIdAfter(nextIdAfter)
+                .size(indexSearchRequest.getSize())
+                .totalElements(totalSize)
+                .hasNext(hasNext)
+                .build();
     }
 
     @Override
@@ -87,23 +117,36 @@ public class IndexInfoServiceImpl implements IndexInfoService {
         indexInfoRepository.deleteById(id);
     }
 
-    private Pageable toPageable(IndexSearchRequest request) {
-        String sortField = request.getSortField() != null ? request.getSortField() : "indexClassification";
-        String sortDirection = request.getSortDirection() != null ? request.getSortDirection() : "asc";
-        int size = request.getSize() != null ? request.getSize() : 10;
-        int page = 0;
-
-        Sort sort = sortDirection.equalsIgnoreCase("desc") ?
-                Sort.by(sortField).descending() :
-                Sort.by(sortField).ascending();
-
-        return PageRequest.of(page, size, sort);
+    private Long parseCursor(String cursor) {
+        if (cursor == null) return null;
+        try {
+            return Long.parseLong(new String(Base64.getDecoder().decode(cursor)));
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid cursor");
+        }
     }
 
-    private String makeLikeParam(String value) {
-        if (value == null || value.isBlank()) {
-            return "%";
+    private String encodeCursor(Long id) {
+        return Base64.getEncoder().encodeToString(String.valueOf(id).getBytes());
+    }
+
+    private CursorInfoDto prepareCursor(IndexSearchRequest request, Long cursorValue) {
+        String sortField = request.getSortField();
+        String fieldCursor = null;
+        Long idCursor = null;
+
+        if (cursorValue != null) {
+            IndexInfo lastItem = indexInfoRepository.findById(cursorValue).orElse(null);
+            if (lastItem != null) {
+                if ("indexClassification".equals(sortField)) {
+                    fieldCursor = lastItem.getIndexClassification();
+                } else if ("indexName".equals(sortField)) {
+                    fieldCursor = lastItem.getIndexName();
+                }
+                idCursor = lastItem.getId();
+            }
         }
-        return "%" + value + "%";
+
+        return new CursorInfoDto(fieldCursor, idCursor);
     }
 }

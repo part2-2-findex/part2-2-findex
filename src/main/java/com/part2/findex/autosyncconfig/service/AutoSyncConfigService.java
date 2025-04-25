@@ -1,4 +1,5 @@
 package com.part2.findex.autosyncconfig.service;
+
 import com.part2.findex.autosyncconfig.dto.AutoSyncConfigDto;
 import com.part2.findex.autosyncconfig.dto.response.CursorPageResponse;
 import com.part2.findex.autosyncconfig.entity.AutoSyncConfig;
@@ -12,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Slf4j
 @Service
