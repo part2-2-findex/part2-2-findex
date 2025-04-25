@@ -3,8 +3,7 @@ package com.part2.findex.indexdata.entity;
 import com.part2.findex.indexdata.dto.IndexDataUpdateRequest;
 import com.part2.findex.indexinfo.entity.IndexInfo;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -15,6 +14,9 @@ import java.time.LocalDateTime;
         uniqueConstraints = @UniqueConstraint(name = "uq_index_trade", columnNames = {"index_info_id", "base_date"}))
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class IndexData {
 
     @Id
@@ -74,5 +76,6 @@ public class IndexData {
         this.tradingQuantity = updateRequest.tradingQuantity();
         this.tradingPrice = updateRequest.tradingPrice();
         this.marketTotalAmount = updateRequest.marketTotalAmount();
+        this.createdAt = LocalDateTime.now();
     }
 }
