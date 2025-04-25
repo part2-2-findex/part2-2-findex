@@ -10,9 +10,11 @@ import java.util.List;
 
 @Component
 public interface SpringDataIndexInfoRepository extends JpaRepository<IndexInfo, Long> {
+
+    // 지수명 기준 오름차순
     @Query("SELECT i FROM IndexInfo i " +
-            "WHERE (:indexClassification IS NULL OR i.indexInfoBusinessKey.indexClassification LIKE :indexClassification) " +
-            "AND (:indexName IS NULL OR i.indexInfoBusinessKey.indexName LIKE :indexName) " +
+            "WHERE i.indexInfoBusinessKey.indexClassification LIKE :indexClassification " +
+            "AND i.indexInfoBusinessKey.indexName LIKE :indexName " +
             "AND (:favorite IS NULL OR i.favorite = :favorite) " +
             "AND (:nameCursor IS NULL OR (i.indexInfoBusinessKey.indexName > :nameCursor OR (i.indexInfoBusinessKey.indexName = :nameCursor AND i.id > :idCursor))) " +
             "ORDER BY i.indexInfoBusinessKey.indexName ASC, i.id ASC")
@@ -24,10 +26,10 @@ public interface SpringDataIndexInfoRepository extends JpaRepository<IndexInfo, 
             @Param("idCursor") Long idCursor
     );
 
-
+    // 지수명 기준 내림차순
     @Query("SELECT i FROM IndexInfo i " +
-            "WHERE (:indexClassification IS NULL OR i.indexInfoBusinessKey.indexClassification LIKE :indexClassification) " +
-            "AND (:indexName IS NULL OR i.indexInfoBusinessKey.indexName LIKE :indexName) " +
+            "WHERE i.indexInfoBusinessKey.indexClassification LIKE :indexClassification " +
+            "AND i.indexInfoBusinessKey.indexName LIKE :indexName " +
             "AND (:favorite IS NULL OR i.favorite = :favorite) " +
             "AND (:nameCursor IS NULL OR (i.indexInfoBusinessKey.indexName < :nameCursor OR (i.indexInfoBusinessKey.indexName = :nameCursor AND i.id < :idCursor))) " +
             "ORDER BY i.indexInfoBusinessKey.indexName DESC, i.id DESC")
@@ -39,11 +41,10 @@ public interface SpringDataIndexInfoRepository extends JpaRepository<IndexInfo, 
             @Param("idCursor") Long idCursor
     );
 
-
-    // 분류명 기준 오름차순 커서 페이징
+    // 분류명 기준 오름차순
     @Query("SELECT i FROM IndexInfo i " +
-            "WHERE (:indexClassification IS NULL OR i.indexInfoBusinessKey.indexClassification LIKE :indexClassification) " +
-            "AND (:indexName IS NULL OR i.indexInfoBusinessKey.indexName LIKE :indexName) " +
+            "WHERE i.indexInfoBusinessKey.indexClassification LIKE :indexClassification " +
+            "AND i.indexInfoBusinessKey.indexName LIKE :indexName " +
             "AND (:favorite IS NULL OR i.favorite = :favorite) " +
             "AND (:classificationCursor IS NULL OR (i.indexInfoBusinessKey.indexClassification > :classificationCursor OR (i.indexInfoBusinessKey.indexClassification = :classificationCursor AND i.id > :idCursor))) " +
             "ORDER BY i.indexInfoBusinessKey.indexClassification ASC, i.id ASC")
@@ -55,10 +56,10 @@ public interface SpringDataIndexInfoRepository extends JpaRepository<IndexInfo, 
             @Param("idCursor") Long idCursor
     );
 
-    // 분류명 기준 내림차순 커서 페이징
+    // 분류명 기준 내림차순
     @Query("SELECT i FROM IndexInfo i " +
-            "WHERE (:indexClassification IS NULL OR i.indexInfoBusinessKey.indexClassification LIKE :indexClassification) " +
-            "AND (:indexName IS NULL OR i.indexInfoBusinessKey.indexName LIKE :indexName) " +
+            "WHERE i.indexInfoBusinessKey.indexClassification LIKE :indexClassification " +
+            "AND i.indexInfoBusinessKey.indexName LIKE :indexName " +
             "AND (:favorite IS NULL OR i.favorite = :favorite) " +
             "AND (:classificationCursor IS NULL OR (i.indexInfoBusinessKey.indexClassification < :classificationCursor OR (i.indexInfoBusinessKey.indexClassification = :classificationCursor AND i.id < :idCursor))) " +
             "ORDER BY i.indexInfoBusinessKey.indexClassification DESC, i.id DESC")
@@ -70,10 +71,10 @@ public interface SpringDataIndexInfoRepository extends JpaRepository<IndexInfo, 
             @Param("idCursor") Long idCursor
     );
 
-
+    // 전체 개수 필터 기준 조회
     @Query("SELECT COUNT(i) FROM IndexInfo i " +
-            "WHERE (:indexClassification IS NULL OR i.indexInfoBusinessKey.indexClassification LIKE :indexClassification) " +
-            "AND (:indexName IS NULL OR i.indexInfoBusinessKey.indexName LIKE :indexName) " +
+            "WHERE i.indexInfoBusinessKey.indexClassification LIKE :indexClassification " +
+            "AND i.indexInfoBusinessKey.indexName LIKE :indexName " +
             "AND (:favorite IS NULL OR i.favorite = :favorite)")
     Long countAllByFilters(
             @Param("indexClassification") String indexClassification,
