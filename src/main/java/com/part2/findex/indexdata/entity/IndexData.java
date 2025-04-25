@@ -1,6 +1,7 @@
 package com.part2.findex.indexdata.entity;
 
 import com.part2.findex.indexinfo.entity.IndexInfo;
+import com.part2.findex.indexinfo.entity.SourceType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,13 +12,12 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "index_data",
-        uniqueConstraints = @UniqueConstraint(name = "uq_index_trade", columnNames = {"index_info_id", "trade_date"}))
+        uniqueConstraints = @UniqueConstraint(name = "uq_index_trade", columnNames = {"index_info_id", "base_date"}))
 @Getter
 @Setter
 public class IndexData {
 
     @Id
-    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -25,17 +25,18 @@ public class IndexData {
     @JoinColumn(name = "index_info_id", nullable = false, foreignKey = @ForeignKey(name = "fk_index_info"))
     private IndexInfo indexInfo;
 
-    @Column(name = "trade_date", nullable = false)
-    private LocalDate tradeDate;
+    @Column(name = "base_date", nullable = false)
+    private LocalDate baseDate;
 
     @Column(name = "source_type", nullable = false, length = 10)
-    private String sourceType;
+    @Enumerated(EnumType.STRING)
+    private SourceType sourceType;
 
-    @Column(name = "open_price", nullable = false, precision = 18, scale = 2)
-    private BigDecimal openPrice;
+    @Column(name = "market_price", nullable = false, precision = 18, scale = 2)
+    private BigDecimal marketPrice;
 
-    @Column(name = "close_price", nullable = false, precision = 18, scale = 2)
-    private BigDecimal closePrice;
+    @Column(name = "closing_price", nullable = false, precision = 18, scale = 2)
+    private BigDecimal closingPrice;
 
     @Column(name = "high_price", nullable = false, precision = 18, scale = 2)
     private BigDecimal highPrice;
@@ -43,20 +44,20 @@ public class IndexData {
     @Column(name = "low_price", nullable = false, precision = 18, scale = 2)
     private BigDecimal lowPrice;
 
-    @Column(name = "diff", nullable = false, precision = 18, scale = 2)
-    private BigDecimal diff;
+    @Column(name = "versus", nullable = false, precision = 18, scale = 2)
+    private BigDecimal versus;
 
-    @Column(name = "change_rate", nullable = false, precision = 8, scale = 3)
-    private BigDecimal changeRate;
+    @Column(name = "fluctuation_rate", nullable = false, precision = 8, scale = 3)
+    private BigDecimal fluctuationRate;
 
-    @Column(name = "volume", nullable = false)
-    private Long volume;
+    @Column(name = "trading_quantity", nullable = false)
+    private Long tradingQuantity;
 
-    @Column(name = "trading_value", nullable = false, precision = 24, scale = 0)
-    private BigDecimal tradingValue;
+    @Column(name = "trading_price", nullable = false, precision = 24, scale = 0)
+    private BigDecimal tradingPrice;
 
-    @Column(name = "market_cap", nullable = false, precision = 24, scale = 0)
-    private BigDecimal marketCap;
+    @Column(name = "market_total_amount", nullable = false, precision = 24, scale = 0)
+    private BigDecimal marketTotalAmount;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
