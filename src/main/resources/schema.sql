@@ -10,10 +10,10 @@ CREATE TABLE IF NOT EXISTS index_info (
 );
 
 CREATE TABLE IF NOT EXISTS index_data (
-  id BIGINT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  index_info_id BIGINT NOT NULL,
-  base_date DATE NOT NULL,
-  source_type VARCHAR(10) NOT NULL,
+    id BIGINT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    index_info_id BIGINT NOT NULL,
+    base_date DATE NOT NULL,
+    source_type VARCHAR(10) NOT NULL,
     market_price NUMERIC(18,2) NOT NULL,
     closing_price NUMERIC(18,2) NOT NULL,
     high_price NUMERIC(18,2) NOT NULL,
