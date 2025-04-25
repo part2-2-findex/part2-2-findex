@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS index_info (
     id BIGINT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     index_classification VARCHAR(255) NOT NULL,
     index_name VARCHAR(255) NOT NULL,
-    employed_items_count DOUBLE NOT NULL,
+    employed_items_count DOUBLE PRECISION NOT NULL,
     base_point_in_time VARCHAR(255) NOT NULL,
     base_index DOUBLE PRECISION NOT NULL,
     favorite BOOLEAN NOT NULL,
@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS index_info (
 );
 
 CREATE TABLE IF NOT EXISTS index_data (
-    id BIGINT PRIMARY KEY,
+    id BIGINT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     index_info_id BIGINT NOT NULL,
     trade_date DATE NOT NULL,
     source_type VARCHAR(10) NOT NULL,
