@@ -9,8 +9,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-
-
 @Repository
 @RequiredArgsConstructor
 public class JpaIndexinfoRepository implements IndexInfoRepository {

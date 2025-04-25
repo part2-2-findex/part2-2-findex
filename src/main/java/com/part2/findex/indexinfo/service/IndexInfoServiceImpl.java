@@ -8,6 +8,7 @@ import com.part2.findex.indexinfo.dto.response.IndexInfoDto;
 import com.part2.findex.indexinfo.dto.response.IndexSummariesInfoResponse;
 import com.part2.findex.indexinfo.dto.response.PageResponse;
 import com.part2.findex.indexinfo.entity.IndexInfo;
+import com.part2.findex.indexinfo.entity.SourceType;
 import com.part2.findex.indexinfo.mapper.IndexInfoMapper;
 import com.part2.findex.indexinfo.mapper.IndexSummariesInfoMapper;
 import com.part2.findex.indexinfo.repository.IndexInfoRepository;
@@ -24,11 +25,12 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 public class IndexInfoServiceImpl implements IndexInfoService {
 
+    private static final double BASE_INDEX_TOLERANCE = 0.000001;
     private final IndexInfoRepository indexInfoRepository;
     private final IndexInfoMapper indexInfoMapper;
     private final SortStrategyContext sortStrategyContext;
     private final IndexSummariesInfoMapper indexSummariesInfoMapper;
-    
+
     @Override
     public List<IndexSummariesInfoResponse> findAllBySummeriesItem() {
         return indexInfoRepository.findAll().stream().map(indexSummariesInfoMapper::toDto).toList();
@@ -39,7 +41,7 @@ public class IndexInfoServiceImpl implements IndexInfoService {
         // 1. 커서 파싱 (ID 기준)
         Long cursorValue = parseCursor(indexSearchRequest.getCursor());
 
-        CursorInfoDto cursorInfo =  prepareCursor(indexSearchRequest, cursorValue);
+        CursorInfoDto cursorInfo = prepareCursor(indexSearchRequest, cursorValue);
 
         // 2. 데이터 조회 (정렬 없음)
         List<IndexInfo> result = sortStrategyContext.findAllBySearch(indexSearchRequest, cursorInfo);
@@ -81,7 +83,7 @@ public class IndexInfoServiceImpl implements IndexInfoService {
     public IndexInfoDto findById(Long id) {
         return indexInfoRepository.findById(id)
                 .map(indexInfoMapper::toDto)
-                .orElseThrow(() -> new NoSuchElementException("IndexInfo with id " + id + " not found") );
+                .orElseThrow(() -> new NoSuchElementException("IndexInfo with id " + id + " not found"));
     }
 
     @Override
@@ -95,7 +97,8 @@ public class IndexInfoServiceImpl implements IndexInfoService {
                         indexInfoCreateRequest.getEmployedItemsCount(),
                         indexInfoCreateRequest.getBasePointInTime().toString(),
                         indexInfoCreateRequest.getBaseIndex(),
-                        indexInfoCreateRequest.getFavorite()));
+                        indexInfoCreateRequest.getFavorite(),
+                        SourceType.사용자_등록));
 
         return indexInfoMapper.toDto(indexInfo);
     }
@@ -104,7 +107,7 @@ public class IndexInfoServiceImpl implements IndexInfoService {
     @Transactional
     public IndexInfoDto update(Long id, IndexInfoUpdateRequest indexInfoUpdateRequest) {
         IndexInfo indexInfo = indexInfoRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("IndexInfo with id " + id + " not found") );
+                .orElseThrow(() -> new NoSuchElementException("IndexInfo with id " + id + " not found"));
 
         double employedItemsCount = indexInfoUpdateRequest.getEmployedItemsCount() == 0 ? indexInfo.getEmployedItemsCount() : indexInfoUpdateRequest.getEmployedItemsCount();
         String basePointInTime = indexInfoUpdateRequest.getBasePointInTime() == null ? indexInfo.getBasePointInTime() : indexInfoUpdateRequest.getBasePointInTime().toString();
@@ -112,7 +115,7 @@ public class IndexInfoServiceImpl implements IndexInfoService {
         boolean favorite = indexInfoUpdateRequest.getFavorite() == null ? indexInfo.isFavorite() : indexInfoUpdateRequest.getFavorite();
 
 
-        indexInfo.update(employedItemsCount, basePointInTime, baseIndex, favorite);
+        indexInfo.update(employedItemsCount, basePointInTime, baseIndex, favorite, BASE_INDEX_TOLERANCE);
 
         return indexInfoMapper.toDto(indexInfoRepository.save(indexInfo));
     }
@@ -120,7 +123,7 @@ public class IndexInfoServiceImpl implements IndexInfoService {
     @Override
     public void delete(Long id) {
         IndexInfo indexInfo = indexInfoRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("IndexInfo with id " + id + " not found") );
+                .orElseThrow(() -> new NoSuchElementException("IndexInfo with id " + id + " not found"));
 
         indexInfoRepository.deleteById(id);
     }

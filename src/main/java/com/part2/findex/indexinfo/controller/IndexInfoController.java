@@ -32,12 +32,12 @@ public class IndexInfoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<IndexInfoDto> findById(@PathVariable("id") Long id){
+    public ResponseEntity<IndexInfoDto> findById(@PathVariable("id") Long id) {
         return ResponseEntity.status(HttpStatus.OK).body(indexInfoService.findById(id));
     }
 
     @GetMapping("/summaries")
-    public ResponseEntity<List<IndexSummariesInfoResponse>> summariesItems(){
+    public ResponseEntity<List<IndexSummariesInfoResponse>> summariesItems() {
         return ResponseEntity.status(HttpStatus.OK).body(indexInfoService.findAllBySummeriesItem());
     }
 
@@ -45,23 +45,23 @@ public class IndexInfoController {
     @PostMapping
     public ResponseEntity<IndexInfoDto> save(
             @Validated @RequestBody IndexInfoCreateRequest indexInfoCreateRequest
-    ){
+    ) {
 
-        IndexInfoDto indexinfo = indexInfoService.create(indexInfoCreateRequest);
-        return ResponseEntity.status(HttpStatus.OK).body(indexinfo);
+        IndexInfoDto indexInfo = indexInfoService.create(indexInfoCreateRequest);
+        return ResponseEntity.status(HttpStatus.OK).body(indexInfo);
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<IndexInfoDto> update(
             @PathVariable("id") Long id,
             @Validated @RequestBody IndexInfoUpdateRequest indexInfoUpdateRequest
-    ){
-        IndexInfoDto indexinfo = indexInfoService.update(id, indexInfoUpdateRequest);
-        return ResponseEntity.status(HttpStatus.OK).body(indexinfo);
+    ) {
+        IndexInfoDto indexInfo = indexInfoService.update(id, indexInfoUpdateRequest);
+        return ResponseEntity.status(HttpStatus.OK).body(indexInfo);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> Delete(@PathVariable("id") Long id){
+    public ResponseEntity<Void> Delete(@PathVariable("id") Long id) {
         indexInfoService.delete(id);
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)

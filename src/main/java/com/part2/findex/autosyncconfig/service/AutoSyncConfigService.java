@@ -45,7 +45,7 @@ public class AutoSyncConfigService {
     public CursorPageResponse<AutoSyncConfigDto> findAll(Long indexInfoId, Boolean enabled, Long idAfter, Long cursor, int size, String sortField, String sortDirection) {
         List<AutoSyncConfig> autoSyncConfigs = List.of();
 
-        if ("indexInfo.indexName".equals(sortField)) {
+        if ("indexInfo.indexName".equals(sortField)) { // 확인필요
             if ("asc".equalsIgnoreCase(sortDirection)) {
                 autoSyncConfigs = autoSyncConfigRepository.findAllByIndexNameAsc(indexInfoId, enabled, idAfter, size + 1);
             } else {
