@@ -7,11 +7,7 @@ import com.part2.findex.indexinfo.repository.springjpa.SpringDataIndexInfoReposi
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Component
@@ -19,24 +15,27 @@ import java.util.stream.Collectors;
 public class SortedTemplate {
     private final SpringDataIndexInfoRepository indexInfoRepository;
 
-    public List<IndexInfo> execute(IndexSearchRequest request, CursorInfoDto cursorInfoDto, SortedCallback callback){
+    public List<IndexInfo> execute(IndexSearchRequest request, CursorInfoDto cursorInfoDto, SortedCallback callback) {
         String sortField = request.getSortField();
         String sortDirection = request.getSortDirection();
 
+        // Service 단에서 LIKE 파라미터 준비
+        String indexClassification = prepareLikeParam(request.getIndexClassification());
+        String indexName = prepareLikeParam(request.getIndexName());
+
         validateSortParameters(sortField, sortDirection);
-        boolean isDesc = "desc".equalsIgnoreCase(sortDirection);
 
         String fieldCursor = cursorInfoDto.getFieldCursor();
         Long idCursor = cursorInfoDto.getIdCursor();
 
-        List<IndexInfo> result = callback.call(request.getIndexClassification(), request.getIndexName(), request.getFavorite(), fieldCursor, idCursor);
-
-        if ("indexName".equals(sortField)) {
-            result.sort(Comparator.comparingInt(i -> extractNumber(i.getIndexName())));
-            if (isDesc) {
-                Collections.reverse(result);
-            }
-        }
+        // DB 정렬 결과 그대로 사용
+        List<IndexInfo> result = callback.call(
+                indexClassification,
+                indexName,
+                request.getFavorite(),
+                fieldCursor,
+                idCursor
+        );
 
         return result.stream().limit(request.getSize()).collect(Collectors.toList());
     }
@@ -51,8 +50,11 @@ public class SortedTemplate {
         }
     }
 
-    private int extractNumber(String str) {
-        Matcher matcher = Pattern.compile("\\d+").matcher(str);
-        return matcher.find() ? Integer.parseInt(matcher.group()) : 0;
+    // LIKE 파라미터 준비
+    private String prepareLikeParam(String param) {
+        if (param == null || param.trim().isEmpty()) {
+            return "%";  // 모든 값 포함
+        }
+        return "%" + param.trim() + "%";
     }
 }

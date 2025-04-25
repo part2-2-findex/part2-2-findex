@@ -17,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Base64;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -38,33 +37,34 @@ public class IndexInfoServiceImpl implements IndexInfoService {
 
     @Override
     public PageResponse<IndexInfoDto> findAllBySearchItem(IndexSearchRequest indexSearchRequest) {
-        // 1. 커서 파싱 (ID 기준)
-        Long cursorValue = parseCursor(indexSearchRequest.getCursor());
+        CursorInfoDto cursorInfo = prepareCursor(indexSearchRequest);
 
-        CursorInfoDto cursorInfo = prepareCursor(indexSearchRequest, cursorValue);
-
-        // 2. 데이터 조회 (정렬 없음)
         List<IndexInfo> result = sortStrategyContext.findAllBySearch(indexSearchRequest, cursorInfo);
 
-        // 3. 다음 커서 계산 (ID 기준)
         String nextCursor = null;
         Long nextIdAfter = null;
         boolean hasNext = !result.isEmpty() && result.size() >= indexSearchRequest.getSize();
+
         if (hasNext) {
             IndexInfo lastItem = result.get(result.size() - 1);
-            nextIdAfter = lastItem.getId();  // 여기서 nextIdAfter 설정
-            nextCursor = encodeCursor(nextIdAfter); // 필요하면 커서도 세팅
+            String fieldCursor = null;
+
+            if ("indexClassification".equals(indexSearchRequest.getSortField())) {
+                fieldCursor = lastItem.getIndexClassification();
+            } else if ("indexName".equals(indexSearchRequest.getSortField())) {
+                fieldCursor = lastItem.getIndexName();
+            }
+
+            nextIdAfter = lastItem.getId();
+            nextCursor = fieldCursor + "|" + nextIdAfter;  // 인코딩 제거
         }
 
-        // 3. 전체 개수 조회
         Long totalSize = indexInfoRepository.countAllByFilters(
-                indexSearchRequest.getIndexClassification(),
-                indexSearchRequest.getIndexName(),
+                prepareLikeParam(indexSearchRequest.getIndexClassification()),
+                prepareLikeParam(indexSearchRequest.getIndexName()),
                 indexSearchRequest.getFavorite()
         );
 
-
-        // 4. DTO 변환
         List<IndexInfoDto> content = result.stream()
                 .map(indexInfoMapper::toDto)
                 .toList();
@@ -98,7 +98,7 @@ public class IndexInfoServiceImpl implements IndexInfoService {
                         indexInfoCreateRequest.getBasePointInTime().toString(),
                         indexInfoCreateRequest.getBaseIndex(),
                         indexInfoCreateRequest.getFavorite(),
-                        SourceType.사용자_등록));
+                        SourceType.사용자));
 
         return indexInfoMapper.toDto(indexInfo);
     }
@@ -128,36 +128,26 @@ public class IndexInfoServiceImpl implements IndexInfoService {
         indexInfoRepository.deleteById(id);
     }
 
-    private Long parseCursor(String cursor) {
-        if (cursor == null) return null;
-        try {
-            return Long.parseLong(new String(Base64.getDecoder().decode(cursor)));
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid cursor");
-        }
-    }
+    private CursorInfoDto prepareCursor(IndexSearchRequest request) {
+        CursorInfoDto cursorInfoDto = new CursorInfoDto();
+        String cursor = request.getCursor();
 
-    private String encodeCursor(Long id) {
-        return Base64.getEncoder().encodeToString(String.valueOf(id).getBytes());
-    }
-
-    private CursorInfoDto prepareCursor(IndexSearchRequest request, Long cursorValue) {
-        String sortField = request.getSortField();
-        String fieldCursor = null;
-        Long idCursor = null;
-
-        if (cursorValue != null) {
-            IndexInfo lastItem = indexInfoRepository.findById(cursorValue).orElse(null);
-            if (lastItem != null) {
-                if ("indexClassification".equals(sortField)) {
-                    fieldCursor = lastItem.getIndexClassification();
-                } else if ("indexName".equals(sortField)) {
-                    fieldCursor = lastItem.getIndexName();
-                }
-                idCursor = lastItem.getId();
-            }
+        if (cursor != null && !cursor.isEmpty()) {
+            String[] parts = cursor.split("\\|");
+            cursorInfoDto.setFieldCursor(parts[0]);
+            cursorInfoDto.setIdCursor(Long.parseLong(parts[1]));
+        } else {
+            cursorInfoDto.setFieldCursor(null);
+            cursorInfoDto.setIdCursor(null);
         }
 
-        return new CursorInfoDto(fieldCursor, idCursor);
+        return cursorInfoDto;
+    }
+
+    private String prepareLikeParam(String param) {
+        if (param == null || param.trim().isEmpty()) {
+            return "%";  // 모든 값 포함
+        }
+        return "%" + param.trim() + "%";
     }
 }
