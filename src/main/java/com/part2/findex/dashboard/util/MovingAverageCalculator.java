@@ -16,7 +16,7 @@ public class MovingAverageCalculator {
 
     for (int i = 0; i < dataPoints.size(); i++) {
       ChartDataPoint point = dataPoints.get(i);
-      Double value = point.value();
+      Double value = point.getValue();
 
       // 윈도우에 값 추가
       window.addLast(value);
@@ -31,7 +31,7 @@ public class MovingAverageCalculator {
       if (window.size() == period) {
         double average = sum / period;
         BigDecimal rounded = new BigDecimal(average).setScale(2, RoundingMode.HALF_UP);
-        result.add(new ChartDataPoint(point.date(), rounded.doubleValue()));
+        result.add(new ChartDataPoint(point.getDate(), rounded.doubleValue()));
       }
     }
 
