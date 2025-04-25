@@ -98,7 +98,7 @@ public class IndexInfoServiceImpl implements IndexInfoService {
                         indexInfoCreateRequest.getBasePointInTime().toString(),
                         indexInfoCreateRequest.getBaseIndex(),
                         indexInfoCreateRequest.getFavorite(),
-                        SourceType.사용자_등록));
+                        SourceType.사용자));
 
         return indexInfoMapper.toDto(indexInfo);
     }

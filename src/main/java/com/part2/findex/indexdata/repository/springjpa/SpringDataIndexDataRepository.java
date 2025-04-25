@@ -7,6 +7,4 @@ import org.springframework.stereotype.Component;
 
 @Component
 public interface SpringDataIndexDataRepository extends JpaRepository<IndexData, Long>, JpaSpecificationExecutor<IndexData> {
-
-
 }

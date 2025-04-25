@@ -1,4 +1,4 @@
-package com.part2.findex.syncjob.service;
+package com.part2.findex.syncjob.service.impl;
 
 import com.part2.findex.indexinfo.entity.IndexInfo;
 import com.part2.findex.syncjob.dto.StockIndexInfoResult;
@@ -19,10 +19,30 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
-public class IndexSyncJobService {
+public class IndexInfoSyncJobService {
     private final IndexSyncBatchService indexSyncBatchService;
     private final IndexInfoSyncService indexInfoSyncService;
     private final ClientIpResolver clientIpResolver;
+
+
+    public List<SyncJob> createSyncJobsForExistingIndexes(
+            Map<String, StockIndexInfoResult> indexInfosFromOpenAPI,
+            List<IndexInfo> existingIndexInfos
+    ) {
+        Function<IndexInfo, IndexInfo> updateFunction = existingIndexInfo -> {
+            StockIndexInfoResult latestIndexData = indexInfosFromOpenAPI.get(existingIndexInfo.getIndexInfoBusinessKey().toString());
+            if (latestIndexData == null || latestIndexData.basePointInTime().equals(existingIndexInfo.getBasePointInTime())) {
+                return null;
+            }
+
+            return indexInfoSyncService.updateIndexInfo(existingIndexInfo, latestIndexData);
+        };
+
+        return this.processWithIndexInfoSyncJobs(
+                existingIndexInfos,
+                updateFunction
+        );
+    }
 
     public List<SyncJob> createSyncJobsForNewIndexes(
             Map<String, StockIndexInfoResult> indexInfosFromOpenAPI,
@@ -39,29 +59,10 @@ public class IndexSyncJobService {
         );
     }
 
-    public List<SyncJob> createSyncJobsForExistingIndexes(
-            Map<String, StockIndexInfoResult> indexInfosFromOpenAPI,
-            List<IndexInfo> existingIndexInfos
-    ) {
-        Function<IndexInfo, IndexInfo> updateFunction = existingIndexInfo -> {
-
-            StockIndexInfoResult latestIndexData = indexInfosFromOpenAPI.get(existingIndexInfo.getIndexInfoBusinessKey().toString());
-            if (latestIndexData == null || latestIndexData.basePointInTime().equals(existingIndexInfo.getBasePointInTime())) {
-                return null;
-            }
-
-            return indexInfoSyncService.updateIndexInfo(existingIndexInfo, latestIndexData);
-        };
-
-        return this.processWithIndexInfoSyncJobs(
-                existingIndexInfos,
-                updateFunction
-        );
-    }
-
     private <T> List<SyncJob> processWithIndexInfoSyncJobs(
             List<T> items,
-            Function<T, IndexInfo> processor) {
+            Function<T, IndexInfo> processor
+    ) {
 
         return indexSyncBatchService.processBatch(items, item -> {
 
@@ -74,20 +75,14 @@ public class IndexSyncJobService {
                 status = SyncJobStatus.FAILED;
             }
 
-            if (indexInfo == null) {
-                return null;
-            }
-
+            assert indexInfo != null;
             return createSyncJob(SyncJobType.INDEX_INFO, indexInfo, status);
         });
     }
 
-    private SyncJob createSyncJob(SyncJobType jobType,
-                                  IndexInfo indexInfo,
-                                  SyncJobStatus status) {
+    private SyncJob createSyncJob(SyncJobType jobType, IndexInfo indexInfo, SyncJobStatus status) {
         String clientIp = clientIpResolver.getClientIp();
         String basePointInTime = indexInfo.getBasePointInTime();
-
         LocalDate baseDate = getLocalDate(basePointInTime);
 
         return new SyncJob(
@@ -111,6 +106,7 @@ public class IndexSyncJobService {
 
         return baseDate;
     }
+
 
     private List<StockIndexInfoResult> filterNewIndexInfoResults(
             Map<String, StockIndexInfoResult> indexInfosFromOpenAPI,
