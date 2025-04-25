@@ -7,6 +7,9 @@ import java.util.Optional;
 
 
 public interface IndexInfoRepository {
+
+    List<IndexInfo> findAll();
+
     List<IndexInfo> findAllByClassificationAsc(String indexClassification, String indexName, Boolean favorite, String classificationCursor, Long idCursor);
 
     List<IndexInfo> findAllByClassificationDesc(String indexClassification, String indexName, Boolean favorite, String classificationCursor, Long idCursor);
