@@ -8,6 +8,6 @@ import lombok.Setter;
 @Setter
 @RequiredArgsConstructor
 public class CursorInfoDto {
-    private final String fieldCursor;
-    private final Long idCursor;
+    private String fieldCursor;
+    private Long idCursor;
 }
