@@ -6,7 +6,7 @@ import com.part2.findex.indexdata.repository.springjpa.SpringDataIndexDataReposi
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import java.util.Optional;
 
 
 @Repository
@@ -14,4 +14,13 @@ import java.util.List;
 public class JpaIndexDataRepository implements IndexDataRepository {
 
     private final SpringDataIndexDataRepository indexDataRepository;
+
+    public Optional<IndexData> findById(Long indexDataId) {
+        return indexDataRepository.findById(indexDataId);
+    }
+
+    @Override
+    public void deleteById(Long indexDataId) {
+        indexDataRepository.deleteById(indexDataId);
+    }
 }

@@ -1,5 +1,6 @@
 package com.part2.findex.indexdata.entity;
 
+import com.part2.findex.indexdata.dto.IndexDataUpdateRequest;
 import com.part2.findex.indexinfo.entity.IndexInfo;
 import com.part2.findex.indexinfo.entity.SourceType;
 import jakarta.persistence.*;
@@ -15,7 +16,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "index_data",
-        uniqueConstraints = @UniqueConstraint(name = "uq_index_trade", columnNames = {"index_info_id", "trade_date"}))
+        uniqueConstraints = @UniqueConstraint(name = "uq_index_trade", columnNames = {"index_info_id", "base_date"}))
 @Getter
 @EntityListeners(AuditingEntityListener.class)
 public class IndexData {
@@ -86,6 +87,18 @@ public class IndexData {
         this.tradingQuantity = tradingQuantity;
         this.tradingPrice = tradingPrice;
         this.marketTotalAmount = marketTotalAmount;
+    }
+
+    public void update(IndexDataUpdateRequest updateRequest) {
+        this.marketPrice = updateRequest.marketPrice();
+        this.closingPrice = updateRequest.closingPrice();
+        this.highPrice = updateRequest.highPrice();
+        this.lowPrice = updateRequest.lowPrice();
+        this.versus = updateRequest.versus();
+        this.fluctuationRate = updateRequest.fluctuationRate();
+        this.tradingQuantity = updateRequest.tradingQuantity();
+        this.tradingPrice = updateRequest.tradingPrice();
+        this.marketTotalAmount = updateRequest.marketTotalAmount();
     }
 
     @Override
