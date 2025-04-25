@@ -11,5 +11,6 @@ public record IndexInfoDto(
     String basePointInTime,
     Double baseIndex,
     String sourceType,
-    Boolean favorite) {
+    Boolean favorite)
+{
 }

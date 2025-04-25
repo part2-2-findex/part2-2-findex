@@ -1,16 +1,28 @@
 package com.part2.findex.indexinfo.repository;
 
 import com.part2.findex.indexinfo.entity.IndexInfo;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 
 public interface IndexInfoRepository {
-    Page<IndexInfo> findAllBySearchItem(String indexClassification, String indexName, Boolean favorite, Pageable pageable);
+
+    List<IndexInfo> findAll();
+
+    List<IndexInfo> findAllByClassificationAsc(String indexClassification, String indexName, Boolean favorite, String classificationCursor, Long idCursor);
+
+    List<IndexInfo> findAllByClassificationDesc(String indexClassification, String indexName, Boolean favorite, String classificationCursor, Long idCursor);
+
+    List<IndexInfo> findAllByNameAsc(String indexClassification, String indexName, Boolean favorite, String classificationCursor, Long idCursor);
+
+    List<IndexInfo> findAllByNameDesc(String indexClassification, String indexName, Boolean favorite, String classificationCursor, Long idCursor);
 
     IndexInfo save(IndexInfo indexInfo);
 
-    List<IndexInfo> findAll();
+    Optional<IndexInfo> findById(Long id);
+
+    void deleteById(Long id);
+
+    Long countAllByFilters(String indexClassification, String indexName, Boolean favorite);
 }

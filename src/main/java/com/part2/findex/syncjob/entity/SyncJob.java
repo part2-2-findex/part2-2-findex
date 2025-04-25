@@ -17,6 +17,7 @@ public class SyncJob {
     private Long id;
 
     @Column(name = "job_type", nullable = false)
+    @Enumerated(EnumType.STRING)
     SyncJobType jobType;
 
     @Column(name = "target_date", nullable = false)
@@ -29,6 +30,7 @@ public class SyncJob {
     Instant jobTime;
 
     @Column(name = "result", nullable = false)
+    @Enumerated(EnumType.STRING)
     SyncJobStatus result;
 
     @ManyToOne

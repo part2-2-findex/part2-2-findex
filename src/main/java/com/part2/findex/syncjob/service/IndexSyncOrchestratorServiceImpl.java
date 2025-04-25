@@ -3,7 +3,6 @@ package com.part2.findex.syncjob.service;
 import com.part2.findex.indexinfo.entity.IndexInfo;
 import com.part2.findex.indexinfo.repository.IndexInfoRepository;
 import com.part2.findex.openapi.service.OpenApiStockIndexService;
-import com.part2.findex.syncjob.dto.IndexDataSyncRequest;
 import com.part2.findex.syncjob.dto.StockIndexInfoResult;
 import com.part2.findex.syncjob.dto.SyncJobResult;
 import com.part2.findex.syncjob.entity.SyncJob;
@@ -46,7 +45,7 @@ public class IndexSyncOrchestratorServiceImpl implements IndexSyncOrchestratorSe
     }
 
     @Override
-    public List<SyncJobResult> synchronizeIndexData(IndexDataSyncRequest indexDataSyncRequest) {
+    public List<SyncJobResult> synchronizeIndexData() {
         return null;
     }
 

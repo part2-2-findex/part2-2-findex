@@ -1,6 +1,7 @@
 package com.part2.findex.syncjob.service;
 
 import com.part2.findex.indexinfo.entity.IndexInfo;
+import com.part2.findex.indexinfo.entity.SourceType;
 import com.part2.findex.syncjob.dto.StockIndexInfoResult;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +21,7 @@ public class IndexInfoSyncService {
                 updated.basePointInTime(),
                 updated.baseIndex(),
                 null,
-                BASE_INDEX_TOLERANCE
-        );
+                BASE_INDEX_TOLERANCE);
 
         return existingIndexInfo;
     }
@@ -39,6 +39,7 @@ public class IndexInfoSyncService {
                 stockIndexInfo.employedItemsCount(),
                 stockIndexInfo.basePointInTime(),
                 stockIndexInfo.baseIndex(),
-                false);
+                false,
+                SourceType.OPEN_API);
     }
 }

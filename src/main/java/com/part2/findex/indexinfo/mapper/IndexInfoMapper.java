@@ -15,7 +15,7 @@ public class IndexInfoMapper {
                 .employedItemsCount(indexInfo.getEmployedItemsCount())
                 .basePointInTime(indexInfo.getBasePointInTime())
                 .baseIndex(indexInfo.getBaseIndex())
-                .sourceType(indexInfo.getSourceType())
+                .sourceType(indexInfo.getSourceType().toString())
                 .favorite(indexInfo.isFavorite())
                 .build();
     }

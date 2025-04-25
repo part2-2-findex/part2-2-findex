@@ -1,39 +1,89 @@
 package com.part2.findex.indexinfo.service;
 
+import com.part2.findex.indexinfo.dto.CursorInfoDto;
 import com.part2.findex.indexinfo.dto.request.IndexInfoCreateRequest;
+import com.part2.findex.indexinfo.dto.request.IndexInfoUpdateRequest;
 import com.part2.findex.indexinfo.dto.request.IndexSearchRequest;
 import com.part2.findex.indexinfo.dto.response.IndexInfoDto;
+import com.part2.findex.indexinfo.dto.response.IndexSummariesInfoResponse;
 import com.part2.findex.indexinfo.dto.response.PageResponse;
 import com.part2.findex.indexinfo.entity.IndexInfo;
+import com.part2.findex.indexinfo.entity.SourceType;
 import com.part2.findex.indexinfo.mapper.IndexInfoMapper;
-import com.part2.findex.indexinfo.mapper.PageResponseMapper;
+import com.part2.findex.indexinfo.mapper.IndexSummariesInfoMapper;
 import com.part2.findex.indexinfo.repository.IndexInfoRepository;
+import com.part2.findex.indexinfo.service.strategy.SortStrategyContext;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Base64;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
 public class IndexInfoServiceImpl implements IndexInfoService {
 
+    private static final double BASE_INDEX_TOLERANCE = 0.000001;
     private final IndexInfoRepository indexInfoRepository;
-    private final PageResponseMapper pageResponseMapper;
     private final IndexInfoMapper indexInfoMapper;
+    private final SortStrategyContext sortStrategyContext;
+    private final IndexSummariesInfoMapper indexSummariesInfoMapper;
+
+    @Override
+    public List<IndexSummariesInfoResponse> findAllBySummeriesItem() {
+        return indexInfoRepository.findAll().stream().map(indexSummariesInfoMapper::toDto).toList();
+    }
 
     @Override
     public PageResponse<IndexInfoDto> findAllBySearchItem(IndexSearchRequest indexSearchRequest) {
-        String indexClassification = makeLikeParam(indexSearchRequest.getIndexClassification());
-        String indexName = makeLikeParam(indexSearchRequest.getIndexName());
+        // 1. 커서 파싱 (ID 기준)
+        Long cursorValue = parseCursor(indexSearchRequest.getCursor());
 
-        Page<IndexInfoDto> indexInfos = indexInfoRepository
-                .findAllBySearchItem(indexClassification, indexName, indexSearchRequest.getFavorite(), toPageable(indexSearchRequest))
-                .map(indexInfoMapper::toDto);
+        CursorInfoDto cursorInfo = prepareCursor(indexSearchRequest, cursorValue);
 
-        return pageResponseMapper.fromPage(indexInfos);
+        // 2. 데이터 조회 (정렬 없음)
+        List<IndexInfo> result = sortStrategyContext.findAllBySearch(indexSearchRequest, cursorInfo);
+
+        // 3. 다음 커서 계산 (ID 기준)
+        String nextCursor = null;
+        Long nextIdAfter = null;
+        boolean hasNext = !result.isEmpty() && result.size() >= indexSearchRequest.getSize();
+        if (hasNext) {
+            IndexInfo lastItem = result.get(result.size() - 1);
+            nextIdAfter = lastItem.getId();  // 여기서 nextIdAfter 설정
+            nextCursor = encodeCursor(nextIdAfter); // 필요하면 커서도 세팅
+        }
+
+        // 3. 전체 개수 조회
+        Long totalSize = indexInfoRepository.countAllByFilters(
+                indexSearchRequest.getIndexClassification(),
+                indexSearchRequest.getIndexName(),
+                indexSearchRequest.getFavorite()
+        );
+
+
+        // 4. DTO 변환
+        List<IndexInfoDto> content = result.stream()
+                .map(indexInfoMapper::toDto)
+                .toList();
+
+        return PageResponse.<IndexInfoDto>builder()
+                .content(content)
+                .nextCursor(nextCursor)
+                .nextIdAfter(nextIdAfter)
+                .size(indexSearchRequest.getSize())
+                .totalElements(totalSize)
+                .hasNext(hasNext)
+                .build();
+    }
+
+    @Override
+    public IndexInfoDto findById(Long id) {
+        return indexInfoRepository.findById(id)
+                .map(indexInfoMapper::toDto)
+                .orElseThrow(() -> new NoSuchElementException("IndexInfo with id " + id + " not found"));
     }
 
     @Override
@@ -47,37 +97,67 @@ public class IndexInfoServiceImpl implements IndexInfoService {
                         indexInfoCreateRequest.getEmployedItemsCount(),
                         indexInfoCreateRequest.getBasePointInTime().toString(),
                         indexInfoCreateRequest.getBaseIndex(),
-                        indexInfoCreateRequest.getFavorite())
-        );
+                        indexInfoCreateRequest.getFavorite(),
+                        SourceType.사용자_등록));
 
         return indexInfoMapper.toDto(indexInfo);
     }
 
-    private Pageable toPageable(IndexSearchRequest request) {
-        String sortField = request.getSortField() != null ? request.getSortField() : "indexClassification";
-        String sortDirection = request.getSortDirection() != null ? request.getSortDirection() : "asc";
-        int size = request.getSize() != null ? request.getSize() : 10;
-        int page = 0;
+    @Override
+    @Transactional
+    public IndexInfoDto update(Long id, IndexInfoUpdateRequest indexInfoUpdateRequest) {
+        IndexInfo indexInfo = indexInfoRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("IndexInfo with id " + id + " not found"));
 
-        Sort sort = sortDirection.equalsIgnoreCase("desc") ?
-                Sort.by(mapSortField(sortField)).descending() :
-                Sort.by(mapSortField(sortField)).ascending();
+        double employedItemsCount = indexInfoUpdateRequest.getEmployedItemsCount() == 0 ? indexInfo.getEmployedItemsCount() : indexInfoUpdateRequest.getEmployedItemsCount();
+        String basePointInTime = indexInfoUpdateRequest.getBasePointInTime() == null ? indexInfo.getBasePointInTime() : indexInfoUpdateRequest.getBasePointInTime().toString();
+        double baseIndex = indexInfoUpdateRequest.getBaseIndex() == 0 ? indexInfo.getBaseIndex() : indexInfoUpdateRequest.getBaseIndex();
+        boolean favorite = indexInfoUpdateRequest.getFavorite() == null ? indexInfo.isFavorite() : indexInfoUpdateRequest.getFavorite();
 
-        return PageRequest.of(page, size, sort);
+
+        indexInfo.update(employedItemsCount, basePointInTime, baseIndex, favorite, BASE_INDEX_TOLERANCE);
+
+        return indexInfoMapper.toDto(indexInfoRepository.save(indexInfo));
     }
 
-    private String mapSortField(String sortField) {
-        return switch (sortField) {
-            case "indexClassification" -> "indexInfoBusinessKey.indexClassification";
-            case "indexName" -> "indexInfoBusinessKey.indexName";
-            default -> sortField;
-        };
+    @Override
+    public void delete(Long id) {
+        IndexInfo indexInfo = indexInfoRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("IndexInfo with id " + id + " not found"));
+
+        indexInfoRepository.deleteById(id);
     }
 
-    private String makeLikeParam(String value) {
-        if (value == null || value.isBlank()) {
-            return "%";
+    private Long parseCursor(String cursor) {
+        if (cursor == null) return null;
+        try {
+            return Long.parseLong(new String(Base64.getDecoder().decode(cursor)));
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid cursor");
         }
-        return "%" + value + "%";
+    }
+
+    private String encodeCursor(Long id) {
+        return Base64.getEncoder().encodeToString(String.valueOf(id).getBytes());
+    }
+
+    private CursorInfoDto prepareCursor(IndexSearchRequest request, Long cursorValue) {
+        String sortField = request.getSortField();
+        String fieldCursor = null;
+        Long idCursor = null;
+
+        if (cursorValue != null) {
+            IndexInfo lastItem = indexInfoRepository.findById(cursorValue).orElse(null);
+            if (lastItem != null) {
+                if ("indexClassification".equals(sortField)) {
+                    fieldCursor = lastItem.getIndexClassification();
+                } else if ("indexName".equals(sortField)) {
+                    fieldCursor = lastItem.getIndexName();
+                }
+                idCursor = lastItem.getId();
+            }
+        }
+
+        return new CursorInfoDto(fieldCursor, idCursor);
     }
 }

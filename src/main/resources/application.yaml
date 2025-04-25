@@ -3,6 +3,9 @@ spring:
     name: findex
   config:
     import: optional:file:.env[.properties]
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
   messages:
     encoding: UTF-8
   datasource:
@@ -28,6 +31,9 @@ spring:
   sql:
     init:
       mode: always
+batch:
+  index-data-sync:
+    cron: "*/10 * * * * *"  # 10초마다 실행
 
 public-data:
   api:

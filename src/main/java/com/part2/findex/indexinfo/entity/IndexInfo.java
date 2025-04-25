@@ -31,23 +31,23 @@ public class IndexInfo {
     private boolean favorite;
 
     @Column(name = "source_type", nullable = false, length = 50)
-    private String sourceType;
+    @Enumerated(EnumType.STRING)
+    private SourceType sourceType;
 
     protected IndexInfo() {
     }
 
     public IndexInfo(String indexClassification, String indexName,
                      double employedItemsCount, String basePointInTime,
-                     double baseIndex, boolean favorite) {
+                     double baseIndex, boolean favorite, SourceType sourceType) {
         this.indexInfoBusinessKey = new IndexInfoBusinessKey(indexClassification, indexName);
-        {
-            this.employedItemsCount = employedItemsCount;
-            this.basePointInTime = basePointInTime;
-            this.baseIndex = baseIndex;
-            this.favorite = favorite;
-            this.sourceType = "OPEN_API";
-        }
+        this.employedItemsCount = employedItemsCount;
+        this.basePointInTime = basePointInTime;
+        this.baseIndex = baseIndex;
+        this.favorite = favorite;
+        this.sourceType = sourceType;
     }
+
 
     public void update(double employedItemsCount, String basePointInTime, double baseIndex, Boolean favorite,
                        double baseIndexTolerance) {
