@@ -11,9 +11,8 @@ import com.part2.findex.syncjob.entity.SyncJob;
 import com.part2.findex.syncjob.entity.SyncJobStatus;
 import com.part2.findex.syncjob.entity.SyncJobType;
 import com.part2.findex.syncjob.mapper.IndexInfoMapper;
-import com.part2.findex.syncjob.service.IndexDataSyncRequestOpenAPI;
+import com.part2.findex.syncjob.service.orchestarorimpl.IndexDataSyncRequestOpenAPI;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;

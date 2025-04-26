@@ -20,6 +20,7 @@ public class IndexInfoBusinessKey {
         this.indexName = name;
     }
 
+    // 시간이 없어서 못 고치는 중 외부 Dto에 의존하지 않게 수정예
     public static IndexInfoBusinessKey from(StockIndexInfoResult stockIndexInfoResult) {
         return new IndexInfoBusinessKey(
                 stockIndexInfoResult.indexClassification(),

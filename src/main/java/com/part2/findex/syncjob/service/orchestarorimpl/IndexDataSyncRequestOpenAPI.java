@@ -1,4 +1,4 @@
-package com.part2.findex.syncjob.service;
+package com.part2.findex.syncjob.service.orchestarorimpl;
 
 import java.time.LocalDate;
 

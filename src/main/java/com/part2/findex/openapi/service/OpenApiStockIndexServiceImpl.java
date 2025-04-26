@@ -6,7 +6,7 @@ import com.part2.findex.openapi.dto.StockDataResult;
 import com.part2.findex.openapi.dto.StockIndexRequestParam;
 import com.part2.findex.openapi.dto.StockIndexResponse;
 import com.part2.findex.syncjob.dto.StockIndexInfoResult;
-import com.part2.findex.syncjob.service.IndexDataSyncRequestOpenAPI;
+import com.part2.findex.syncjob.service.orchestarorimpl.IndexDataSyncRequestOpenAPI;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

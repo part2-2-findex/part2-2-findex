@@ -4,9 +4,7 @@ import com.part2.findex.indexinfo.entity.IndexInfo;
 import com.part2.findex.indexinfo.repository.IndexInfoRepository;
 import com.part2.findex.openapi.dto.StockDataResult;
 import com.part2.findex.openapi.service.OpenApiStockIndexService;
-import com.part2.findex.syncjob.dto.IndexDataSyncRequest;
-import com.part2.findex.syncjob.dto.StockIndexInfoResult;
-import com.part2.findex.syncjob.dto.SyncJobResult;
+import com.part2.findex.syncjob.dto.*;
 import com.part2.findex.syncjob.entity.SyncJob;
 import com.part2.findex.syncjob.entity.SyncJobType;
 import com.part2.findex.syncjob.repository.SyncJobRepository;
@@ -83,6 +81,11 @@ public class IndexSyncOrchestratorServiceImpl implements IndexSyncOrchestratorSe
                 .toList();
     }
 
+    @Override
+    public CursorPageResponseSyncJob getSyncJobs(SyncJobQueryRequest request) {
+
+        return null;
+    }
 
     private Map<Long, List<SyncJob>> getExistingIndexSyncJob(IndexDataSyncRequest indexDataSyncRequest) {
         List<SyncJob> existingIndexInfoIn = syncJobRepository
@@ -97,11 +100,5 @@ public class IndexSyncOrchestratorServiceImpl implements IndexSyncOrchestratorSe
                 .collect(Collectors.groupingBy(
                         syncJob -> syncJob.getIndexInfo().getId()
                 ));
-    }
-
-
-    @Override
-    public List<SyncJobResult> getIndexSyncHistories() {
-        return null;
     }
 }
