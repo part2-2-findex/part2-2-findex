@@ -22,6 +22,8 @@ public class QSyncJob extends EntityPathBase<SyncJob> {
 
     public static final QSyncJob syncJob = new QSyncJob("syncJob");
 
+    public final DateTimePath<java.time.LocalDateTime> createdAt = createDateTime("createdAt", java.time.LocalDateTime.class);
+
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
     public final com.part2.findex.indexinfo.entity.QIndexInfo indexInfo;
@@ -33,6 +35,8 @@ public class QSyncJob extends EntityPathBase<SyncJob> {
     public final EnumPath<SyncJobStatus> result = createEnum("result", SyncJobStatus.class);
 
     public final DatePath<java.time.LocalDate> targetDate = createDate("targetDate", java.time.LocalDate.class);
+
+    public final DateTimePath<java.time.LocalDateTime> updatedAt = createDateTime("updatedAt", java.time.LocalDateTime.class);
 
     public final StringPath worker = createString("worker");
 

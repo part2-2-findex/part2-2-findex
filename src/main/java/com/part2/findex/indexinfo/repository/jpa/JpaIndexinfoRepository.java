@@ -64,4 +64,9 @@ public class JpaIndexinfoRepository implements IndexInfoRepository {
     public Long countAllByFilters(String indexClassification, String indexName, Boolean favorite) {
         return indexInfoRepository.countAllByFilters(indexClassification, indexName, favorite);
     }
+
+    @Override
+    public List<IndexInfo> findAllById(List<Long> Ids) {
+        return indexInfoRepository.findAllById(Ids);
+    }
 }

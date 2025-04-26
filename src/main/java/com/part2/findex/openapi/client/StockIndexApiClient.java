@@ -4,16 +4,19 @@ import com.part2.findex.openapi.dto.StockIndexRequestParam;
 import com.part2.findex.openapi.dto.StockIndexResponse;
 import com.part2.findex.openapi.util.OpenApiUrlBuilder;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class StockIndexApiClient {
 
@@ -21,9 +24,10 @@ public class StockIndexApiClient {
 
     public StockIndexResponse fetchStockIndices(StockIndexRequestParam param) {
 
-        String url = OpenApiUrlBuilder.buildUrl(param);
         try {
+            String url = OpenApiUrlBuilder.buildUrl(param);
             URI uri = new URI(url);
+
             ResponseEntity<StockIndexResponse> response = restTemplate.exchange(
                     uri,
                     HttpMethod.GET,
@@ -31,10 +35,12 @@ public class StockIndexApiClient {
                     new ParameterizedTypeReference<>() {
                     }
             );
+
             return response.getBody();
         } catch (URISyntaxException e) {
-            System.out.println("URISyntaxException");
             throw new RuntimeException("URI 객체 생성 중 URISyntaxException 발생", e);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("인코딩 에러" + e);
         }
     }
 }

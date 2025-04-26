@@ -25,4 +25,6 @@ public interface IndexInfoRepository {
     void deleteById(Long id);
 
     Long countAllByFilters(String indexClassification, String indexName, Boolean favorite);
+
+    List<IndexInfo> findAllById(List<Long> Ids);
 }

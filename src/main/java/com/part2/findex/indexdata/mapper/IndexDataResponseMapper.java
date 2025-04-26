@@ -6,12 +6,12 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class IndexDataResponseMapper {
-    public IndexDataResponse toDto(IndexData indexData){
+    public IndexDataResponse toDto(IndexData indexData) {
         return IndexDataResponse.builder()
                 .id(indexData.getId())
                 .indexInfoId(indexData.getIndexInfo().getId())
                 .baseDate(indexData.getBaseDate())
-                .sourceType(indexData.getSourceType())
+                .sourceType(indexData.getSourceType().name())
                 .marketPrice(indexData.getMarketPrice())
                 .closingPrice(indexData.getClosingPrice())
                 .highPrice(indexData.getHighPrice())

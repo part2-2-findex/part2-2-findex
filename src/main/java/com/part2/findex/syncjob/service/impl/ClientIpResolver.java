@@ -1,4 +1,4 @@
-package com.part2.findex.syncjob.service;
+package com.part2.findex.syncjob.service.impl;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;

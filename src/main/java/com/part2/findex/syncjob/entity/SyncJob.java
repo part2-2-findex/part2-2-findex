@@ -3,13 +3,18 @@ package com.part2.findex.syncjob.entity;
 import com.part2.findex.indexinfo.entity.IndexInfo;
 import jakarta.persistence.*;
 import lombok.Getter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 @Entity
 @Getter
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "sync_jobs")
 public class SyncJob {
     @Id
@@ -36,6 +41,14 @@ public class SyncJob {
     @ManyToOne
     @JoinColumn(name = "index_info_id", nullable = false)
     IndexInfo indexInfo;
+
+    @CreatedDate
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     protected SyncJob() {
     }

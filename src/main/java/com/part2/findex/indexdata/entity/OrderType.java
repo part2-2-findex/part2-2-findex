@@ -5,5 +5,4 @@ public enum OrderType {
     BASEDATE_DESC,
     CLOSINGPRICE_ASC,
     CLOSINGPRICE_DESC
-
 }

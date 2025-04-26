@@ -27,8 +27,7 @@ CREATE TABLE IF NOT EXISTS index_data (
     updated_at TIMESTAMP NULL,
     CONSTRAINT uq_index_trade UNIQUE (index_info_id, base_date),
     CONSTRAINT fk_index_info FOREIGN KEY (index_info_id) REFERENCES index_info(id)
-);
-
+    );
 
 CREATE TABLE IF NOT EXISTS sync_jobs (
     id BIGINT PRIMARY KEY  GENERATED ALWAYS AS IDENTITY,

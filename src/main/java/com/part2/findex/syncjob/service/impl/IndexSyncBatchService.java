@@ -1,4 +1,4 @@
-package com.part2.findex.syncjob.service;
+package com.part2.findex.syncjob.service.impl;
 
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class IndexSyncBatchService {
                 results.add(result);
             }
 
-            if(result == null){
+            if (result == null) {
                 continue;
             }
 
