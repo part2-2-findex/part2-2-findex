@@ -1,7 +1,7 @@
 package com.part2.findex.indexdata.entity;
 
+import com.part2.findex.indexdata.dto.IndexDataUpdateRequest;
 import com.part2.findex.indexinfo.entity.IndexInfo;
-import com.part2.findex.indexinfo.entity.SourceType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,8 +29,7 @@ public class IndexData {
     private LocalDate baseDate;
 
     @Column(name = "source_type", nullable = false, length = 10)
-    @Enumerated(EnumType.STRING)
-    private SourceType sourceType;
+    private String sourceType;
 
     @Column(name = "market_price", nullable = false, precision = 18, scale = 2)
     private BigDecimal marketPrice;
@@ -64,4 +63,16 @@ public class IndexData {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    public void update(IndexDataUpdateRequest updateRequest) {
+        this.marketPrice = updateRequest.marketPrice();
+        this.closingPrice = updateRequest.closingPrice();
+        this.highPrice = updateRequest.highPrice();
+        this.lowPrice = updateRequest.lowPrice();
+        this.versus = updateRequest.versus();
+        this.fluctuationRate = updateRequest.fluctuationRate();
+        this.tradingQuantity = updateRequest.tradingQuantity();
+        this.tradingPrice = updateRequest.tradingPrice();
+        this.marketTotalAmount = updateRequest.marketTotalAmount();
+    }
 }
