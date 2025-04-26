@@ -1,4 +1,4 @@
-package com.part2.findex.indexinfo.dto;
+package com.part2.findex.indexdata.dto;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

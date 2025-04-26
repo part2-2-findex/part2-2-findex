@@ -2,6 +2,7 @@ package com.part2.findex.indexdata.entity;
 
 import com.part2.findex.indexdata.dto.IndexDataUpdateRequest;
 import com.part2.findex.indexinfo.entity.IndexInfo;
+import com.part2.findex.indexinfo.entity.SourceType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -79,3 +80,5 @@ public class IndexData {
         this.createdAt = LocalDateTime.now();
     }
 }
+
+

@@ -3,6 +3,8 @@ package com.part2.findex.indexdata.controller;
 import com.part2.findex.indexdata.dto.IndexDataCreateRequest;
 import com.part2.findex.indexdata.dto.IndexDataDto;
 import com.part2.findex.indexdata.dto.IndexDataUpdateRequest;
+import com.part2.findex.indexdata.dto.request.IndexDataRequest;
+import com.part2.findex.indexdata.dto.response.IndexDataResponse;
 import com.part2.findex.indexdata.service.IndexDataService;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +12,11 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import com.part2.findex.indexinfo.dto.response.PageResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -25,6 +31,15 @@ public class IndexDataController {
         IndexDataDto indexDataDto = indexDataService.createIndexData(indexDataCreateRequest);
         return ResponseEntity.status(201).body(indexDataDto);
     }
+
+    @GetMapping
+    public ResponseEntity<PageResponse<IndexDataResponse>> findAllBySearchItem(
+            @Validated @ModelAttribute IndexDataRequest indexDataRequest
+    ) {
+        PageResponse<IndexDataResponse> indexInfos = indexDataService.findAllBySearchItem(indexDataRequest);
+        return ResponseEntity.status(HttpStatus.OK).body(indexInfos);
+    }
+
 
     @PatchMapping("/{indexDataId}")
     public ResponseEntity<?> updateIndexData(@PathVariable Long indexDataId, @RequestBody IndexDataUpdateRequest indexDataUpdateRequest) {
