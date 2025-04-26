@@ -37,8 +37,6 @@ public class IndexInfoServiceImpl implements IndexInfoService {
 
     @Override
     public PageResponse<IndexInfoDto> findAllBySearchItem(IndexSearchRequest indexSearchRequest) {
-        System.out.println("----");
-        System.out.println(indexSearchRequest.getSize());
         CursorInfoDto cursorInfo = prepareCursor(indexSearchRequest);
 
         List<IndexInfo> result = sortStrategyContext.findAllBySearch(indexSearchRequest, cursorInfo);
