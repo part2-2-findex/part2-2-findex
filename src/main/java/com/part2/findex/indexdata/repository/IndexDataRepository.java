@@ -9,4 +9,6 @@ public interface IndexDataRepository {
     Optional<IndexData> findById(Long indexDataId);
 
     void deleteById(Long indexDataId);
+
+    void save(IndexData indexData);
 }
