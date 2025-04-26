@@ -44,10 +44,10 @@ public record CursorPageResponseSyncJob(
     private static String getNextCursor(Page<SyncJob> syncJobPage, List<SyncJobResult> syncJobResults, String sortField) {
         String nextCursor = null;
         if (!syncJobResults.isEmpty() && sortField.equals(SortField.jobTime.name()) && syncJobPage.hasNext()) {
-            nextCursor = syncJobResults.get(0).jobTime().toString();
+            nextCursor = syncJobResults.get(syncJobResults.size() - 1).jobTime().toString();
         }
         if (!syncJobResults.isEmpty() && sortField.equals(SortField.targetDate.name()) && syncJobPage.hasNext()) {
-            nextCursor = syncJobResults.get(0).targetDate().toString();
+            nextCursor = syncJobResults.get(syncJobResults.size() - 1).targetDate().toString();
         }
         return nextCursor;
     }

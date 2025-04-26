@@ -5,6 +5,9 @@ import com.part2.findex.syncjob.constant.SyncJobStatus;
 import com.part2.findex.syncjob.constant.SyncJobType;
 import jakarta.persistence.*;
 import lombok.Getter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -13,6 +16,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Table(name = "sync_jobs")
+@EntityListeners(AuditingEntityListener.class)
 public class SyncJob {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,6 +42,14 @@ public class SyncJob {
     @ManyToOne
     @JoinColumn(name = "index_info_id", nullable = false)
     IndexInfo indexInfo;
+
+    @CreatedDate
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     protected SyncJob() {
     }
@@ -66,6 +78,8 @@ public class SyncJob {
                 ", jobTime=" + jobTime +
                 ", result=" + result +
                 ", indexInfo=" + indexInfo +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
                 '}';
     }
 }

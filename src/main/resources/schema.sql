@@ -36,6 +36,8 @@ CREATE TABLE IF NOT EXISTS sync_jobs (
     worker VARCHAR(50) NOT NULL,
     job_time TIMESTAMP NOT NULL,
     result VARCHAR(10) NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NULL,
     index_info_id BIGINT,
     CONSTRAINT fk_indexinfo FOREIGN KEY (index_info_id) REFERENCES index_info(id)
 );
