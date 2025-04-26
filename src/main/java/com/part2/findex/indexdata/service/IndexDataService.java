@@ -1,7 +1,5 @@
 package com.part2.findex.indexdata.service;
 
-import com.part2.findex.indexdata.dto.IndexDataCreateRequest;
-import com.part2.findex.indexdata.dto.IndexDataDto;
 import com.part2.findex.indexdata.dto.IndexDataUpdateRequest;
 
 public interface IndexDataService {
@@ -11,4 +9,10 @@ public interface IndexDataService {
 
     IndexDataDto createIndexData(IndexDataCreateRequest indexDataCreateRequest);
 
+    byte[] getCsvData(
+        Long indexInfoId,
+        LocalDate startDate,
+        LocalDate endDate,
+        String sortField,
+        String sortDirection);
 }
