@@ -88,6 +88,7 @@ public class IndexDataServiceImpl implements IndexDataService {
         indexDataRepository.deleteById(indexDataId);
     }
 
+    @Transactional
     @Override
     public byte[] getCsvData(
         Long indexInfoId,
