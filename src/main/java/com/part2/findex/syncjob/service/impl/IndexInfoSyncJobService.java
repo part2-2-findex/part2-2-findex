@@ -1,15 +1,15 @@
 package com.part2.findex.syncjob.service.impl;
 
 import com.part2.findex.indexinfo.entity.IndexInfo;
+import com.part2.findex.syncjob.constant.SyncJobStatus;
+import com.part2.findex.syncjob.constant.SyncJobType;
 import com.part2.findex.syncjob.dto.StockIndexInfoResult;
 import com.part2.findex.syncjob.entity.SyncJob;
-import com.part2.findex.syncjob.entity.SyncJobStatus;
-import com.part2.findex.syncjob.entity.SyncJobType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
@@ -89,7 +89,7 @@ public class IndexInfoSyncJobService {
                 jobType,
                 baseDate,
                 clientIp,
-                Instant.now(),
+                LocalDateTime.now(),
                 status,
                 indexInfo
         );

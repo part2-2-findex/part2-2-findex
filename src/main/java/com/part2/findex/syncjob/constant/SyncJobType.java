@@ -1,4 +1,4 @@
-package com.part2.findex.syncjob.entity;
+package com.part2.findex.syncjob.constant;
 
 public enum SyncJobType {
     INDEX_INFO,

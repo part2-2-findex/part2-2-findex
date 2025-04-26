@@ -6,17 +6,17 @@ import com.part2.findex.indexinfo.entity.IndexInfoBusinessKey;
 import com.part2.findex.indexinfo.repository.IndexInfoRepository;
 import com.part2.findex.openapi.dto.StockDataResult;
 import com.part2.findex.openapi.service.OpenApiStockIndexService;
+import com.part2.findex.syncjob.constant.SyncJobStatus;
+import com.part2.findex.syncjob.constant.SyncJobType;
 import com.part2.findex.syncjob.dto.IndexDataSyncRequest;
 import com.part2.findex.syncjob.entity.SyncJob;
-import com.part2.findex.syncjob.entity.SyncJobStatus;
-import com.part2.findex.syncjob.entity.SyncJobType;
 import com.part2.findex.syncjob.mapper.IndexInfoMapper;
 import com.part2.findex.syncjob.service.orchestarorimpl.IndexDataSyncRequestOpenAPI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
@@ -133,7 +133,7 @@ public class IndexDataSyncJobService {
                 jobType,
                 baseDate,
                 clientIp,
-                Instant.now(),
+                LocalDateTime.now(),
                 status,
                 indexData.getIndexInfo()
         );

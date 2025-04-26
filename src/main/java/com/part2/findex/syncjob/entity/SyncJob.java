@@ -1,11 +1,13 @@
 package com.part2.findex.syncjob.entity;
 
 import com.part2.findex.indexinfo.entity.IndexInfo;
+import com.part2.findex.syncjob.constant.SyncJobStatus;
+import com.part2.findex.syncjob.constant.SyncJobType;
 import jakarta.persistence.*;
 import lombok.Getter;
 
-import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 @Entity
@@ -27,7 +29,7 @@ public class SyncJob {
     String worker;
 
     @Column(name = "job_time", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
-    Instant jobTime;
+    LocalDateTime jobTime;
 
     @Column(name = "result", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -43,7 +45,7 @@ public class SyncJob {
     public SyncJob(SyncJobType jobType,
                    LocalDate targetDate,
                    String worker,
-                   Instant jobTime,
+                   LocalDateTime jobTime,
                    SyncJobStatus result,
                    IndexInfo indexInfo) {
         this.jobType = jobType;
@@ -52,5 +54,18 @@ public class SyncJob {
         this.jobTime = jobTime;
         this.result = result;
         this.indexInfo = indexInfo;
+    }
+
+    @Override
+    public String toString() {
+        return "SyncJob{" +
+                "id=" + id +
+                ", jobType=" + jobType +
+                ", targetDate=" + targetDate +
+                ", worker='" + worker + '\'' +
+                ", jobTime=" + jobTime +
+                ", result=" + result +
+                ", indexInfo=" + indexInfo +
+                '}';
     }
 }
