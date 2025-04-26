@@ -10,20 +10,19 @@ import com.part2.findex.indexdata.entity.IndexData;
 import com.part2.findex.indexdata.mapper.IndexDataResponseMapper;
 import com.part2.findex.indexdata.repository.IndexDataRepository;
 import com.part2.findex.indexdata.repository.querydsl.IndexDataQueryRepository;
-import com.part2.findex.indexdata.util.Csv;
-import java.time.LocalDate;
-import java.util.List;
-import com.part2.findex.indexinfo.entity.IndexInfo;
-import com.part2.findex.indexinfo.repository.IndexInfoRepository;
 import com.part2.findex.indexdata.service.strategy.SortStrategyContext;
+import com.part2.findex.indexdata.util.Csv;
 import com.part2.findex.indexinfo.dto.CursorInfoDto;
 import com.part2.findex.indexinfo.dto.response.PageResponse;
+import com.part2.findex.indexinfo.entity.IndexInfo;
+import com.part2.findex.indexinfo.repository.IndexInfoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -127,12 +126,13 @@ public class IndexDataServiceImpl implements IndexDataService {
 
     @Transactional
     @Override
-    public void updateIndexData(Long indexDataId, IndexDataUpdateRequest indexDataUpdateRequest) {
+    public IndexDataResponse updateIndexData(Long indexDataId, IndexDataUpdateRequest indexDataUpdateRequest) {
         IndexData indexData = indexDataRepository.findById(indexDataId)
                 .orElseThrow(() -> new NoSuchElementException("Index data not found"));
 
         indexData.update(indexDataUpdateRequest);
 
+        return indexDataResponseMapper.toDto(indexData);
     }
 
     @Transactional
