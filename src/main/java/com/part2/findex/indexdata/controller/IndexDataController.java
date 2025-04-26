@@ -6,18 +6,14 @@ import com.part2.findex.indexdata.dto.IndexDataUpdateRequest;
 import com.part2.findex.indexdata.dto.request.IndexDataRequest;
 import com.part2.findex.indexdata.dto.response.IndexDataResponse;
 import com.part2.findex.indexdata.service.IndexDataService;
-import java.time.LocalDate;
-import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.ContentDisposition;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import com.part2.findex.indexinfo.dto.response.PageResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.*;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/index-data")
@@ -43,14 +39,14 @@ public class IndexDataController {
 
     @PatchMapping("/{indexDataId}")
     public ResponseEntity<?> updateIndexData(@PathVariable Long indexDataId, @RequestBody IndexDataUpdateRequest indexDataUpdateRequest) {
-        indexDataService.updateIndexData(indexDataId, indexDataUpdateRequest);
-        return ResponseEntity.ok().build();
+        IndexDataResponse indexDataDto =indexDataService.updateIndexData(indexDataId, indexDataUpdateRequest);
+        return ResponseEntity.status(HttpStatus.OK).body(indexDataDto);
     }
 
     @DeleteMapping("/{indexDataId}")
-    public ResponseEntity<?> deleteIndexData(@PathVariable Long indexDataId) {
+    public ResponseEntity<IndexDataResponse> deleteIndexData(@PathVariable Long indexDataId) {
         indexDataService.deleteIndexData(indexDataId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/export/csv")

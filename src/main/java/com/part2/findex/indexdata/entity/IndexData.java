@@ -2,13 +2,13 @@ package com.part2.findex.indexdata.entity;
 
 import com.part2.findex.indexdata.dto.IndexDataUpdateRequest;
 import com.part2.findex.indexinfo.entity.IndexInfo;
-import com.part2.findex.indexinfo.entity.SourceType;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.function.Consumer;
 
 @Entity
 @Table(name = "index_data",
@@ -68,17 +68,34 @@ public class IndexData {
     private LocalDateTime updatedAt;
 
     public void update(IndexDataUpdateRequest updateRequest) {
-        this.marketPrice = updateRequest.marketPrice();
-        this.closingPrice = updateRequest.closingPrice();
-        this.highPrice = updateRequest.highPrice();
-        this.lowPrice = updateRequest.lowPrice();
-        this.versus = updateRequest.versus();
-        this.fluctuationRate = updateRequest.fluctuationRate();
-        this.tradingQuantity = updateRequest.tradingQuantity();
-        this.tradingPrice = updateRequest.tradingPrice();
-        this.marketTotalAmount = updateRequest.marketTotalAmount();
-        this.createdAt = LocalDateTime.now();
+        updateIfValidBigDecimal(updateRequest.marketPrice(), val -> this.marketPrice = val);
+        updateIfValidBigDecimal(updateRequest.closingPrice(), val -> this.closingPrice = val);
+        updateIfValidBigDecimal(updateRequest.highPrice(), val -> this.highPrice = val);
+        updateIfValidBigDecimal(updateRequest.lowPrice(), val -> this.lowPrice = val);
+        updateIfValidBigDecimal(updateRequest.versus(), val -> this.versus = val);
+        updateIfValidBigDecimal(updateRequest.fluctuationRate(), val -> this.fluctuationRate = val);
+        updateIfValidBigDecimal(updateRequest.tradingPrice(), val -> this.tradingPrice = val);
+        updateIfValidBigDecimal(updateRequest.marketTotalAmount(), val -> this.marketTotalAmount = val);
+
+        // Long 타입 필드
+        updateIfValidLong(updateRequest.tradingQuantity(), val -> this.tradingQuantity = val);
+
+
+        this.updatedAt = LocalDateTime.now();
     }
+
+    private void updateIfValidBigDecimal(BigDecimal newValue, Consumer<BigDecimal> setter) {
+        if (newValue != null && newValue.compareTo(BigDecimal.ZERO) != 0) {
+            setter.accept(newValue);
+        }
+    }
+
+    private void updateIfValidLong(Long newValue, Consumer<Long> setter) {
+        if (newValue != null && newValue != 0L) {
+            setter.accept(newValue);
+        }
+    }
+
 }
 
 
