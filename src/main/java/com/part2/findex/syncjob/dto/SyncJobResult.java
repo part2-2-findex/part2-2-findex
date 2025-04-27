@@ -2,8 +2,8 @@ package com.part2.findex.syncjob.dto;
 
 import com.part2.findex.syncjob.entity.SyncJob;
 
-import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public record SyncJobResult(
         Long id,
@@ -11,7 +11,7 @@ public record SyncJobResult(
         Long indexInfoId,
         LocalDate targetDate,
         String worker,
-        Instant jobTime,
+        LocalDateTime jobTime,
         String result
 ) {
 

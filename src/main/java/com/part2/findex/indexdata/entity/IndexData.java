@@ -104,10 +104,22 @@ public class IndexData {
         updateIfValidLong(updateRequest.tradingQuantity(), val -> this.tradingQuantity = val);
     }
 
+    private void updateIfValidBigDecimal(BigDecimal newValue, Consumer<BigDecimal> setter) {
+        if (newValue != null && newValue.compareTo(BigDecimal.ZERO) != 0) {
+            setter.accept(newValue);
+        }
+    }
+
+    private void updateIfValidLong(Long newValue, Consumer<Long> setter) {
+        if (newValue != null && newValue != 0L) {
+            setter.accept(newValue);
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof IndexData)) return false;
 
         IndexData indexData = (IndexData) o;
         if (!Objects.equals(indexInfo, indexData.indexInfo)) return false;
@@ -120,17 +132,5 @@ public class IndexData {
         result = 31 * result + (baseDate != null ? baseDate.hashCode() : 0);
 
         return result;
-    }
-
-    private void updateIfValidBigDecimal(BigDecimal newValue, Consumer<BigDecimal> setter) {
-        if (newValue != null && newValue.compareTo(BigDecimal.ZERO) != 0) {
-            setter.accept(newValue);
-        }
-    }
-
-    private void updateIfValidLong(Long newValue, Consumer<Long> setter) {
-        if (newValue != null && newValue != 0L) {
-            setter.accept(newValue);
-        }
     }
 }

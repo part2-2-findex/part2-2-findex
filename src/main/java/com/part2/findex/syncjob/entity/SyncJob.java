@@ -1,13 +1,14 @@
 package com.part2.findex.syncjob.entity;
 
 import com.part2.findex.indexinfo.entity.IndexInfo;
+import com.part2.findex.syncjob.constant.SyncJobStatus;
+import com.part2.findex.syncjob.constant.SyncJobType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -33,7 +34,7 @@ public class SyncJob {
     private String worker;
 
     @Column(name = "job_time", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
-    private Instant jobTime;
+    LocalDateTime jobTime;
 
     @Column(name = "result", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -57,7 +58,7 @@ public class SyncJob {
     public SyncJob(SyncJobType jobType,
                    LocalDate targetDate,
                    String worker,
-                   Instant jobTime,
+                   LocalDateTime jobTime,
                    SyncJobStatus result,
                    IndexInfo indexInfo) {
         this.jobType = jobType;

@@ -89,4 +89,17 @@ public class IndexInfo {
     public int hashCode() {
         return indexInfoBusinessKey.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return "IndexInfo{" +
+                "id=" + id +
+                ", indexInfoBusinessKey=" + indexInfoBusinessKey +
+                ", employedItemsCount=" + employedItemsCount +
+                ", basePointInTime='" + basePointInTime + '\'' +
+                ", baseIndex=" + baseIndex +
+                ", favorite=" + favorite +
+                ", sourceType=" + sourceType +
+                '}';
+    }
 }
