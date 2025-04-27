@@ -19,13 +19,6 @@ public class IndexInfoBusinessKey {
         this.indexName = indexName;
     }
 
-    // 시간이 없어서 못 고치는 중 외부 Dto에 의존하지 않게 수정예
-//    public static IndexInfoBusinessKey from(StockIndexInfoResult stockIndexInfoResult) {
-//        return new IndexInfoBusinessKey(
-//                stockIndexInfoResult.indexClassification(),
-//                stockIndexInfoResult.indexName());
-//    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -45,12 +38,4 @@ public class IndexInfoBusinessKey {
 
         return result;
     }
-
-//    @Override
-//    public String toString() {
-//        return "IndexInfoBusinessKey{" +
-//                "indexClassification='" + indexClassification + '\'' +
-//                ", indexName='" + indexName + '\'' +
-//                '}';
-//    }
 }

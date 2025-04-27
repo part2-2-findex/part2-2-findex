@@ -1,4 +1,4 @@
-package com.part2.findex.autosyncconfig.entity;
+package com.part2.findex.autosync.entity;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
@@ -16,7 +16,7 @@ import com.querydsl.core.types.dsl.PathInits;
 @Generated("com.querydsl.codegen.DefaultEntitySerializer")
 public class QAutoSyncConfig extends EntityPathBase<AutoSyncConfig> {
 
-    private static final long serialVersionUID = -1781630213L;
+    private static final long serialVersionUID = -324554439L;
 
     private static final PathInits INITS = PathInits.DIRECT2;
 

@@ -1,4 +1,4 @@
-package com.part2.findex.autosyncconfig.exception;
+package com.part2.findex.autosync.exception;
 
 import lombok.Getter;
 

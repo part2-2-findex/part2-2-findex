@@ -1,5 +1,6 @@
 package com.part2.findex.indexinfo.service;
 
+import com.part2.findex.autosync.service.AutoSyncConfigService;
 import com.part2.findex.indexinfo.dto.CursorInfoDto;
 import com.part2.findex.indexinfo.dto.request.IndexInfoCreateRequest;
 import com.part2.findex.indexinfo.dto.request.IndexInfoUpdateRequest;
@@ -29,6 +30,7 @@ public class IndexInfoServiceImpl implements IndexInfoService {
     private final IndexInfoMapper indexInfoMapper;
     private final SortStrategyContext sortStrategyContext;
     private final IndexSummariesInfoMapper indexSummariesInfoMapper;
+    private final AutoSyncConfigService autoSyncConfigService;
 
     @Override
     public List<IndexSummariesInfoResponse> findAllBySummeriesItem() {
@@ -101,6 +103,7 @@ public class IndexInfoServiceImpl implements IndexInfoService {
                         indexInfoCreateRequest.getBaseIndex(),
                         indexInfoCreateRequest.getFavorite(),
                         SourceType.사용자));
+        autoSyncConfigService.createDefaultConfig(indexInfo);
 
         return indexInfoMapper.toDto(indexInfo);
     }

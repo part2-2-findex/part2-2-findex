@@ -1,4 +1,4 @@
-package com.part2.findex.autosyncconfig.dto;
+package com.part2.findex.autosync.dto;
 
 public record AutoSyncConfigUpdateRequest(
 
