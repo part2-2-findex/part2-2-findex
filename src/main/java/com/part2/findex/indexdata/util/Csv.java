@@ -22,6 +22,6 @@ public class Csv {
     writer.append("날짜,시가,종가,고가,저가,거래량,대비,등락률\n");
     beanToCsv.write(dataList);
 
-    return writer.toString().getBytes(StandardCharsets.UTF_8);
+    return ("\uFEFF" + writer.toString()).getBytes(StandardCharsets.UTF_8);
   }
 }
