@@ -3,8 +3,8 @@ package com.part2.findex.openapi.service;
 import com.part2.findex.openapi.dto.StockDataResult;
 import com.part2.findex.openapi.dto.StockIndexRequestParam;
 import com.part2.findex.openapi.dto.StockIndexResponse;
+import com.part2.findex.syncjob.dto.IndexDataOpenAPIRequest;
 import com.part2.findex.syncjob.dto.StockIndexInfoResult;
-import com.part2.findex.syncjob.service.orchestarorimpl.IndexDataSyncRequestOpenAPI;
 
 import java.util.List;
 import java.util.Map;
@@ -14,5 +14,5 @@ public interface OpenApiStockIndexService {
 
     Map<String, StockIndexInfoResult> getAllLastDateIndexInfoFromOpenAPI();
 
-    List<StockDataResult> getAllIndexDataBetweenDates(List<IndexDataSyncRequestOpenAPI> openAPIRequests);
+    List<StockDataResult> getAllIndexDataBetweenDates(List<IndexDataOpenAPIRequest> openAPIRequests);
 }

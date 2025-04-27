@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 @Entity
 @Table(name = "index_data",
@@ -90,21 +91,35 @@ public class IndexData {
     }
 
     public void update(IndexDataUpdateRequest updateRequest) {
-        this.marketPrice = updateRequest.marketPrice();
-        this.closingPrice = updateRequest.closingPrice();
-        this.highPrice = updateRequest.highPrice();
-        this.lowPrice = updateRequest.lowPrice();
-        this.versus = updateRequest.versus();
-        this.fluctuationRate = updateRequest.fluctuationRate();
-        this.tradingQuantity = updateRequest.tradingQuantity();
-        this.tradingPrice = updateRequest.tradingPrice();
-        this.marketTotalAmount = updateRequest.marketTotalAmount();
+        updateIfValidBigDecimal(updateRequest.marketPrice(), val -> this.marketPrice = val);
+        updateIfValidBigDecimal(updateRequest.closingPrice(), val -> this.closingPrice = val);
+        updateIfValidBigDecimal(updateRequest.highPrice(), val -> this.highPrice = val);
+        updateIfValidBigDecimal(updateRequest.lowPrice(), val -> this.lowPrice = val);
+        updateIfValidBigDecimal(updateRequest.versus(), val -> this.versus = val);
+        updateIfValidBigDecimal(updateRequest.fluctuationRate(), val -> this.fluctuationRate = val);
+        updateIfValidBigDecimal(updateRequest.tradingPrice(), val -> this.tradingPrice = val);
+        updateIfValidBigDecimal(updateRequest.marketTotalAmount(), val -> this.marketTotalAmount = val);
+
+        // Long 타입 필드
+        updateIfValidLong(updateRequest.tradingQuantity(), val -> this.tradingQuantity = val);
+    }
+
+    private void updateIfValidBigDecimal(BigDecimal newValue, Consumer<BigDecimal> setter) {
+        if (newValue != null && newValue.compareTo(BigDecimal.ZERO) != 0) {
+            setter.accept(newValue);
+        }
+    }
+
+    private void updateIfValidLong(Long newValue, Consumer<Long> setter) {
+        if (newValue != null && newValue != 0L) {
+            setter.accept(newValue);
+        }
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof IndexData)) return false;
 
         IndexData indexData = (IndexData) o;
         if (!Objects.equals(indexInfo, indexData.indexInfo)) return false;

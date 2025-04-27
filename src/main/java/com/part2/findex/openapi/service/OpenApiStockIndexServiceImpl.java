@@ -5,8 +5,8 @@ import com.part2.findex.openapi.client.StockIndexApiClient;
 import com.part2.findex.openapi.dto.StockDataResult;
 import com.part2.findex.openapi.dto.StockIndexRequestParam;
 import com.part2.findex.openapi.dto.StockIndexResponse;
+import com.part2.findex.syncjob.dto.IndexDataOpenAPIRequest;
 import com.part2.findex.syncjob.dto.StockIndexInfoResult;
-import com.part2.findex.syncjob.service.orchestarorimpl.IndexDataSyncRequestOpenAPI;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,15 +54,15 @@ public class OpenApiStockIndexServiceImpl implements OpenApiStockIndexService {
     }
 
     @Override
-    public List<StockDataResult> getAllIndexDataBetweenDates(List<IndexDataSyncRequestOpenAPI> openAPIRequests) {
+    public List<StockDataResult> getAllIndexDataBetweenDates(List<IndexDataOpenAPIRequest> openAPIRequests) {
         List<StockDataResult> results = new ArrayList<>();
 
-        for (IndexDataSyncRequestOpenAPI openAPIRequest : openAPIRequests) {
+        for (IndexDataOpenAPIRequest openAPIRequest : openAPIRequests) {
             StockIndexResponse stockIndicesBetweenDateForTotalCount = getStockIndicesBetweenDate(
                     0,
                     openAPIRequest.name(),
                     openAPIRequest.startDate(),
-                    openAPIRequest.untilDate()
+                    openAPIRequest.endDate().plusDays(1)
             );
 
             int totalCount = stockIndicesBetweenDateForTotalCount.response()
@@ -72,7 +72,7 @@ public class OpenApiStockIndexServiceImpl implements OpenApiStockIndexService {
                     totalCount,
                     openAPIRequest.name(),
                     openAPIRequest.startDate(),
-                    openAPIRequest.untilDate()
+                    openAPIRequest.endDate().plusDays(1)
             );
 
             List<StockDataResult> stockDatas = stockIndicesBetweenDate.response().body().items().item()
@@ -109,7 +109,7 @@ public class OpenApiStockIndexServiceImpl implements OpenApiStockIndexService {
 
         // 이 부분 변수로 뺴야 합니다.
         if (now.getHour() < 12) {
-            targetDate = now.minusDays(2);
+            targetDate = now.minusDays(4);
         } else {
             targetDate = now.minusDays(1);
         }

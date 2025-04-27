@@ -31,9 +31,7 @@ public class SyncController {
     }
 
     @GetMapping
-    public ResponseEntity<CursorPageResponseSyncJob> getSyncJobs(
-            SyncJobQueryRequest request
-    ) {
+    public ResponseEntity<CursorPageResponseSyncJob> getSyncJobs(SyncJobQueryRequest request) {
         return ResponseEntity.ok(indexSyncOrchestratorService.getSyncJobs(request));
     }
 }

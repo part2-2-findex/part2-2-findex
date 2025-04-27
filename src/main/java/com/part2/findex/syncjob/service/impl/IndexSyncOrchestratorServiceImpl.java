@@ -1,18 +1,15 @@
-package com.part2.findex.syncjob.service.orchestarorimpl;
+package com.part2.findex.syncjob.service.impl;
 
 import com.part2.findex.indexinfo.entity.IndexInfo;
 import com.part2.findex.indexinfo.repository.IndexInfoRepository;
 import com.part2.findex.openapi.dto.StockDataResult;
 import com.part2.findex.openapi.service.OpenApiStockIndexService;
 import com.part2.findex.syncjob.constant.SortField;
-import com.part2.findex.syncjob.constant.SyncJobType;
 import com.part2.findex.syncjob.dto.*;
 import com.part2.findex.syncjob.entity.SyncJob;
 import com.part2.findex.syncjob.repository.SyncJobRepository;
 import com.part2.findex.syncjob.repository.SyncJobSpecification;
 import com.part2.findex.syncjob.service.IndexSyncOrchestratorService;
-import com.part2.findex.syncjob.service.impl.IndexDataSyncJobService;
-import com.part2.findex.syncjob.service.impl.IndexInfoSyncJobService;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +26,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static com.part2.findex.syncjob.constant.SortDirectionConstant.ASCENDING_SORT_DIRECTION;
 import static com.part2.findex.syncjob.constant.SortDirectionConstant.DESCENDING_SORT_DIRECTION;
@@ -69,24 +65,21 @@ public class IndexSyncOrchestratorServiceImpl implements IndexSyncOrchestratorSe
     @Transactional
     @Override
     public List<SyncJobResult> synchronizeIndexData(IndexDataSyncRequest indexDataSyncRequest) {
-        Map<Long, List<SyncJob>> existingIndexDataSyncJob = getExistingIndexSyncJob(indexDataSyncRequest);
-        Map<Long, List<LocalDate>> missingIndexData = indexDataSyncJobService.findMissingIndexDates(indexDataSyncRequest, existingIndexDataSyncJob);
+        // 1. API 요청, 전체 다 요청
+        List<StockDataResult> allIndexDataBetweenDates = indexDataSyncJobService.requestOpenAPIBetweenDate(indexDataSyncRequest);
 
-        // API 요청
-        List<IndexInfo> allIndexInfoById = indexDataSyncJobService.fetchIndexInfosForMissingDates(missingIndexData);
-        List<StockDataResult> allIndexDataBetweenDates = indexDataSyncJobService
-                .createOpenAPIRequestsFromMissingDates(missingIndexData, allIndexInfoById);
+        // 2. 이미 있는 데이터 확인
+        List<SyncJob> existingIndexDataSyncJobs = indexDataSyncJobService.getExistingIndexSyncJob(indexDataSyncRequest);
 
-        // IndexData 저장 및 SyncJob 생성
-        List<SyncJob> syncJobsForExistingIndexes = indexDataSyncJobService.createSyncJobsForNewIndexData(allIndexInfoById, allIndexDataBetweenDates);
-        List<SyncJob> savedSyncJobs = syncJobRepository.saveAllAndFlush(syncJobsForExistingIndexes);
+        // 3. 이미 존재하는 데이터 제거
+        List<StockDataResult> newStockIndexData = indexDataSyncJobService.filterExistingIndexData(allIndexDataBetweenDates, existingIndexDataSyncJobs);
 
-        // SyncJob 저장
-        List<SyncJob> newSyncJobs = existingIndexDataSyncJob.values()
-                .stream()
-                .flatMap(List::stream)
-                .toList();
-        savedSyncJobs.addAll(newSyncJobs);
+        // 4. IndexData 저장 및 SyncJob 생성
+        List<SyncJob> newIndexDataSyncJobs = indexDataSyncJobService.createSyncJobsForNewIndexData(newStockIndexData);
+        List<SyncJob> savedSyncJobs = syncJobRepository.saveAllAndFlush(newIndexDataSyncJobs);
+
+        // 5. 갱신된 부분 반환
+        savedSyncJobs.addAll(existingIndexDataSyncJobs);
 
         return savedSyncJobs.stream()
                 .map(SyncJobResult::from)
@@ -172,20 +165,5 @@ public class IndexSyncOrchestratorServiceImpl implements IndexSyncOrchestratorSe
 
         Page<SyncJob> syncJobPage = syncJobRepository.findAll(filter, pageableWithDirection);
         return CursorPageResponseSyncJob.of(syncJobPage, request.sortField());
-    }
-
-    private Map<Long, List<SyncJob>> getExistingIndexSyncJob(IndexDataSyncRequest indexDataSyncRequest) {
-        List<SyncJob> existingIndexInfoIn = syncJobRepository
-                .findByTargetDateBetweenAndIndexInfoIdInAndJobType(
-                        indexDataSyncRequest.baseDateFrom(),
-                        indexDataSyncRequest.baseDateTo(),
-                        indexDataSyncRequest.indexInfoIds(),
-                        SyncJobType.INDEX_DATA);
-
-        return existingIndexInfoIn
-                .stream()
-                .collect(Collectors.groupingBy(
-                        syncJob -> syncJob.getIndexInfo().getId()
-                ));
     }
 }

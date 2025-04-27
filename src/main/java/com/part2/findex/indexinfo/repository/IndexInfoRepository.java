@@ -1,6 +1,7 @@
 package com.part2.findex.indexinfo.repository;
 
 import com.part2.findex.indexinfo.entity.IndexInfo;
+import com.part2.findex.indexinfo.entity.IndexInfoBusinessKey;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,4 +28,6 @@ public interface IndexInfoRepository {
     Long countAllByFilters(String indexClassification, String indexName, Boolean favorite);
 
     List<IndexInfo> findAllById(List<Long> Ids);
+
+    List<IndexInfo> findByIndexInfoBusinessKeys(List<IndexInfoBusinessKey> keys);
 }
