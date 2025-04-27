@@ -1,6 +1,5 @@
 package com.part2.findex.openapi.service;
 
-import com.part2.findex.indexinfo.entity.IndexInfoBusinessKey;
 import com.part2.findex.openapi.client.StockIndexApiClient;
 import com.part2.findex.openapi.dto.StockDataResult;
 import com.part2.findex.openapi.dto.StockIndexRequestParam;
@@ -17,9 +16,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -36,7 +32,7 @@ public class OpenApiStockIndexServiceImpl implements OpenApiStockIndexService {
     }
 
     @Override
-    public Map<String, StockIndexInfoResult> getAllLastDateIndexInfoFromOpenAPI() {
+    public List<StockIndexInfoResult> getAllLastDateIndexInfoFromOpenAPI() {
         StockIndexResponse stockIndexes = getStockIndicesByDate(0);
         int totalCount = stockIndexes.response()
                 .body()
@@ -47,10 +43,7 @@ public class OpenApiStockIndexServiceImpl implements OpenApiStockIndexService {
                 .item()
                 .stream()
                 .map(StockIndexInfoResult::from)
-                .collect(Collectors.toMap(
-                        stockIndexInfo -> IndexInfoBusinessKey.from(stockIndexInfo).toString(),
-                        Function.identity()
-                ));
+                .toList();
     }
 
     @Override

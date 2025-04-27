@@ -7,12 +7,11 @@ import com.part2.findex.syncjob.dto.IndexDataOpenAPIRequest;
 import com.part2.findex.syncjob.dto.StockIndexInfoResult;
 
 import java.util.List;
-import java.util.Map;
 
 public interface OpenApiStockIndexService {
     StockIndexResponse getStockIndexData(StockIndexRequestParam param);
 
-    Map<String, StockIndexInfoResult> getAllLastDateIndexInfoFromOpenAPI();
+    List<StockIndexInfoResult> getAllLastDateIndexInfoFromOpenAPI();
 
     List<StockDataResult> getAllIndexDataBetweenDates(List<IndexDataOpenAPIRequest> openAPIRequests);
 }

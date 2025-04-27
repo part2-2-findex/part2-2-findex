@@ -55,12 +55,8 @@ public class SyncJob {
     protected SyncJob() {
     }
 
-    public SyncJob(SyncJobType jobType,
-                   LocalDate targetDate,
-                   String worker,
-                   LocalDateTime jobTime,
-                   SyncJobStatus result,
-                   IndexInfo indexInfo) {
+    public SyncJob(SyncJobType jobType, LocalDate targetDate,
+                   String worker, LocalDateTime jobTime, SyncJobStatus result, IndexInfo indexInfo) {
         this.jobType = jobType;
         this.targetDate = targetDate;
         this.worker = worker;

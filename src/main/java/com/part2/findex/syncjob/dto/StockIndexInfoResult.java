@@ -7,7 +7,8 @@ public record StockIndexInfoResult(
         String indexName,
         int employedItemsCount,
         String basePointInTime,
-        double baseIndex
+        double baseIndex,
+        String baseDateTime
 ) {
 
     public static StockIndexInfoResult from(StockItem stockItem) {
@@ -16,7 +17,8 @@ public record StockIndexInfoResult(
                 stockItem.idxNm(),
                 stockItem.epyItmsCnt(),
                 stockItem.basPntm(),
-                stockItem.basIdx()
+                stockItem.basIdx(),
+                stockItem.basDt()
         );
     }
 }
