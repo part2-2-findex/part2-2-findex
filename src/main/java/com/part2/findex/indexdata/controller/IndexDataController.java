@@ -51,11 +51,11 @@ public class IndexDataController {
 
     @GetMapping("/export/csv")
     public ResponseEntity<?> exportCsv(
-        @RequestParam("indexInfoId") Long indexInfoId,
-        @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-        @RequestParam("sortField") String sortField,
-        @RequestParam("sortDirection") String sortDirection
+        @RequestParam(value = "indexInfoId") Long indexInfoId,
+        @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+        @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+        @RequestParam(value = "sortField") String sortField,
+        @RequestParam(value = "sortDirection") String sortDirection
     ) {
         byte[] csvBytes = indexDataService.getCsvData(indexInfoId, startDate, endDate, sortField, sortDirection);
         HttpHeaders headers = new HttpHeaders();
