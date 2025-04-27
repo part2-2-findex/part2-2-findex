@@ -29,13 +29,15 @@ CREATE TABLE IF NOT EXISTS index_data (
     CONSTRAINT fk_index_info FOREIGN KEY (index_info_id) REFERENCES index_info(id)
     );
 
-CREATE TABLE IF NOT EXISTS sync_jobs (
+CREATE TABLE IF NOT EXISTS sync_job (
     id BIGINT PRIMARY KEY  GENERATED ALWAYS AS IDENTITY,
     job_type VARCHAR(10) NOT NULL,
     target_date DATE NOT NULL,
     worker VARCHAR(50) NOT NULL,
     job_time TIMESTAMP NOT NULL,
     result VARCHAR(10) NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NULL,
     index_info_id BIGINT,
     CONSTRAINT fk_indexinfo FOREIGN KEY (index_info_id) REFERENCES index_info(id)
 );

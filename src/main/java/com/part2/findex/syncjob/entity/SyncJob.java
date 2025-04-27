@@ -10,12 +10,13 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 
 @Entity
 @Getter
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "sync_jobs")
+@Table(name = "sync_job")
 public class SyncJob {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,24 +24,24 @@ public class SyncJob {
 
     @Column(name = "job_type", nullable = false)
     @Enumerated(EnumType.STRING)
-    SyncJobType jobType;
+    private SyncJobType jobType;
 
     @Column(name = "target_date", nullable = false)
-    LocalDate targetDate;
+    private LocalDate targetDate;
 
     @Column(name = "worker", nullable = false)
-    String worker;
+    private String worker;
 
     @Column(name = "job_time", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
-    Instant jobTime;
+    private Instant jobTime;
 
     @Column(name = "result", nullable = false)
     @Enumerated(EnumType.STRING)
-    SyncJobStatus result;
+    private SyncJobStatus result;
 
     @ManyToOne
     @JoinColumn(name = "index_info_id", nullable = false)
-    IndexInfo indexInfo;
+    private IndexInfo indexInfo;
 
     @CreatedDate
     @Column(name = "created_at", nullable = false)
@@ -65,5 +66,25 @@ public class SyncJob {
         this.jobTime = jobTime;
         this.result = result;
         this.indexInfo = indexInfo;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SyncJob)) return false;
+
+        SyncJob syncJob = (SyncJob) o;
+
+        if (jobType != syncJob.jobType) return false;
+        if (!Objects.equals(targetDate, syncJob.targetDate)) return false;
+        return Objects.equals(indexInfo, syncJob.indexInfo);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = jobType != null ? jobType.hashCode() : 0;
+        result = 31 * result + (targetDate != null ? targetDate.hashCode() : 0);
+        result = 31 * result + (indexInfo != null ? indexInfo.hashCode() : 0);
+        return result;
     }
 }
