@@ -23,7 +23,7 @@ public class JpaIndexDataRepository implements IndexDataRepository {
     }
 
     @Override
-    public List<IndexData> findAllByBaseDateAsc(Long indexInfoId, LocalDate startDate, LocalDate endDate, LocalDate  baseDateCursor, Long idCursor) {
+    public List<IndexData> findAllByBaseDateAsc(Long indexInfoId, LocalDate startDate, LocalDate endDate, LocalDate baseDateCursor, Long idCursor) {
         System.out.println("findAllByBaseDateAsc");
 
 
@@ -65,5 +65,4 @@ public class JpaIndexDataRepository implements IndexDataRepository {
     public Long countAllByFilters(Long indexInfoId, LocalDate startDate, LocalDate endDate) {
         return indexDataRepository.countAllByFilters(indexInfoId, startDate, endDate);
     }
-
 }

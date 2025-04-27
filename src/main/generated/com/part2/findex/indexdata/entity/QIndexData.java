@@ -42,7 +42,7 @@ public class QIndexData extends EntityPathBase<IndexData> {
 
     public final NumberPath<java.math.BigDecimal> marketTotalAmount = createNumber("marketTotalAmount", java.math.BigDecimal.class);
 
-    public final StringPath sourceType = createString("sourceType");
+    public final EnumPath<com.part2.findex.indexinfo.entity.SourceType> sourceType = createEnum("sourceType", com.part2.findex.indexinfo.entity.SourceType.class);
 
     public final NumberPath<java.math.BigDecimal> tradingPrice = createNumber("tradingPrice", java.math.BigDecimal.class);
 

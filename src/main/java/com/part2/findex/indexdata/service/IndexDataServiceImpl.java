@@ -15,13 +15,13 @@ import com.part2.findex.indexdata.util.Csv;
 import com.part2.findex.indexinfo.dto.CursorInfoDto;
 import com.part2.findex.indexinfo.dto.response.PageResponse;
 import com.part2.findex.indexinfo.entity.IndexInfo;
+import com.part2.findex.indexinfo.entity.SourceType;
 import com.part2.findex.indexinfo.repository.IndexInfoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -42,29 +42,26 @@ public class IndexDataServiceImpl implements IndexDataService {
         IndexInfo indexInfo = indexInfoRepository.findById(indexDataCreateRequest.indexId())
                 .orElseThrow(() -> new NoSuchElementException("Index info not found"));
 
-        IndexData indexData = IndexData.builder()
-                .indexInfo(indexInfo)
-                .baseDate(indexDataCreateRequest.baseDate())
-                .sourceType(indexDataCreateRequest.sourceType())
-                .marketPrice(indexDataCreateRequest.marketPrice())
-                .closingPrice(indexDataCreateRequest.closingPrice())
-                .highPrice(indexDataCreateRequest.highPrice())
-                .lowPrice(indexDataCreateRequest.lowPrice())
-                .versus(indexDataCreateRequest.versus())
-                .fluctuationRate(indexDataCreateRequest.fluctuationRate())
-                .tradingQuantity(indexDataCreateRequest.tradingQuantity())
-                .tradingPrice(indexDataCreateRequest.tradingPrice())
-                .marketTotalAmount(indexDataCreateRequest.marketTotalAmount())
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
+        IndexData indexData = new IndexData(
+                indexInfo,
+                indexDataCreateRequest.baseDate(),
+                SourceType.valueOf(indexDataCreateRequest.sourceType()),
+                indexDataCreateRequest.marketPrice(),
+                indexDataCreateRequest.closingPrice(),
+                indexDataCreateRequest.highPrice(),
+                indexDataCreateRequest.lowPrice(),
+                indexDataCreateRequest.versus(),
+                indexDataCreateRequest.fluctuationRate(),
+                indexDataCreateRequest.tradingQuantity(),
+                indexDataCreateRequest.tradingPrice(),
+                indexDataCreateRequest.marketTotalAmount());
 
         indexDataRepository.save(indexData);
         return new IndexDataDto(
                 indexData.getId(),
                 indexData.getIndexInfo().getId(),
                 indexData.getBaseDate(),
-                indexData.getSourceType(),
+                indexData.getSourceType().name(),
                 indexData.getMarketPrice(),
                 indexData.getClosingPrice(),
                 indexData.getHighPrice(),
@@ -144,11 +141,11 @@ public class IndexDataServiceImpl implements IndexDataService {
     @Transactional
     @Override
     public byte[] getCsvData(
-        Long indexInfoId,
-        LocalDate startDate,
-        LocalDate endDate,
-        String sortField,
-        String sortDirection
+            Long indexInfoId,
+            LocalDate startDate,
+            LocalDate endDate,
+            String sortField,
+            String sortDirection
     ) {
         List<CsvExportDto> data = indexDataQueryRepository.getCsvData(indexInfoId, startDate, endDate, sortField, sortDirection);
         System.out.println("Csv Data 사이즈: " + data.size());     ///

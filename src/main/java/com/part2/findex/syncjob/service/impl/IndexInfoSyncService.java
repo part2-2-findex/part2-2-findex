@@ -1,4 +1,4 @@
-package com.part2.findex.syncjob.service;
+package com.part2.findex.syncjob.service.impl;
 
 import com.part2.findex.indexinfo.entity.IndexInfo;
 import com.part2.findex.indexinfo.entity.SourceType;
@@ -29,6 +29,7 @@ public class IndexInfoSyncService {
     public IndexInfo saveNewIndexInfo(StockIndexInfoResult newIndexInfo) {
         IndexInfo indexInfo = convertToIndexInfo(newIndexInfo);
         entityManager.persist(indexInfo);
+
         return indexInfo;
     }
 

@@ -15,7 +15,7 @@ public record StockIndexInfoResult(
                 stockItem.idxCsf(),
                 stockItem.idxNm(),
                 stockItem.epyItmsCnt(),
-                stockItem.basDt(),
+                stockItem.basPntm(),
                 stockItem.basIdx()
         );
     }

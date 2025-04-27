@@ -1,8 +1,12 @@
 package com.part2.findex.indexinfo.repository.jpa;
 
 import com.part2.findex.indexinfo.entity.IndexInfo;
+import com.part2.findex.indexinfo.entity.IndexInfoBusinessKey;
+import com.part2.findex.indexinfo.entity.QIndexInfo;
 import com.part2.findex.indexinfo.repository.IndexInfoRepository;
 import com.part2.findex.indexinfo.repository.springjpa.SpringDataIndexInfoRepository;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -11,9 +15,10 @@ import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
-public class JpaIndexinfoRepository implements IndexInfoRepository {
+public class JpaIndexInfoRepository implements IndexInfoRepository {
 
     private final SpringDataIndexInfoRepository indexInfoRepository;
+    private final JPAQueryFactory queryFactory;
 
     @Override
     public List<IndexInfo> findAll() {
@@ -63,5 +68,26 @@ public class JpaIndexinfoRepository implements IndexInfoRepository {
     @Override
     public Long countAllByFilters(String indexClassification, String indexName, Boolean favorite) {
         return indexInfoRepository.countAllByFilters(indexClassification, indexName, favorite);
+    }
+
+    @Override
+    public List<IndexInfo> findAllById(List<Long> Ids) {
+        return indexInfoRepository.findAllById(Ids);
+    }
+
+    @Override
+    public List<IndexInfo> findByIndexInfoBusinessKeys(List<IndexInfoBusinessKey> keys) {
+        QIndexInfo indexInfo = QIndexInfo.indexInfo;
+        BooleanBuilder builder = new BooleanBuilder();
+        for (IndexInfoBusinessKey key : keys) {
+            builder.or(
+                    indexInfo.indexInfoBusinessKey.indexClassification.eq(key.getIndexClassification())
+                            .and(indexInfo.indexInfoBusinessKey.indexName.eq(key.getIndexName()))
+            );
+        }
+        return queryFactory
+                .selectFrom(indexInfo)
+                .where(builder)
+                .fetch();
     }
 }

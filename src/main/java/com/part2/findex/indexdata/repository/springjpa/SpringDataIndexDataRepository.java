@@ -80,5 +80,4 @@ public interface SpringDataIndexDataRepository extends JpaRepository<IndexData, 
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
     );
-
 }
