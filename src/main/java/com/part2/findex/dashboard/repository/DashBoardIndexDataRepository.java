@@ -71,4 +71,10 @@ public interface DashBoardIndexDataRepository extends JpaRepository<IndexData, L
       @Param("pastDate") LocalDate pastDate
   );
 
+  @Query("""
+    SELECT MAX(d.baseDate)
+    FROM IndexData d
+    WHERE d.baseDate <= :targetDate
+""")
+  LocalDate findLatestDateBeforeOrOn(@Param("targetDate") LocalDate targetDate);
 }
