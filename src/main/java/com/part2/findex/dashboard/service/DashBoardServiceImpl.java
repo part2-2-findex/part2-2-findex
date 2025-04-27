@@ -31,7 +31,16 @@ public class DashBoardServiceImpl implements DashBoardService {
     } else if (periodType.equals("MONTHLY")) {
       pastDate = pastDate.minusMonths(1);
     }
-    return dashBoardIndexDataRepository.findIndexPerformances(currentDate, pastDate);
+
+    // 실제 데이터가 있는 최신 날짜로 currentDate 보정
+    LocalDate latestAvailableDate = dashBoardIndexDataRepository.findLatestDateBeforeOrOn(currentDate);
+
+    // 데이터가 없거나 기간이 잘못된 경우 → 빈 리스트 반환
+    if (latestAvailableDate == null || !latestAvailableDate.isAfter(pastDate)) {
+      return List.of();
+    }
+
+    return dashBoardIndexDataRepository.findIndexPerformances(latestAvailableDate, pastDate);
   }
 
   @Override
@@ -69,7 +78,16 @@ public class DashBoardServiceImpl implements DashBoardService {
       pastDate = pastDate.minusMonths(1);
     }
 
-    List<IndexPerformanceDto> performances = dashBoardIndexDataRepository.findAllIndexPerformances(currentDate, pastDate);
+    // 실제 데이터가 있는 최신 날짜로 currentDate 보정
+    LocalDate latestAvailableDate = dashBoardIndexDataRepository.findLatestDateBeforeOrOn(currentDate);
+
+    // 데이터가 없거나 기간이 잘못된 경우 → 빈 리스트 반환
+    if (latestAvailableDate == null || !latestAvailableDate.isAfter(pastDate)) {
+      return List.of();
+    }
+
+    // 4. 최신 날짜 기준으로 퍼포먼스 조회
+    List<IndexPerformanceDto> performances = dashBoardIndexDataRepository.findAllIndexPerformances(latestAvailableDate, pastDate);
     List<RankedIndexPerformanceDto> ranked = IntStream.range(0, performances.size())
         .mapToObj(i -> new RankedIndexPerformanceDto(performances.get(i), i + 1)) // rank는 1부터 시작
         .toList();
