@@ -8,7 +8,6 @@ import com.part2.findex.syncjob.dto.IndexDataSyncRequest;
 import com.part2.findex.syncjob.dto.StockIndexInfoResult;
 import com.part2.findex.syncjob.dto.SyncJobResult;
 import com.part2.findex.syncjob.entity.SyncJob;
-import com.part2.findex.syncjob.entity.SyncJobType;
 import com.part2.findex.syncjob.repository.SyncJobRepository;
 import com.part2.findex.syncjob.service.IndexSyncOrchestratorService;
 import com.part2.findex.syncjob.service.impl.IndexDataSyncJobService;
@@ -22,7 +21,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -59,10 +57,10 @@ public class IndexSyncOrchestratorServiceImpl implements IndexSyncOrchestratorSe
     @Override
     public List<SyncJobResult> synchronizeIndexData(IndexDataSyncRequest indexDataSyncRequest) {
         // 이미 있는지 확인
-        Map<Long, List<SyncJob>> existingIndexDataSyncJob = getExistingIndexSyncJob(indexDataSyncRequest);
+        Map<Long, List<SyncJob>> existingIndexDataSyncJob = indexDataSyncJobService.getExistingIndexSyncJob(indexDataSyncRequest);
         Map<Long, List<LocalDate>> missingIndexData = indexDataSyncJobService.findMissingIndexDates(indexDataSyncRequest, existingIndexDataSyncJob);
 
-        // API요청
+        // API요청 // 애도
         List<IndexInfo> allIndexInfoById = indexDataSyncJobService.fetchIndexInfosForMissingDates(missingIndexData);
         List<StockDataResult> allIndexDataBetweenDates = indexDataSyncJobService
                 .createOpenAPIRequestsFromMissingDates(missingIndexData, allIndexInfoById);
@@ -82,23 +80,6 @@ public class IndexSyncOrchestratorServiceImpl implements IndexSyncOrchestratorSe
                 .map(SyncJobResult::from)
                 .toList();
     }
-
-
-    private Map<Long, List<SyncJob>> getExistingIndexSyncJob(IndexDataSyncRequest indexDataSyncRequest) {
-        List<SyncJob> existingIndexInfoIn = syncJobRepository
-                .findByTargetDateBetweenAndIndexInfoIdInAndJobType(
-                        indexDataSyncRequest.baseDateFrom(),
-                        indexDataSyncRequest.baseDateTo(),
-                        indexDataSyncRequest.indexInfoIds(),
-                        SyncJobType.INDEX_DATA);
-
-        return existingIndexInfoIn
-                .stream()
-                .collect(Collectors.groupingBy(
-                        syncJob -> syncJob.getIndexInfo().getId()
-                ));
-    }
-
 
     @Override
     public List<SyncJobResult> getIndexSyncHistories() {

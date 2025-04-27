@@ -11,13 +11,14 @@ import com.part2.findex.syncjob.entity.SyncJob;
 import com.part2.findex.syncjob.entity.SyncJobStatus;
 import com.part2.findex.syncjob.entity.SyncJobType;
 import com.part2.findex.syncjob.mapper.IndexInfoMapper;
+import com.part2.findex.syncjob.repository.SyncJobRepository;
 import com.part2.findex.syncjob.service.IndexDataSyncRequestOpenAPI;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
@@ -31,6 +32,21 @@ public class IndexDataSyncJobService {
     private final IndexSyncBatchService indexSyncBatchService;
     private final ClientIpResolver clientIpResolver;
     private final IndexDataSyncService indexDataSyncService;
+    private final SyncJobRepository syncJobRepository;
+
+    public Map<Long, List<SyncJob>> getExistingIndexSyncJob(IndexDataSyncRequest indexDataSyncRequest) {
+        List<SyncJob> existingIndexInfoIn = syncJobRepository.findByTargetDateBetweenAndIndexInfoIdInAndJobType(
+                indexDataSyncRequest.baseDateFrom(),
+                indexDataSyncRequest.baseDateTo(),
+                indexDataSyncRequest.indexInfoIds(),
+                SyncJobType.INDEX_DATA);
+
+        return existingIndexInfoIn
+                .stream()
+                .collect(Collectors.groupingBy(
+                        syncJob -> syncJob.getIndexInfo().getId()
+                ));
+    }
 
     public Map<Long, List<LocalDate>> findMissingIndexDates(
             IndexDataSyncRequest request,
@@ -108,27 +124,31 @@ public class IndexDataSyncJobService {
                         IndexInfo::getIndexInfoBusinessKey,
                         Function.identity()
                 ));
-        System.out.println(stockDataResults);
         return indexSyncBatchService.processBatch(stockDataResults, stockDataResult -> {
-            SyncJobStatus status;
-            IndexData indexData = null;
-            try {
-                IndexInfo indexInfo = infoBusinessKeyIndexInfoMap.get(IndexInfoMapper.toIndexInfoBusinessKey(stockDataResult));
-                indexData = indexDataSyncService.saveNewIndexData(stockDataResult, indexInfo);
-                status = SyncJobStatus.SUCCESS;
-            } catch (Exception e) {
-                status = SyncJobStatus.FAILED;
-            }
-
-            assert indexData != null;
-            return createSyncJobIndexData(SyncJobType.INDEX_DATA, indexData, status);
+            IndexInfo indexInfo = infoBusinessKeyIndexInfoMap.get(IndexInfoMapper.toIndexInfoBusinessKey(stockDataResult));
+            return getSyncJob(stockDataResult, indexInfo);
         });
     }
 
+    private SyncJob getSyncJob(StockDataResult stockDataResult, IndexInfo indexInfo) {
+        try {
+            IndexData indexData = indexDataSyncService.saveNewIndexData(stockDataResult, indexInfo);
+            return createSyncJobIndexData(SyncJobType.INDEX_DATA, indexData, SyncJobStatus.SUCCESS);
+        } catch (Exception e) {
+            IndexData failedIndexData = indexDataSyncService.convertToIndexData(stockDataResult, indexInfo);
+            indexDataSyncService.saveFailedIndexDataSyncJob(createSyncJobIndexData(SyncJobType.INDEX_DATA, failedIndexData, SyncJobStatus.FAILED));
+            throw new IllegalArgumentException("지수 데이터 연동 실패");
+        }
+    }
+
+
     private SyncJob createSyncJobIndexData(SyncJobType jobType, IndexData indexData, SyncJobStatus status) {
         String clientIp = clientIpResolver.getClientIp();
-        String basePointInTime = indexData.getBaseDate().toString();
-        LocalDate baseDate = getLocalDate(basePointInTime);
+        String basePointInTime = LocalDateTime.now().toString();
+        if (indexData != null) {
+            basePointInTime = indexData.getBaseDate().toString();
+        }
+        LocalDate baseDate = formatLocalDate(basePointInTime);
 
         return new SyncJob(
                 jobType,
@@ -140,7 +160,7 @@ public class IndexDataSyncJobService {
         );
     }
 
-    private LocalDate getLocalDate(String basePointInTime) {
+    private LocalDate formatLocalDate(String basePointInTime) {
         LocalDate baseDate;
         if (basePointInTime.contains("-")) {
             baseDate = LocalDate.parse(basePointInTime);
