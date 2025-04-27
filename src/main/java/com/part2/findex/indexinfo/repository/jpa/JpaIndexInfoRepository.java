@@ -49,7 +49,6 @@ public class JpaIndexInfoRepository implements IndexInfoRepository {
         return indexInfoRepository.findAllByNameDesc(indexClassification, indexName, favorite, classificationCursor, idCursor);
     }
 
-
     @Override
     public IndexInfo save(IndexInfo indexInfo) {
         return indexInfoRepository.save(indexInfo);
