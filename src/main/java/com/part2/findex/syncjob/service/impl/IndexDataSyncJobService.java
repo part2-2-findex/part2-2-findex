@@ -5,12 +5,10 @@ import com.part2.findex.indexinfo.entity.IndexInfo;
 import com.part2.findex.indexinfo.entity.IndexInfoBusinessKey;
 import com.part2.findex.indexinfo.repository.IndexInfoRepository;
 import com.part2.findex.openapi.dto.StockDataResult;
-import com.part2.findex.openapi.service.OpenApiStockIndexService;
-import com.part2.findex.syncjob.constant.SyncJobStatus;
-import com.part2.findex.syncjob.constant.SyncJobType;
-import com.part2.findex.syncjob.dto.IndexDataOpenAPIRequest;
 import com.part2.findex.syncjob.dto.IndexDataSyncRequest;
 import com.part2.findex.syncjob.entity.SyncJob;
+import com.part2.findex.syncjob.entity.SyncJobStatus;
+import com.part2.findex.syncjob.entity.SyncJobType;
 import com.part2.findex.syncjob.mapper.IndexInfoMapper;
 import com.part2.findex.syncjob.repository.SyncJobRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,27 +28,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class IndexDataSyncJobService {
     private final ClientIpResolver clientIpResolver;
-    private final OpenApiStockIndexService openApiStockIndexService;
     private final IndexSyncBatchService indexSyncBatchService;
     private final IndexDataSyncService indexDataSyncService;
     private final SyncJobRepository syncJobRepository;
     private final IndexInfoRepository indexInfoRepository;
-
-    public List<StockDataResult> requestOpenAPIBetweenDate(IndexDataSyncRequest indexDataSyncRequest) {
-        List<IndexInfo> requestedIndexInfos = indexInfoRepository.findAllById(indexDataSyncRequest.indexInfoIds());
-        List<IndexDataOpenAPIRequest> openAPIRequests = requestedIndexInfos.stream()
-                .map(indexInfo -> IndexDataOpenAPIRequest.of(indexInfo, indexDataSyncRequest.baseDateFrom(), indexDataSyncRequest.baseDateTo()))
-                .toList();
-
-        Set<IndexInfo> indexInfos = new HashSet<>(requestedIndexInfos);
-        return openApiStockIndexService.getAllIndexDataBetweenDates(openAPIRequests)
-                .stream()
-                .filter(stockDataResult -> {
-                    IndexInfo dummyIndexInfo = getDummyIndexInfo(stockDataResult);
-                    return indexInfos.contains(dummyIndexInfo);
-                })
-                .toList();
-    }
+    private final DummyFactory dummyFactory;
 
     public List<SyncJob> getExistingIndexSyncJob(IndexDataSyncRequest indexDataSyncRequest) {
         return syncJobRepository.findByTargetDateBetweenAndIndexInfoIdInAndJobType(
@@ -60,41 +42,16 @@ public class IndexDataSyncJobService {
                 SyncJobType.INDEX_DATA);
     }
 
-    public List<StockDataResult> filterExistingIndexData(
-            List<StockDataResult> allIndexDataBetweenDates,
-            List<SyncJob> existingIndexDataSyncJobs
-    ) {
+    public List<StockDataResult> filterExistingIndexData(List<StockDataResult> allIndexDataBetweenDates, List<SyncJob> existingIndexDataSyncJobs) {
         Set<SyncJob> existingSyncJobs = new HashSet<>(existingIndexDataSyncJobs);
         return allIndexDataBetweenDates.stream()
                 .filter(stockDataResult -> {
-                    SyncJob stockResultSyncJob = getDummySyncJob(stockDataResult, getDummyIndexInfo(stockDataResult));
+                    IndexInfo indexInfoSignature = dummyFactory.createDummyIndexInfoFromStockData(stockDataResult);
+                    SyncJob stockResultSyncJob = dummyFactory.createDummySyncJob(stockDataResult, indexInfoSignature);
 
                     return !existingSyncJobs.contains(stockResultSyncJob);
                 })
                 .toList();
-    }
-
-    private IndexInfo getDummyIndexInfo(StockDataResult stockDataResult) {
-        return new IndexInfo(
-                stockDataResult.indexClassification(),
-                stockDataResult.indexName(),
-                0,
-                null,
-                0,
-                false,
-                null
-        );
-    }
-
-    private SyncJob getDummySyncJob(StockDataResult stockDataResult, IndexInfo indexInfo) {
-        return new SyncJob(
-                SyncJobType.INDEX_DATA,
-                stockDataResult.baseDate(),
-                null,
-                null,
-                SyncJobStatus.SUCCESS,
-                indexInfo
-        );
     }
 
     public List<SyncJob> createSyncJobsForNewIndexData(List<StockDataResult> newStockDataResults) {
@@ -129,23 +86,12 @@ public class IndexDataSyncJobService {
 
     private SyncJob createSyncJobIndexData(SyncJobType jobType, IndexData indexData, SyncJobStatus status) {
         String clientIp = clientIpResolver.getClientIp();
-        String basePointInTime = LocalDateTime.now().toString();
-        if (indexData != null) {
-            basePointInTime = indexData.getBaseDate().toString();
-        }
-        LocalDate baseDate = formatLocalDate(basePointInTime);
+        LocalDate baseDate = getLocalDate(indexData.getBaseDate().toString());
 
-        return new SyncJob(
-                jobType,
-                baseDate,
-                clientIp,
-                LocalDateTime.now(),
-                status,
-                indexData.getIndexInfo()
-        );
+        return new SyncJob(jobType, baseDate, clientIp, LocalDateTime.now(), status, indexData.getIndexInfo());
     }
 
-    private LocalDate formatLocalDate(String basePointInTime) {
+    private LocalDate getLocalDate(String basePointInTime) {
         LocalDate baseDate;
         if (basePointInTime.contains("-")) {
             baseDate = LocalDate.parse(basePointInTime);

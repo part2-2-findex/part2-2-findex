@@ -2,8 +2,8 @@ package com.part2.findex.syncjob.dto;
 
 import com.part2.findex.syncjob.constant.SortDirectionConstant;
 import com.part2.findex.syncjob.constant.SortField;
-import com.part2.findex.syncjob.constant.SyncJobStatus;
-import com.part2.findex.syncjob.constant.SyncJobType;
+import com.part2.findex.syncjob.entity.SyncJobStatus;
+import com.part2.findex.syncjob.entity.SyncJobType;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.RequestParam;
 

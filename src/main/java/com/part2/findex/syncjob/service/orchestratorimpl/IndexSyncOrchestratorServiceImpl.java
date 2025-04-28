@@ -10,6 +10,7 @@ import com.part2.findex.syncjob.entity.SyncJob;
 import com.part2.findex.syncjob.repository.SyncJobRepository;
 import com.part2.findex.syncjob.repository.SyncJobSpecification;
 import com.part2.findex.syncjob.service.IndexSyncOrchestratorService;
+import com.part2.findex.syncjob.service.impl.DummyFactory;
 import com.part2.findex.syncjob.service.impl.IndexDataSyncJobService;
 import com.part2.findex.syncjob.service.impl.IndexInfoSyncJobService;
 import com.part2.findex.syncjob.service.impl.TargetDateService;
@@ -39,12 +40,13 @@ import static com.part2.findex.syncjob.constant.SortField.targetDate;
 @Slf4j
 @RequiredArgsConstructor
 public class IndexSyncOrchestratorServiceImpl implements IndexSyncOrchestratorService {
-    private final OpenApiStockIndexService openApiStockIndexService;
-    private final IndexInfoSyncJobService indexInfoSyncJobService;
-    private final IndexDataSyncJobService indexDataSyncJobService;
+    private final OpenApiStockIndexService openApiStockIndexService; // 애는 여기가 맞고
+    private final IndexInfoSyncJobService indexInfoSyncJobService; // 1. Sync
+    private final IndexDataSyncJobService indexDataSyncJobService; // 2.
     private final TargetDateService targetDateService;
     private final IndexInfoRepository indexInfoRepository;
-    private final SyncJobRepository syncJobRepository;
+    private final SyncJobRepository syncJobRepository; // 3. 마지막까지... 있어야되는것만 있는것 같은데
+    private final DummyFactory dummyFactory;
 
     @Transactional
     @Override
@@ -72,7 +74,7 @@ public class IndexSyncOrchestratorServiceImpl implements IndexSyncOrchestratorSe
     @Transactional
     @Override
     public List<SyncJobResult> synchronizeIndexData(IndexDataSyncRequest indexDataSyncRequest) {
-        List<StockDataResult> allIndexDataBetweenDates = indexDataSyncJobService.requestOpenAPIBetweenDate(indexDataSyncRequest);
+        List<StockDataResult> allIndexDataBetweenDates = requestOpenAPIBetweenDate(indexDataSyncRequest);
 
         List<SyncJob> existingIndexDataSyncJobs = indexDataSyncJobService.getExistingIndexSyncJob(indexDataSyncRequest);
 
@@ -85,6 +87,22 @@ public class IndexSyncOrchestratorServiceImpl implements IndexSyncOrchestratorSe
 
         return savedSyncJobs.stream()
                 .map(SyncJobResult::from)
+                .toList();
+    }
+
+    private List<StockDataResult> requestOpenAPIBetweenDate(IndexDataSyncRequest indexDataSyncRequest) {
+        List<IndexInfo> requestedIndexInfos = indexInfoRepository.findAllById(indexDataSyncRequest.indexInfoIds());
+        List<IndexDataOpenAPIRequest> openAPIRequests = requestedIndexInfos.stream()
+                .map(indexInfo -> IndexDataOpenAPIRequest.of(indexInfo, indexDataSyncRequest.baseDateFrom(), indexDataSyncRequest.baseDateTo()))
+                .toList();
+
+        Set<IndexInfo> indexInfos = new HashSet<>(requestedIndexInfos);
+        return openApiStockIndexService.getAllIndexDataBetweenDates(openAPIRequests)
+                .stream()
+                .filter(stockDataResult -> {
+                    IndexInfo dummyIndexInfo = dummyFactory.createDummyIndexInfoFromStockData(stockDataResult);
+                    return indexInfos.contains(dummyIndexInfo);
+                })
                 .toList();
     }
 

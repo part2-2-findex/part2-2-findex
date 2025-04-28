@@ -2,11 +2,11 @@ package com.part2.findex.syncjob.service.impl;
 
 import com.part2.findex.indexinfo.entity.IndexInfo;
 import com.part2.findex.indexinfo.entity.IndexInfoBusinessKey;
-import com.part2.findex.syncjob.constant.SyncJobStatus;
-import com.part2.findex.syncjob.constant.SyncJobType;
 import com.part2.findex.syncjob.dto.StockIndexInfoResult;
 import com.part2.findex.syncjob.entity.SyncJob;
 import com.part2.findex.syncjob.entity.SyncJobKey;
+import com.part2.findex.syncjob.entity.SyncJobStatus;
+import com.part2.findex.syncjob.entity.SyncJobType;
 import com.part2.findex.syncjob.repository.SyncJobRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,11 +28,12 @@ public class IndexInfoSyncJobService {
     private final IndexInfoSyncService indexInfoSyncService;
     private final ClientIpResolver clientIpResolver;
     private final SyncJobRepository syncJobRepository;
+    private final DummyFactory dummyFactory;
 
     public List<StockIndexInfoResult> filterExistingIndexInfoResults(List<StockIndexInfoResult> allLastDateIndexInfoFromOpenAPI, Set<IndexInfo> existingIndexInfos) {
         return allLastDateIndexInfoFromOpenAPI.stream()
                 .filter(stockIndexInfoResult -> {
-                    IndexInfo tempIndexInfo = createDummyIndexInfo(stockIndexInfoResult);
+                    IndexInfo tempIndexInfo = dummyFactory.createDummyIndexInfo(stockIndexInfoResult);
                     return existingIndexInfos.contains(tempIndexInfo);
                 })
                 .toList();
@@ -46,25 +47,25 @@ public class IndexInfoSyncJobService {
         return syncJobRepository.findByKeys(syncJobKey);
     }
 
-    public List<SyncJob> updateExistingIndexInfosAndCreateSyncJobs(List<IndexInfo> allIndexInfo, // ?? 이걸 어떻게 해야되지?? 흐음... 이걸 어떻게 해야되나...
+    public List<SyncJob> updateExistingIndexInfosAndCreateSyncJobs(List<IndexInfo> allIndexInfo,
                                                                    List<StockIndexInfoResult> existingStockIndexInfoResults,
                                                                    List<SyncJob> existingIndexInfoSyncJobs) {
-        Set<SyncJob> existingSyncJobs = new HashSet<>(existingIndexInfoSyncJobs); // 존재하는 Job을 통해서
+        Set<SyncJob> existingSyncJobs = new HashSet<>(existingIndexInfoSyncJobs);
         List<StockIndexInfoResult> existingNotSyncStockIndexInfoResults = existingStockIndexInfoResults.stream()
                 .filter(stockIndexInfoResult -> {
-                    IndexInfo tempIndexInfo = createDummyIndexInfo(stockIndexInfoResult);
-                    SyncJob tempSyncJob = createDummyIndexInfoSyncJob(stockIndexInfoResult, tempIndexInfo);
-                    return !existingSyncJobs.contains(tempSyncJob); // 존재하지 않는데이터 를가져온다
+                    IndexInfo tempIndexInfo = dummyFactory.createDummyIndexInfo(stockIndexInfoResult);
+                    SyncJob tempSyncJob = dummyFactory.createDummyIndexInfoSyncJob(stockIndexInfoResult, tempIndexInfo);
+                    return !existingSyncJobs.contains(tempSyncJob);
                 })
                 .toList();
 
-        return this.updateIndexInfoAndCreateSyncJobs(existingNotSyncStockIndexInfoResults, allIndexInfo); // 이건 왜?
+        return this.updateIndexInfoAndCreateSyncJobs(existingNotSyncStockIndexInfoResults, allIndexInfo);
     }
 
     public List<SyncJob> createIndexInfosAndCreateSyncJobs(List<StockIndexInfoResult> allLastDateIndexInfoFromOpenAPI, Set<IndexInfo> existingIndexInfos) {
         List<StockIndexInfoResult> newStockIndexInfoResults = allLastDateIndexInfoFromOpenAPI.stream()
                 .filter(stockIndexInfoResult -> {
-                    IndexInfo tempIndexInfo = createDummyIndexInfo(stockIndexInfoResult);
+                    IndexInfo tempIndexInfo = dummyFactory.createDummyIndexInfo(stockIndexInfoResult);
 
                     return !existingIndexInfos.contains(tempIndexInfo);
                 })
@@ -78,31 +79,7 @@ public class IndexInfoSyncJobService {
         return new SyncJobKey(
                 SyncJobType.INDEX_INFO,
                 LocalDate.parse(stockIndexInfoResult.baseDateTime(), DateTimeFormatter.ofPattern("yyyyMMdd")),
-                createDummyIndexInfo(stockIndexInfoResult)
-        );
-    }
-
-    // 이걸 어떻게 해야되나?
-    private SyncJob createDummyIndexInfoSyncJob(StockIndexInfoResult stockIndexInfoResult, IndexInfo tempIndexInfo) {
-        return new SyncJob(
-                SyncJobType.INDEX_INFO,
-                LocalDate.parse(stockIndexInfoResult.baseDateTime(), DateTimeFormatter.ofPattern("yyyyMMdd")),
-                null,
-                null,
-                SyncJobStatus.SUCCESS,
-                tempIndexInfo
-        );
-    }
-
-    private IndexInfo createDummyIndexInfo(StockIndexInfoResult stockIndexInfoResult) {
-        return new IndexInfo(
-                stockIndexInfoResult.indexClassification(),
-                stockIndexInfoResult.indexName(),
-                stockIndexInfoResult.employedItemsCount(),
-                stockIndexInfoResult.basePointInTime(),
-                stockIndexInfoResult.baseIndex(),
-                false,
-                null
+                dummyFactory.createDummyIndexInfo(stockIndexInfoResult)
         );
     }
 

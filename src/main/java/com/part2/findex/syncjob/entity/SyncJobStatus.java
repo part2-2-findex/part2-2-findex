@@ -1,4 +1,4 @@
-package com.part2.findex.syncjob.constant;
+package com.part2.findex.syncjob.entity;
 
 public enum SyncJobStatus {
     SUCCESS,

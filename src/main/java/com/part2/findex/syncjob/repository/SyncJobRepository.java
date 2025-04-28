@@ -1,7 +1,7 @@
 package com.part2.findex.syncjob.repository;
 
-import com.part2.findex.syncjob.constant.SyncJobType;
 import com.part2.findex.syncjob.entity.SyncJob;
+import com.part2.findex.syncjob.entity.SyncJobType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
