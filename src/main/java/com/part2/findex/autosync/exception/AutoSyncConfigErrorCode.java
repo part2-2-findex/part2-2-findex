@@ -1,4 +1,4 @@
-package com.part2.findex.autosyncconfig.exception;
+package com.part2.findex.autosync.exception;
 
 
 import com.part2.findex.common.exception.ErrorCode;
@@ -15,6 +15,13 @@ public enum AutoSyncConfigErrorCode implements ErrorCode {
         this.status = status;
     }
 
-    @Override public String getMessage() { return message; }
-    @Override public HttpStatus getStatus() { return status; }
+    @Override
+    public String getMessage() {
+        return message;
+    }
+
+    @Override
+    public HttpStatus getStatus() {
+        return status;
+    }
 }

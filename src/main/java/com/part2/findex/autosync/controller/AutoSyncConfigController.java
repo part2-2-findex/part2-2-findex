@@ -1,9 +1,9 @@
-package com.part2.findex.autosyncconfig.controller;
+package com.part2.findex.autosync.controller;
 
-import com.part2.findex.autosyncconfig.dto.AutoSyncConfigDto;
-import com.part2.findex.autosyncconfig.dto.AutoSyncConfigUpdateRequest;
-import com.part2.findex.autosyncconfig.dto.response.CursorPageResponse;
-import com.part2.findex.autosyncconfig.service.AutoSyncConfigService;
+import com.part2.findex.autosync.dto.AutoSyncConfigDto;
+import com.part2.findex.autosync.dto.AutoSyncConfigUpdateRequest;
+import com.part2.findex.autosync.dto.response.CursorPageResponse;
+import com.part2.findex.autosync.service.AutoSyncConfigService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

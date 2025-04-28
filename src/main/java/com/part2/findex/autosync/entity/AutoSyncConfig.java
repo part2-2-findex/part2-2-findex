@@ -1,4 +1,4 @@
-package com.part2.findex.autosyncconfig.entity;
+package com.part2.findex.autosync.entity;
 
 import com.part2.findex.indexinfo.entity.IndexInfo;
 import jakarta.persistence.*;

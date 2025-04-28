@@ -50,15 +50,15 @@ public class IndexSyncOrchestratorServiceImpl implements IndexSyncOrchestratorSe
         List<IndexInfo> allIndexInfo = indexInfoRepository.findAll();
         // 2.  DB에 존재하는 지수정보 추출
         Set<IndexInfo> existingIndexInfos = new HashSet<>(allIndexInfo);
-        List<StockIndexInfoResult> existingStockIndexInfoResults = indexInfoSyncJobService.getStockIndexInfoResults(allLastDateIndexInfoFromOpenAPI, existingIndexInfos);
-
+        List<StockIndexInfoResult> existingStockIndexInfoResults = indexInfoSyncJobService.getExistingStockIndexInfoResults(allLastDateIndexInfoFromOpenAPI, existingIndexInfos);
         // 2-1.  DB에 존재하고 이미 연동된 지수 정보 연동 기록 반환
         List<SyncJob> existingIndexInfoSyncJobs = indexInfoSyncJobService.getExistingIndexInfoSyncJobs(existingStockIndexInfoResults);
+
         // 2-2.  DB에 존재하지만 연동이 안된 지수 정보 연동하고 연동 기록 반환
-        List<SyncJob> updatedIndexInfoSyncJobs = indexInfoSyncJobService.getExistingIndexInfoSyncJobs(allIndexInfo, existingStockIndexInfoResults, existingIndexInfoSyncJobs);
+        List<SyncJob> updatedIndexInfoSyncJobs = indexInfoSyncJobService.getExistingNotSyncIndexInfoSyncJobs(allIndexInfo, existingStockIndexInfoResults, existingIndexInfoSyncJobs);
 
         // 3. DB에 존재하지 않는 새로운 지수정보 레포에 저장
-        List<SyncJob> newIndexInfoSyncJobs = indexInfoSyncJobService.getExistingIndexInfoSyncJobs(allLastDateIndexInfoFromOpenAPI, existingIndexInfos);
+        List<SyncJob> newIndexInfoSyncJobs = indexInfoSyncJobService.getNotExistingIndexInfoSyncJobs(allLastDateIndexInfoFromOpenAPI, existingIndexInfos);
 
         // 4. SyncJobResult 반환
         updatedIndexInfoSyncJobs.addAll(newIndexInfoSyncJobs);

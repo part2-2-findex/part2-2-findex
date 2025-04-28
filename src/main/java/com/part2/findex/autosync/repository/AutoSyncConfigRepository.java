@@ -1,6 +1,6 @@
-package com.part2.findex.autosyncconfig.repository;
+package com.part2.findex.autosync.repository;
 
-import com.part2.findex.autosyncconfig.entity.AutoSyncConfig;
+import com.part2.findex.autosync.entity.AutoSyncConfig;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

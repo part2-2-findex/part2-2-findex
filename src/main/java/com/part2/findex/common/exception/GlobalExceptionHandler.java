@@ -1,8 +1,8 @@
 package com.part2.findex.common.exception;
 
 
-import com.part2.findex.autosyncconfig.exception.AutoSyncConfigErrorCode;
-import com.part2.findex.autosyncconfig.exception.AutoSyncConfigException;
+import com.part2.findex.autosync.exception.AutoSyncConfigErrorCode;
+import com.part2.findex.autosync.exception.AutoSyncConfigException;
 import com.part2.findex.common.dto.ApiErrorStatus;
 import com.part2.findex.common.dto.ErrorResponse;
 import com.part2.findex.common.mapper.ErrorMapper;

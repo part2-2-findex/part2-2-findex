@@ -1,4 +1,4 @@
-package com.part2.findex.autosyncconfig.dto.response;
+package com.part2.findex.autosync.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

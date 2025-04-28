@@ -1,20 +1,18 @@
-package com.part2.findex.autosyncconfig.service;
+package com.part2.findex.autosync.service;
 
-import com.part2.findex.autosyncconfig.dto.AutoSyncConfigDto;
-import com.part2.findex.autosyncconfig.dto.response.CursorPageResponse;
-import com.part2.findex.autosyncconfig.entity.AutoSyncConfig;
-import com.part2.findex.autosyncconfig.exception.AutoSyncConfigErrorCode;
-import com.part2.findex.autosyncconfig.exception.AutoSyncConfigException;
-import com.part2.findex.autosyncconfig.repository.AutoSyncConfigRepository;
+import com.part2.findex.autosync.dto.AutoSyncConfigDto;
+import com.part2.findex.autosync.dto.response.CursorPageResponse;
+import com.part2.findex.autosync.entity.AutoSyncConfig;
+import com.part2.findex.autosync.exception.AutoSyncConfigErrorCode;
+import com.part2.findex.autosync.exception.AutoSyncConfigException;
+import com.part2.findex.autosync.repository.AutoSyncConfigRepository;
 import com.part2.findex.indexinfo.entity.IndexInfo;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AutoSyncConfigService {
