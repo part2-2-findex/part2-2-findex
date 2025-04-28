@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,12 +31,12 @@ public class OpenApiStockIndexServiceImpl implements OpenApiStockIndexService {
     }
 
     @Override
-    public List<StockIndexInfoResult> getAllLastDateIndexInfoFromOpenAPI() {
-        StockIndexResponse stockIndexes = getStockIndicesByDate(0);
+    public List<StockIndexInfoResult> getAllLastDateIndexInfoFromOpenAPI(LocalDate targetDate) {
+        StockIndexResponse stockIndexes = getStockIndicesByDate(0, targetDate);
         int totalCount = stockIndexes.response()
                 .body()
                 .totalCount();
-        StockIndexResponse totalStockIndex = getStockIndicesByDate(totalCount);
+        StockIndexResponse totalStockIndex = getStockIndicesByDate(totalCount, targetDate);
 
         return totalStockIndex.response().body().items()
                 .item()
@@ -96,17 +95,7 @@ public class OpenApiStockIndexServiceImpl implements OpenApiStockIndexService {
     }
 
 
-    private StockIndexResponse getStockIndicesByDate(int numbersOfRow) {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime targetDate;
-
-        // 이 부분 변수로 뺴야 합니다.
-        if (now.getHour() < 12) {
-            targetDate = now.minusDays(4);
-        } else {
-            targetDate = now.minusDays(1);
-        }
-
+    private StockIndexResponse getStockIndicesByDate(int numbersOfRow, LocalDate targetDate) {
         String formattedTargetDate = targetDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         StockIndexRequestParam getTotalDataParam = StockIndexRequestParam.builder()
                 .serviceKey(serviceKey)

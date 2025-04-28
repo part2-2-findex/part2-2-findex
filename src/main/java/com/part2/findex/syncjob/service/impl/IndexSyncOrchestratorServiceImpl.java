@@ -39,14 +39,16 @@ public class IndexSyncOrchestratorServiceImpl implements IndexSyncOrchestratorSe
     private final OpenApiStockIndexService openApiStockIndexService;
     private final IndexInfoSyncJobService indexInfoSyncJobService;
     private final IndexDataSyncJobService indexDataSyncJobService;
+    private final IndexDateService indexDateService;
     private final IndexInfoRepository indexInfoRepository;
     private final SyncJobRepository syncJobRepository;
 
     @Transactional
     @Override
     public List<SyncJobResult> synchronizeIndexInfo() {
+        LocalDate targetDate = indexDateService.getLatestBusinessDay();
         // 0. 전체 지수 데이터 요청(최신 Date 요청 필요)
-        List<StockIndexInfoResult> allLastDateIndexInfoFromOpenAPI = openApiStockIndexService.getAllLastDateIndexInfoFromOpenAPI();
+        List<StockIndexInfoResult> allLastDateIndexInfoFromOpenAPI = openApiStockIndexService.getAllLastDateIndexInfoFromOpenAPI(targetDate);
 
         // 1. 전체 지수정보 로드
         List<IndexInfo> allIndexInfo = indexInfoRepository.findAll();

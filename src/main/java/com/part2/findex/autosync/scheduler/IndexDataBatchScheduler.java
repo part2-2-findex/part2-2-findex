@@ -5,6 +5,7 @@ import com.part2.findex.autosync.repository.AutoSyncConfigRepository;
 import com.part2.findex.indexinfo.entity.IndexInfo;
 import com.part2.findex.syncjob.dto.IndexDataSyncRequest;
 import com.part2.findex.syncjob.service.IndexSyncOrchestratorService;
+import com.part2.findex.syncjob.service.impl.IndexDateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,6 +20,7 @@ import java.util.List;
 public class IndexDataBatchScheduler {
     private final AutoSyncConfigRepository autoSyncConfigRepository;
     private final IndexSyncOrchestratorService indexSyncOrchestratorService;
+    private final IndexDateService indexDateService;
 
     @Scheduled(cron = "0 0 14 * * *")
     public void syncIndexData() {
@@ -28,8 +30,8 @@ public class IndexDataBatchScheduler {
                 .map(IndexInfo::getId)
                 .toList();
 
-        LocalDate today = LocalDate.now(); // TODO: 4/28/25 요청 날짜 DTO, API가 안되는 주말, 공휴일 삭제
-        IndexDataSyncRequest indexDataSyncRequest = new IndexDataSyncRequest(enabledIndexInfoIds, today, today);
+        LocalDate targetDate = indexDateService.getLatestBusinessDay();
+        IndexDataSyncRequest indexDataSyncRequest = new IndexDataSyncRequest(enabledIndexInfoIds, targetDate, targetDate);
         indexSyncOrchestratorService.synchronizeIndexData(indexDataSyncRequest);
     }
 }
