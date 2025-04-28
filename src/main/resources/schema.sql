@@ -26,11 +26,11 @@ CREATE TABLE IF NOT EXISTS index_data (
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NULL,
     CONSTRAINT uq_index_trade UNIQUE (index_info_id, base_date),
-    CONSTRAINT fk_index_info FOREIGN KEY (index_info_id) REFERENCES index_info(id)
+    CONSTRAINT fk_index_info FOREIGN KEY (index_info_id) REFERENCES index_info(id) ON DELETE CASCADE
     );
 
 CREATE TABLE IF NOT EXISTS sync_job (
-    id BIGINT PRIMARY KEY  GENERATED ALWAYS AS IDENTITY,
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     job_type VARCHAR(10) NOT NULL,
     target_date DATE NOT NULL,
     worker VARCHAR(50) NOT NULL,
@@ -38,13 +38,13 @@ CREATE TABLE IF NOT EXISTS sync_job (
     result VARCHAR(10) NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NULL,
-    index_info_id BIGINT,
-    CONSTRAINT fk_indexinfo FOREIGN KEY (index_info_id) REFERENCES index_info(id)
+    index_info_id BIGINT NOT NULL,
+    CONSTRAINT fk_indexinfo FOREIGN KEY (index_info_id) REFERENCES index_info(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS auto_sync_config (
     id BIGINT PRIMARY KEY  GENERATED ALWAYS AS IDENTITY,
     index_info_id BIGINT NOT NULL UNIQUE,
     enabled BOOLEAN NOT NULL,
-    CONSTRAINT fk_auto_sync_config_index_classification FOREIGN KEY (index_info_id) REFERENCES index_info(id)
+    CONSTRAINT fk_auto_sync_config_index_classification FOREIGN KEY (index_info_id) REFERENCES index_info(id) ON DELETE CASCADE
 );

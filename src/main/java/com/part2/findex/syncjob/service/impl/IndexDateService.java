@@ -13,7 +13,7 @@ public class IndexDateService {
         LocalDate now = LocalDate.now();
         LocalTime nowTime = LocalTime.now();
 
-        if (nowTime.isBefore(LocalTime.of(13, 59))) {
+        if (nowTime.isBefore(LocalTime.of(21, 0))) {
             now = now.minusDays(1);
         }
 
