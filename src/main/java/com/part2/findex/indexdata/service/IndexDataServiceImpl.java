@@ -25,6 +25,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import static com.part2.findex.indexinfo.entity.SourceType.사용자;
+
 @Service
 @RequiredArgsConstructor
 public class IndexDataServiceImpl implements IndexDataService {
@@ -39,13 +41,13 @@ public class IndexDataServiceImpl implements IndexDataService {
     @Transactional
     @Override
     public IndexDataDto createIndexData(IndexDataCreateRequest indexDataCreateRequest) {
-        IndexInfo indexInfo = indexInfoRepository.findById(indexDataCreateRequest.indexId())
+        IndexInfo indexInfo = indexInfoRepository.findById(indexDataCreateRequest.indexInfoId())
                 .orElseThrow(() -> new NoSuchElementException("Index info not found"));
 
         IndexData indexData = new IndexData(
                 indexInfo,
                 indexDataCreateRequest.baseDate(),
-                SourceType.valueOf(indexDataCreateRequest.sourceType()),
+                사용자,
                 indexDataCreateRequest.marketPrice(),
                 indexDataCreateRequest.closingPrice(),
                 indexDataCreateRequest.highPrice(),
