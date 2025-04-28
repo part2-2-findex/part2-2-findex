@@ -19,7 +19,6 @@ public class SyncJobRepositoryImpl implements SyncJobRepositoryCustom {
 
     @Override
     public List<SyncJob> findByKeys(List<SyncJobKey> keys) {
-        System.out.println(keys);
         QSyncJob syncJob = QSyncJob.syncJob;
 
         BooleanBuilder builder = new BooleanBuilder();
@@ -37,5 +36,4 @@ public class SyncJobRepositoryImpl implements SyncJobRepositoryCustom {
                 .where(builder)
                 .fetch();
     }
-
 }

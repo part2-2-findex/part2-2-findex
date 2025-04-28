@@ -101,7 +101,7 @@ public class IndexSyncOrchestratorServiceImpl implements IndexSyncOrchestratorSe
     @Transactional(readOnly = true)
     @Override
     public CursorPageResponseSyncJob getSyncJobs(SyncJobQueryRequest request) {
-        Specification<SyncJob> filter = SyncJobSpecification.filter(
+        Specification<SyncJob> baseFilter = SyncJobSpecification.filter(
                 request.jobType(),
                 request.indexInfoId(),
                 request.baseDateFrom(),
@@ -113,6 +113,54 @@ public class IndexSyncOrchestratorServiceImpl implements IndexSyncOrchestratorSe
         );
 
 
+        Sort sort = getSortOrders(request);
+        Specification<SyncJob> cusurSpecification = getSyncJobSpecification(request, baseFilter, sort);
+
+        Pageable pageableWithDirection = PageRequest.of(0, request.size(), sort);
+        Page<SyncJob> syncJobPage = syncJobRepository.findAll(cusurSpecification, pageableWithDirection);
+        Page<SyncJob> totalPage = syncJobRepository.findAll(baseFilter, pageableWithDirection);
+
+        return CursorPageResponseSyncJob.of(syncJobPage, request.sortField(), totalPage.getTotalElements());
+    }
+
+    private Specification<SyncJob> getSyncJobSpecification(SyncJobQueryRequest request, Specification<SyncJob> baseFilter, Sort sort) {
+        Specification<SyncJob> finalFilter = Specification.where(baseFilter);
+
+        if (request.cursor() != null && request.sortField().equals(jobTime.name())) {
+            LocalDateTime cursor = LocalDateTime.parse(request.cursor());
+
+            if (sort.getOrderFor(jobTime.name()).isAscending()) {
+                finalFilter = finalFilter.and((root, query, cb) -> cb.greaterThan(root.get(request.sortField()), cursor));
+            } else {
+                finalFilter = finalFilter.and((root, query, cb) -> cb.lessThan(root.get(request.sortField()), cursor));
+            }
+        }
+        if (request.cursor() != null && request.sortField().equals(SortField.targetDate.name())) {
+            LocalDate cursor = LocalDate.parse(request.cursor());
+
+            finalFilter = finalFilter.and((root, query, cb) -> {
+                if (sort.getOrderFor(targetDate.name()).isAscending()) {
+                    Predicate greaterTargetDate = cb.greaterThan(root.get("targetDate"), cursor);
+                    Predicate equalTargetDateAndGreaterId = cb.and(
+                            cb.equal(root.get("targetDate"), cursor),
+                            cb.greaterThan(root.get("id"), request.idAfter())
+                    );
+                    return cb.or(greaterTargetDate, equalTargetDateAndGreaterId);
+                } else {
+                    Predicate lessTargetDate = cb.lessThan(root.get("targetDate"), cursor);
+                    Predicate equalTargetDateAndLessId = cb.and(
+                            cb.equal(root.get("targetDate"), cursor),
+                            cb.lessThan(root.get("id"), request.idAfter())
+                    );
+                    return cb.or(lessTargetDate, equalTargetDateAndLessId);
+                }
+            });
+        }
+
+        return finalFilter;
+    }
+
+    private Sort getSortOrders(SyncJobQueryRequest request) {
         Sort sort = Sort.by(
                 Sort.Order.desc(jobTime.name())
         );
@@ -135,47 +183,6 @@ public class IndexSyncOrchestratorServiceImpl implements IndexSyncOrchestratorSe
                 );
             }
         }
-
-
-        if (request.cursor() != null && request.sortField().equals(jobTime.name())) {
-            LocalDateTime cursor = LocalDateTime.parse(request.cursor());
-
-            if (sort.getOrderFor(jobTime.name()).isAscending()) {
-                filter = filter.and((root, query, cb) -> cb.greaterThan(root.get(request.sortField()), cursor));
-            } else {
-                filter = filter.and((root, query, cb) -> cb.lessThan(root.get(request.sortField()), cursor));
-            }
-        }
-        if (request.cursor() != null && request.sortField().equals(SortField.targetDate.name())) {
-            LocalDate cursor = LocalDate.parse(request.cursor());
-
-            Sort finalSort = sort;
-            filter = filter.and((root, query, cb) -> {
-                if (finalSort.getOrderFor(targetDate.name()).isAscending()) {
-                    Predicate greaterTargetDate = cb.greaterThan(root.get("targetDate"), cursor);
-                    Predicate equalTargetDateAndGreaterId = cb.and(
-                            cb.equal(root.get("targetDate"), cursor),
-                            cb.greaterThan(root.get("id"), request.idAfter())
-                    );
-                    return cb.or(greaterTargetDate, equalTargetDateAndGreaterId);
-                } else {
-                    Predicate lessTargetDate = cb.lessThan(root.get("targetDate"), cursor);
-                    Predicate equalTargetDateAndLessId = cb.and(
-                            cb.equal(root.get("targetDate"), cursor),
-                            cb.lessThan(root.get("id"), request.idAfter())
-                    );
-                    return cb.or(lessTargetDate, equalTargetDateAndLessId);
-                }
-            });
-        }
-
-        Pageable pageableWithDirection = PageRequest.of(
-                0,
-                request.size(),
-                sort
-        );
-
-        Page<SyncJob> syncJobPage = syncJobRepository.findAll(filter, pageableWithDirection);
-        return CursorPageResponseSyncJob.of(syncJobPage, request.sortField());
+        return sort;
     }
 }
