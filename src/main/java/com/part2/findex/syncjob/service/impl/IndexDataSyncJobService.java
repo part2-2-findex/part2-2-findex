@@ -34,7 +34,7 @@ public class IndexDataSyncJobService {
     private final IndexInfoRepository indexInfoRepository;
     private final DummyFactory dummyFactory;
 
-    public List<SyncJob> getExistingIndexSyncJob(IndexDataSyncRequest indexDataSyncRequest) {
+    public List<SyncJob> getExistingIndexDataSyncJob(IndexDataSyncRequest indexDataSyncRequest) {
         return syncJobRepository.findByTargetDateBetweenAndIndexInfoIdInAndJobType(
                 indexDataSyncRequest.baseDateFrom(),
                 indexDataSyncRequest.baseDateTo(),

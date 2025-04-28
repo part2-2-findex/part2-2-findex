@@ -40,12 +40,12 @@ import static com.part2.findex.syncjob.constant.SortField.targetDate;
 @Slf4j
 @RequiredArgsConstructor
 public class IndexSyncOrchestratorServiceImpl implements IndexSyncOrchestratorService {
-    private final OpenApiStockIndexService openApiStockIndexService; // 애는 여기가 맞고
-    private final IndexInfoSyncJobService indexInfoSyncJobService; // 1. Sync
-    private final IndexDataSyncJobService indexDataSyncJobService; // 2.
+    private final OpenApiStockIndexService openApiStockIndexService;
+    private final IndexInfoSyncJobService indexInfoSyncJobService;
+    private final IndexDataSyncJobService indexDataSyncJobService;
     private final TargetDateService targetDateService;
     private final IndexInfoRepository indexInfoRepository;
-    private final SyncJobRepository syncJobRepository; // 3. 마지막까지... 있어야되는것만 있는것 같은데
+    private final SyncJobRepository syncJobRepository;
     private final DummyFactory dummyFactory;
 
     @Transactional
@@ -54,14 +54,13 @@ public class IndexSyncOrchestratorServiceImpl implements IndexSyncOrchestratorSe
         LocalDate targetDate = targetDateService.getLatestBusinessDay();
         List<StockIndexInfoResult> allLastDateIndexInfoFromOpenAPI = openApiStockIndexService.getAllLastDateIndexInfoFromOpenAPI(targetDate);
 
-        List<IndexInfo> allIndexInfo = indexInfoRepository.findAll();
-        Set<IndexInfo> existingIndexInfos = new HashSet<>(allIndexInfo);
-        List<StockIndexInfoResult> existingStockIndexInfoResults = indexInfoSyncJobService.filterExistingIndexInfoResults(allLastDateIndexInfoFromOpenAPI, existingIndexInfos);
+        List<IndexInfo> existingAllIndexInfos = indexInfoRepository.findAll();
+        List<StockIndexInfoResult> existingStockIndexInfoResults = indexInfoSyncJobService.filterExistingIndexInfoResults(allLastDateIndexInfoFromOpenAPI, existingAllIndexInfos);
 
         List<SyncJob> existingIndexInfoSyncJobs = indexInfoSyncJobService.getExistingIndexInfoSyncJobs(existingStockIndexInfoResults);
-        List<SyncJob> updatedIndexInfoSyncJobs = indexInfoSyncJobService.updateExistingIndexInfosAndCreateSyncJobs(allIndexInfo, existingStockIndexInfoResults, existingIndexInfoSyncJobs);
+        List<SyncJob> updatedIndexInfoSyncJobs = indexInfoSyncJobService.updateExistingIndexInfosAndCreateSyncJobs(existingAllIndexInfos, existingStockIndexInfoResults, existingIndexInfoSyncJobs);
 
-        List<SyncJob> newIndexInfoSyncJobs = indexInfoSyncJobService.createIndexInfosAndCreateSyncJobs(allLastDateIndexInfoFromOpenAPI, existingIndexInfos);
+        List<SyncJob> newIndexInfoSyncJobs = indexInfoSyncJobService.createIndexInfosAndCreateSyncJobs(allLastDateIndexInfoFromOpenAPI, existingAllIndexInfos);
         List<SyncJob> savedSyncJobs = syncJobRepository.saveAllAndFlush(newIndexInfoSyncJobs);
         savedSyncJobs.addAll(existingIndexInfoSyncJobs);
         savedSyncJobs.addAll(updatedIndexInfoSyncJobs);
@@ -76,13 +75,11 @@ public class IndexSyncOrchestratorServiceImpl implements IndexSyncOrchestratorSe
     public List<SyncJobResult> synchronizeIndexData(IndexDataSyncRequest indexDataSyncRequest) {
         List<StockDataResult> allIndexDataBetweenDates = requestOpenAPIBetweenDate(indexDataSyncRequest);
 
-        List<SyncJob> existingIndexDataSyncJobs = indexDataSyncJobService.getExistingIndexSyncJob(indexDataSyncRequest);
-
+        List<SyncJob> existingIndexDataSyncJobs = indexDataSyncJobService.getExistingIndexDataSyncJob(indexDataSyncRequest);
         List<StockDataResult> newStockIndexData = indexDataSyncJobService.filterExistingIndexData(allIndexDataBetweenDates, existingIndexDataSyncJobs);
 
         List<SyncJob> newIndexDataSyncJobs = indexDataSyncJobService.createSyncJobsForNewIndexData(newStockIndexData);
         List<SyncJob> savedSyncJobs = syncJobRepository.saveAllAndFlush(newIndexDataSyncJobs);
-
         savedSyncJobs.addAll(existingIndexDataSyncJobs);
 
         return savedSyncJobs.stream()

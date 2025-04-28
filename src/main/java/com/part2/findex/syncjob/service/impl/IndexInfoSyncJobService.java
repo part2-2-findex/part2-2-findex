@@ -30,7 +30,9 @@ public class IndexInfoSyncJobService {
     private final SyncJobRepository syncJobRepository;
     private final DummyFactory dummyFactory;
 
-    public List<StockIndexInfoResult> filterExistingIndexInfoResults(List<StockIndexInfoResult> allLastDateIndexInfoFromOpenAPI, Set<IndexInfo> existingIndexInfos) {
+    public List<StockIndexInfoResult> filterExistingIndexInfoResults(List<StockIndexInfoResult> allLastDateIndexInfoFromOpenAPI, List<IndexInfo> existingAllIndexInfos) {
+        Set<IndexInfo> existingIndexInfos = new HashSet<>(existingAllIndexInfos);
+
         return allLastDateIndexInfoFromOpenAPI.stream()
                 .filter(stockIndexInfoResult -> {
                     IndexInfo tempIndexInfo = dummyFactory.createDummyIndexInfo(stockIndexInfoResult);
@@ -62,7 +64,11 @@ public class IndexInfoSyncJobService {
         return this.updateIndexInfoAndCreateSyncJobs(existingNotSyncStockIndexInfoResults, allIndexInfo);
     }
 
-    public List<SyncJob> createIndexInfosAndCreateSyncJobs(List<StockIndexInfoResult> allLastDateIndexInfoFromOpenAPI, Set<IndexInfo> existingIndexInfos) {
+    public List<SyncJob> createIndexInfosAndCreateSyncJobs(List<StockIndexInfoResult> allLastDateIndexInfoFromOpenAPI,
+                                                           List<IndexInfo> existingAllIndexInfos) {
+
+        Set<IndexInfo> existingIndexInfos = new HashSet<>(existingAllIndexInfos);
+
         List<StockIndexInfoResult> newStockIndexInfoResults = allLastDateIndexInfoFromOpenAPI.stream()
                 .filter(stockIndexInfoResult -> {
                     IndexInfo tempIndexInfo = dummyFactory.createDummyIndexInfo(stockIndexInfoResult);
