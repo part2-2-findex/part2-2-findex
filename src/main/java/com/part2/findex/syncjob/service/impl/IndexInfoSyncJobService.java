@@ -29,11 +29,10 @@ public class IndexInfoSyncJobService {
     private final ClientIpResolver clientIpResolver;
     private final SyncJobRepository syncJobRepository;
 
-    public List<StockIndexInfoResult> getExistingStockIndexInfoResults(List<StockIndexInfoResult> allLastDateIndexInfoFromOpenAPI, Set<IndexInfo> existingIndexInfos) {
+    public List<StockIndexInfoResult> filterExistingIndexInfoResults(List<StockIndexInfoResult> allLastDateIndexInfoFromOpenAPI, Set<IndexInfo> existingIndexInfos) {
         return allLastDateIndexInfoFromOpenAPI.stream()
                 .filter(stockIndexInfoResult -> {
                     IndexInfo tempIndexInfo = createDummyIndexInfo(stockIndexInfoResult);
-
                     return existingIndexInfos.contains(tempIndexInfo);
                 })
                 .toList();
@@ -47,21 +46,22 @@ public class IndexInfoSyncJobService {
         return syncJobRepository.findByKeys(syncJobKey);
     }
 
-    public List<SyncJob> getExistingNotSyncIndexInfoSyncJobs(List<IndexInfo> allIndexInfo, List<StockIndexInfoResult> existingStockIndexInfoResults, List<SyncJob> existingIndexInfoSyncJobs) {
-        Set<SyncJob> existingSyncJobs = new HashSet<>(existingIndexInfoSyncJobs);
+    public List<SyncJob> updateExistingIndexInfosAndCreateSyncJobs(List<IndexInfo> allIndexInfo, // ?? 이걸 어떻게 해야되지?? 흐음... 이걸 어떻게 해야되나...
+                                                                   List<StockIndexInfoResult> existingStockIndexInfoResults,
+                                                                   List<SyncJob> existingIndexInfoSyncJobs) {
+        Set<SyncJob> existingSyncJobs = new HashSet<>(existingIndexInfoSyncJobs); // 존재하는 Job을 통해서
         List<StockIndexInfoResult> existingNotSyncStockIndexInfoResults = existingStockIndexInfoResults.stream()
                 .filter(stockIndexInfoResult -> {
                     IndexInfo tempIndexInfo = createDummyIndexInfo(stockIndexInfoResult);
                     SyncJob tempSyncJob = createDummyIndexInfoSyncJob(stockIndexInfoResult, tempIndexInfo);
-
-                    return !existingSyncJobs.contains(tempSyncJob);
+                    return !existingSyncJobs.contains(tempSyncJob); // 존재하지 않는데이터 를가져온다
                 })
                 .toList();
 
-        return this.updateIndexInfoAndCreateSyncJobs(existingNotSyncStockIndexInfoResults, allIndexInfo);
+        return this.updateIndexInfoAndCreateSyncJobs(existingNotSyncStockIndexInfoResults, allIndexInfo); // 이건 왜?
     }
 
-    public List<SyncJob> getNotExistingIndexInfoSyncJobs(List<StockIndexInfoResult> allLastDateIndexInfoFromOpenAPI, Set<IndexInfo> existingIndexInfos) {
+    public List<SyncJob> createIndexInfosAndCreateSyncJobs(List<StockIndexInfoResult> allLastDateIndexInfoFromOpenAPI, Set<IndexInfo> existingIndexInfos) {
         List<StockIndexInfoResult> newStockIndexInfoResults = allLastDateIndexInfoFromOpenAPI.stream()
                 .filter(stockIndexInfoResult -> {
                     IndexInfo tempIndexInfo = createDummyIndexInfo(stockIndexInfoResult);
@@ -82,13 +82,14 @@ public class IndexInfoSyncJobService {
         );
     }
 
+    // 이걸 어떻게 해야되나?
     private SyncJob createDummyIndexInfoSyncJob(StockIndexInfoResult stockIndexInfoResult, IndexInfo tempIndexInfo) {
         return new SyncJob(
                 SyncJobType.INDEX_INFO,
                 LocalDate.parse(stockIndexInfoResult.baseDateTime(), DateTimeFormatter.ofPattern("yyyyMMdd")),
-                "dummyWorker",
                 null,
                 null,
+                SyncJobStatus.SUCCESS,
                 tempIndexInfo
         );
     }
@@ -105,7 +106,6 @@ public class IndexInfoSyncJobService {
         );
     }
 
-
     private List<SyncJob> updateIndexInfoAndCreateSyncJobs(
             List<StockIndexInfoResult> existingNotSyncStockIndexInfoResults,
             List<IndexInfo> allIndexInfo
@@ -115,9 +115,9 @@ public class IndexInfoSyncJobService {
                         IndexInfo::getIndexInfoBusinessKey,
                         Function.identity()
                 ));
+
         Function<StockIndexInfoResult, IndexInfo> updateFunction = existingNotSyncStockIndexInfoResult -> {
-            IndexInfoBusinessKey infoBusinessKey = new IndexInfoBusinessKey(existingNotSyncStockIndexInfoResult.indexClassification(),
-                    existingNotSyncStockIndexInfoResult.indexName());
+            IndexInfoBusinessKey infoBusinessKey = new IndexInfoBusinessKey(existingNotSyncStockIndexInfoResult.indexClassification(), existingNotSyncStockIndexInfoResult.indexName());
             IndexInfo indexInfoSameKey = existingIndexInfos.get(infoBusinessKey);
 
             return indexInfoSyncService.updateIndexInfo(indexInfoSameKey, existingNotSyncStockIndexInfoResult);
@@ -134,13 +134,8 @@ public class IndexInfoSyncJobService {
         return this.processWithIndexInfoSyncJobs(newStockIndexInfoResults, saveFunction);
     }
 
-    private List<SyncJob> processWithIndexInfoSyncJobs(
-            List<StockIndexInfoResult> items,
-            Function<StockIndexInfoResult, IndexInfo> processor
-    ) {
-
+    private List<SyncJob> processWithIndexInfoSyncJobs(List<StockIndexInfoResult> items, Function<StockIndexInfoResult, IndexInfo> processor) {
         return indexSyncBatchService.processBatch(items, item -> {
-
             try {
                 IndexInfo indexInfo = processor.apply(item);
                 return createSyncJob(SyncJobType.INDEX_INFO, indexInfo, SyncJobStatus.SUCCESS, item.baseDateTime());

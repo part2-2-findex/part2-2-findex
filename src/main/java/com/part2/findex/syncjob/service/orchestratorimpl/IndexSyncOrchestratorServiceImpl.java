@@ -1,4 +1,4 @@
-package com.part2.findex.syncjob.service.impl;
+package com.part2.findex.syncjob.service.orchestratorimpl;
 
 import com.part2.findex.indexinfo.entity.IndexInfo;
 import com.part2.findex.indexinfo.repository.IndexInfoRepository;
@@ -10,6 +10,9 @@ import com.part2.findex.syncjob.entity.SyncJob;
 import com.part2.findex.syncjob.repository.SyncJobRepository;
 import com.part2.findex.syncjob.repository.SyncJobSpecification;
 import com.part2.findex.syncjob.service.IndexSyncOrchestratorService;
+import com.part2.findex.syncjob.service.impl.IndexDataSyncJobService;
+import com.part2.findex.syncjob.service.impl.IndexInfoSyncJobService;
+import com.part2.findex.syncjob.service.impl.TargetDateService;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,24 +42,24 @@ public class IndexSyncOrchestratorServiceImpl implements IndexSyncOrchestratorSe
     private final OpenApiStockIndexService openApiStockIndexService;
     private final IndexInfoSyncJobService indexInfoSyncJobService;
     private final IndexDataSyncJobService indexDataSyncJobService;
-    private final IndexDateService indexDateService;
+    private final TargetDateService targetDateService;
     private final IndexInfoRepository indexInfoRepository;
     private final SyncJobRepository syncJobRepository;
 
     @Transactional
     @Override
     public List<SyncJobResult> synchronizeIndexInfo() {
-        LocalDate targetDate = indexDateService.getLatestBusinessDay();
+        LocalDate targetDate = targetDateService.getLatestBusinessDay();
         List<StockIndexInfoResult> allLastDateIndexInfoFromOpenAPI = openApiStockIndexService.getAllLastDateIndexInfoFromOpenAPI(targetDate);
 
         List<IndexInfo> allIndexInfo = indexInfoRepository.findAll();
         Set<IndexInfo> existingIndexInfos = new HashSet<>(allIndexInfo);
-        List<StockIndexInfoResult> existingStockIndexInfoResults = indexInfoSyncJobService.getExistingStockIndexInfoResults(allLastDateIndexInfoFromOpenAPI, existingIndexInfos);
+        List<StockIndexInfoResult> existingStockIndexInfoResults = indexInfoSyncJobService.filterExistingIndexInfoResults(allLastDateIndexInfoFromOpenAPI, existingIndexInfos);
+
         List<SyncJob> existingIndexInfoSyncJobs = indexInfoSyncJobService.getExistingIndexInfoSyncJobs(existingStockIndexInfoResults);
+        List<SyncJob> updatedIndexInfoSyncJobs = indexInfoSyncJobService.updateExistingIndexInfosAndCreateSyncJobs(allIndexInfo, existingStockIndexInfoResults, existingIndexInfoSyncJobs);
 
-        List<SyncJob> updatedIndexInfoSyncJobs = indexInfoSyncJobService.getExistingNotSyncIndexInfoSyncJobs(allIndexInfo, existingStockIndexInfoResults, existingIndexInfoSyncJobs);
-        List<SyncJob> newIndexInfoSyncJobs = indexInfoSyncJobService.getNotExistingIndexInfoSyncJobs(allLastDateIndexInfoFromOpenAPI, existingIndexInfos);
-
+        List<SyncJob> newIndexInfoSyncJobs = indexInfoSyncJobService.createIndexInfosAndCreateSyncJobs(allLastDateIndexInfoFromOpenAPI, existingIndexInfos);
         List<SyncJob> savedSyncJobs = syncJobRepository.saveAllAndFlush(newIndexInfoSyncJobs);
         savedSyncJobs.addAll(existingIndexInfoSyncJobs);
         savedSyncJobs.addAll(updatedIndexInfoSyncJobs);
