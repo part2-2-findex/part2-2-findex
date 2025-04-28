@@ -7,7 +7,6 @@ import com.part2.findex.syncjob.dto.SyncJobResult;
 import com.part2.findex.syncjob.service.IndexSyncOrchestratorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,14 +14,13 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@Slf4j
 @RequestMapping("api/sync-jobs")
 public class SyncController {
     private final IndexSyncOrchestratorService indexSyncOrchestratorService;
 
     @PostMapping("index-infos")
     public ResponseEntity<List<SyncJobResult>> synchronizeIndexInfos() {
-        return ResponseEntity.ok(indexSyncOrchestratorService.syncIndexInfoWithOpenAPI());
+        return ResponseEntity.ok(indexSyncOrchestratorService.synchronizeIndexInfo());
     }
 
     @PostMapping("index-data")

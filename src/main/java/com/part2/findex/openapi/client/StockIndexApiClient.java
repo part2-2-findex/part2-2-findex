@@ -4,7 +4,6 @@ import com.part2.findex.openapi.dto.StockIndexRequestParam;
 import com.part2.findex.openapi.dto.StockIndexResponse;
 import com.part2.findex.openapi.util.OpenApiUrlBuilder;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +15,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 @Component
-@Slf4j
 @RequiredArgsConstructor
 public class StockIndexApiClient {
 

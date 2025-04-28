@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 
-public interface SyncJobRepository extends JpaRepository<SyncJob, Long>, JpaSpecificationExecutor<SyncJob> {
+public interface SyncJobRepository extends JpaRepository<SyncJob, Long>, JpaSpecificationExecutor<SyncJob>, SyncJobRepositoryCustom {
 
     List<SyncJob> findByTargetDateBetweenAndIndexInfoIdInAndJobType(
             LocalDate startDate,

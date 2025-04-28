@@ -1,6 +1,5 @@
 package com.part2.findex.indexinfo.entity;
 
-import com.part2.findex.syncjob.dto.StockIndexInfoResult;
 import jakarta.persistence.Embeddable;
 import lombok.Getter;
 
@@ -15,17 +14,17 @@ public class IndexInfoBusinessKey {
     protected IndexInfoBusinessKey() {
     }
 
-    public IndexInfoBusinessKey(String classification, String name) {
+    public IndexInfoBusinessKey(String classification, String indexName) {
         this.indexClassification = classification;
-        this.indexName = name;
+        this.indexName = indexName;
     }
 
     // 시간이 없어서 못 고치는 중 외부 Dto에 의존하지 않게 수정예
-    public static IndexInfoBusinessKey from(StockIndexInfoResult stockIndexInfoResult) {
-        return new IndexInfoBusinessKey(
-                stockIndexInfoResult.indexClassification(),
-                stockIndexInfoResult.indexName());
-    }
+//    public static IndexInfoBusinessKey from(StockIndexInfoResult stockIndexInfoResult) {
+//        return new IndexInfoBusinessKey(
+//                stockIndexInfoResult.indexClassification(),
+//                stockIndexInfoResult.indexName());
+//    }
 
     @Override
     public boolean equals(Object o) {
@@ -47,11 +46,11 @@ public class IndexInfoBusinessKey {
         return result;
     }
 
-    @Override
-    public String toString() {
-        return "IndexInfoBusinessKey{" +
-                "indexClassification='" + indexClassification + '\'' +
-                ", indexName='" + indexName + '\'' +
-                '}';
-    }
+//    @Override
+//    public String toString() {
+//        return "IndexInfoBusinessKey{" +
+//                "indexClassification='" + indexClassification + '\'' +
+//                ", indexName='" + indexName + '\'' +
+//                '}';
+//    }
 }
