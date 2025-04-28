@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Service
-public class IndexDateService {
+public class TargetDateService {
 
     public LocalDate getLatestBusinessDay() {
         LocalDate now = LocalDate.now().minusDays(1);
