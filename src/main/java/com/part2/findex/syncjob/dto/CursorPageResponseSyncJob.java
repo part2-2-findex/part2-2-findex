@@ -14,12 +14,11 @@ public record CursorPageResponseSyncJob(
         long totalElements,
         boolean hasNext
 ) {
-    public static CursorPageResponseSyncJob of(Page<SyncJob> syncJobPage, String sortField) {
+    public static CursorPageResponseSyncJob of(Page<SyncJob> syncJobPage, String sortField, long totalElements) {
         List<SyncJobResult> syncJobResults = syncJobPage.getContent()
                 .stream()
                 .map(SyncJobResult::from)
                 .toList();
-        syncJobPage.getTotalElements();
         String nextCursor = getNextCursor(syncJobPage, syncJobResults, sortField);
         Long lastSyncJobId = getLastSyncJobId(syncJobPage, syncJobResults);
 
@@ -28,7 +27,7 @@ public record CursorPageResponseSyncJob(
                 nextCursor,
                 lastSyncJobId,
                 syncJobResults.size(),
-                syncJobPage.getTotalElements(),
+                totalElements,
                 syncJobPage.hasNext()
         );
     }

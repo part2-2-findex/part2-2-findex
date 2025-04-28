@@ -5,7 +5,7 @@ import com.part2.findex.indexinfo.entity.IndexInfo;
 import java.time.LocalDate;
 
 public record IndexDataOpenAPIRequest(
-        String name,
+        String indexName,
         LocalDate startDate,
         LocalDate endDate
 ) {

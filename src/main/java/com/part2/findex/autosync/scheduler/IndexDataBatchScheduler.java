@@ -5,6 +5,7 @@ import com.part2.findex.autosync.repository.AutoSyncConfigRepository;
 import com.part2.findex.indexinfo.entity.IndexInfo;
 import com.part2.findex.syncjob.dto.IndexDataSyncRequest;
 import com.part2.findex.syncjob.service.IndexSyncOrchestratorService;
+import com.part2.findex.syncjob.service.impl.IndexDateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,20 +20,18 @@ import java.util.List;
 public class IndexDataBatchScheduler {
     private final AutoSyncConfigRepository autoSyncConfigRepository;
     private final IndexSyncOrchestratorService indexSyncOrchestratorService;
+    private final IndexDateService indexDateService;
 
-    @Scheduled(cron = "0 * * * * *") // 1분마다 테스트 해주세요
+    @Scheduled(cron = "0 0 14 * * *")
     public void syncIndexData() {
-        log.info("✅ 지수 데이터 자동 연동 배치 시작");
         List<Long> enabledIndexInfoIds = autoSyncConfigRepository.findByEnabledTrue()
                 .stream()
                 .map(AutoSyncConfig::getIndexInfo)
                 .map(IndexInfo::getId)
                 .toList();
 
-        LocalDate today = LocalDate.now();
-        IndexDataSyncRequest indexDataSyncRequest = new IndexDataSyncRequest(enabledIndexInfoIds, today, today);
+        LocalDate targetDate = indexDateService.getLatestBusinessDay();
+        IndexDataSyncRequest indexDataSyncRequest = new IndexDataSyncRequest(enabledIndexInfoIds, targetDate, targetDate);
         indexSyncOrchestratorService.synchronizeIndexData(indexDataSyncRequest);
-
-        log.info("✅ 지수 데이터 자동 연동 배치 완료");
     }
 }

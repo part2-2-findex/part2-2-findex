@@ -71,9 +71,9 @@ public class SyncJob {
         if (!(o instanceof SyncJob)) return false;
 
         SyncJob syncJob = (SyncJob) o;
-
         if (jobType != syncJob.jobType) return false;
         if (!Objects.equals(targetDate, syncJob.targetDate)) return false;
+        if (result != syncJob.result) return false;
         return Objects.equals(indexInfo, syncJob.indexInfo);
     }
 
@@ -82,6 +82,7 @@ public class SyncJob {
         int result = jobType != null ? jobType.hashCode() : 0;
         result = 31 * result + (targetDate != null ? targetDate.hashCode() : 0);
         result = 31 * result + (indexInfo != null ? indexInfo.hashCode() : 0);
+        result = 31 * result + (this.result != null ? this.result.hashCode() : 0);
         return result;
     }
 }
