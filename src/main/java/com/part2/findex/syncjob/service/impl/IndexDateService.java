@@ -10,7 +10,7 @@ import java.time.LocalTime;
 public class IndexDateService {
 
     public LocalDate getLatestBusinessDay() {
-        LocalDate now = LocalDate.now();
+        LocalDate now = LocalDate.now().minusDays(1);
         LocalTime nowTime = LocalTime.now();
 
         if (nowTime.isBefore(LocalTime.of(21, 0))) {
