@@ -47,24 +47,16 @@ public class IndexSyncOrchestratorServiceImpl implements IndexSyncOrchestratorSe
     @Override
     public List<SyncJobResult> synchronizeIndexInfo() {
         LocalDate targetDate = indexDateService.getLatestBusinessDay();
-        // 0. 전체 지수 데이터 요청(최신 Date 요청 필요)
         List<StockIndexInfoResult> allLastDateIndexInfoFromOpenAPI = openApiStockIndexService.getAllLastDateIndexInfoFromOpenAPI(targetDate);
 
-        // 1. 전체 지수정보 로드
         List<IndexInfo> allIndexInfo = indexInfoRepository.findAll();
-        // 2.  DB에 존재하는 지수정보 추출
         Set<IndexInfo> existingIndexInfos = new HashSet<>(allIndexInfo);
         List<StockIndexInfoResult> existingStockIndexInfoResults = indexInfoSyncJobService.getExistingStockIndexInfoResults(allLastDateIndexInfoFromOpenAPI, existingIndexInfos);
-        // 2-1.  DB에 존재하고 이미 연동된 지수 정보 연동 기록 반환
         List<SyncJob> existingIndexInfoSyncJobs = indexInfoSyncJobService.getExistingIndexInfoSyncJobs(existingStockIndexInfoResults);
 
-        // 2-2.  DB에 존재하지만 연동이 안된 지수 정보 연동하고 연동 기록 반환
         List<SyncJob> updatedIndexInfoSyncJobs = indexInfoSyncJobService.getExistingNotSyncIndexInfoSyncJobs(allIndexInfo, existingStockIndexInfoResults, existingIndexInfoSyncJobs);
-
-        // 3. DB에 존재하지 않는 새로운 지수정보 레포에 저장
         List<SyncJob> newIndexInfoSyncJobs = indexInfoSyncJobService.getNotExistingIndexInfoSyncJobs(allLastDateIndexInfoFromOpenAPI, existingIndexInfos);
 
-        // 4. SyncJobResult 반환
         updatedIndexInfoSyncJobs.addAll(newIndexInfoSyncJobs);
         List<SyncJob> savedSyncJobs = syncJobRepository.saveAllAndFlush(updatedIndexInfoSyncJobs);
         savedSyncJobs.addAll(existingIndexInfoSyncJobs);
@@ -77,20 +69,15 @@ public class IndexSyncOrchestratorServiceImpl implements IndexSyncOrchestratorSe
     @Transactional
     @Override
     public List<SyncJobResult> synchronizeIndexData(IndexDataSyncRequest indexDataSyncRequest) {
-        // 1. API 요청, 전체 다 요청
         List<StockDataResult> allIndexDataBetweenDates = indexDataSyncJobService.requestOpenAPIBetweenDate(indexDataSyncRequest);
 
-        // 2. DB에 이미 있는 데이터 확인
         List<SyncJob> existingIndexDataSyncJobs = indexDataSyncJobService.getExistingIndexSyncJob(indexDataSyncRequest);
 
-        // 3. DB에 없는 새로운 데이터 추출
         List<StockDataResult> newStockIndexData = indexDataSyncJobService.filterExistingIndexData(allIndexDataBetweenDates, existingIndexDataSyncJobs);
 
-        // 4. IndexData 저장 및 SyncJob 생성
         List<SyncJob> newIndexDataSyncJobs = indexDataSyncJobService.createSyncJobsForNewIndexData(newStockIndexData);
         List<SyncJob> savedSyncJobs = syncJobRepository.saveAllAndFlush(newIndexDataSyncJobs);
 
-        // 5. 갱신된 부분 반환
         savedSyncJobs.addAll(existingIndexDataSyncJobs);
 
         return savedSyncJobs.stream()
