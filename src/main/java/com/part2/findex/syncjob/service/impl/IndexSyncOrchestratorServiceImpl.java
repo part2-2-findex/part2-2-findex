@@ -12,6 +12,7 @@ import com.part2.findex.syncjob.repository.SyncJobSpecification;
 import com.part2.findex.syncjob.service.IndexSyncOrchestratorService;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,6 +33,7 @@ import static com.part2.findex.syncjob.constant.SortField.jobTime;
 import static com.part2.findex.syncjob.constant.SortField.targetDate;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class IndexSyncOrchestratorServiceImpl implements IndexSyncOrchestratorService {
     private final OpenApiStockIndexService openApiStockIndexService;
@@ -76,10 +78,10 @@ public class IndexSyncOrchestratorServiceImpl implements IndexSyncOrchestratorSe
         // 1. API 요청, 전체 다 요청
         List<StockDataResult> allIndexDataBetweenDates = indexDataSyncJobService.requestOpenAPIBetweenDate(indexDataSyncRequest);
 
-        // 2. 이미 있는 데이터 확인
+        // 2. DB에 이미 있는 데이터 확인
         List<SyncJob> existingIndexDataSyncJobs = indexDataSyncJobService.getExistingIndexSyncJob(indexDataSyncRequest);
 
-        // 3. 이미 존재하는 데이터 제거
+        // 3. DB에 없는 새로운 데이터 추출
         List<StockDataResult> newStockIndexData = indexDataSyncJobService.filterExistingIndexData(allIndexDataBetweenDates, existingIndexDataSyncJobs);
 
         // 4. IndexData 저장 및 SyncJob 생성

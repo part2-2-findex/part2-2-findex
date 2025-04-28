@@ -37,12 +37,19 @@ public class IndexDataSyncJobService {
     private final IndexInfoRepository indexInfoRepository;
 
     public List<StockDataResult> requestOpenAPIBetweenDate(IndexDataSyncRequest indexDataSyncRequest) {
-        List<IndexDataOpenAPIRequest> openAPIRequests = indexInfoRepository.findAllById(indexDataSyncRequest.indexInfoIds())
-                .stream()
+        List<IndexInfo> requestedIndexInfos = indexInfoRepository.findAllById(indexDataSyncRequest.indexInfoIds());
+        List<IndexDataOpenAPIRequest> openAPIRequests = requestedIndexInfos.stream()
                 .map(indexInfo -> IndexDataOpenAPIRequest.of(indexInfo, indexDataSyncRequest.baseDateFrom(), indexDataSyncRequest.baseDateTo()))
                 .toList();
 
-        return openApiStockIndexService.getAllIndexDataBetweenDates(openAPIRequests);
+        Set<IndexInfo> indexInfos = new HashSet<>(requestedIndexInfos);
+        return openApiStockIndexService.getAllIndexDataBetweenDates(openAPIRequests)
+                .stream()
+                .filter(stockDataResult -> {
+                    IndexInfo dummyIndexInfo = getDummyIndexInfo(stockDataResult);
+                    return indexInfos.contains(dummyIndexInfo);
+                })
+                .toList();
     }
 
     public List<SyncJob> getExistingIndexSyncJob(IndexDataSyncRequest indexDataSyncRequest) {
@@ -58,15 +65,36 @@ public class IndexDataSyncJobService {
             List<SyncJob> existingIndexDataSyncJobs
     ) {
         Set<SyncJob> existingSyncJobs = new HashSet<>(existingIndexDataSyncJobs);
-
         return allIndexDataBetweenDates.stream()
                 .filter(stockDataResult -> {
-                    IndexInfo indexInfo = getDummyIndexInfo(stockDataResult);
-                    SyncJob tempSyncJob = getDummySyncJob(stockDataResult, indexInfo);
+                    SyncJob stockResultSyncJob = getDummySyncJob(stockDataResult, getDummyIndexInfo(stockDataResult));
 
-                    return !existingSyncJobs.contains(tempSyncJob);
+                    return !existingSyncJobs.contains(stockResultSyncJob);
                 })
                 .toList();
+    }
+
+    private IndexInfo getDummyIndexInfo(StockDataResult stockDataResult) {
+        return new IndexInfo(
+                stockDataResult.indexClassification(),
+                stockDataResult.indexName(),
+                0,
+                null,
+                0,
+                false,
+                null
+        );
+    }
+
+    private SyncJob getDummySyncJob(StockDataResult stockDataResult, IndexInfo indexInfo) {
+        return new SyncJob(
+                SyncJobType.INDEX_DATA,
+                stockDataResult.baseDate(),
+                null,
+                null,
+                SyncJobStatus.SUCCESS,
+                indexInfo
+        );
     }
 
     public List<SyncJob> createSyncJobsForNewIndexData(List<StockDataResult> newStockDataResults) {
@@ -94,11 +122,10 @@ public class IndexDataSyncJobService {
         } catch (Exception e) {
             IndexData failedIndexData = indexDataSyncService.convertToIndexData(stockDataResult, indexInfo);
             indexDataSyncService.saveFailedIndexDataSyncJob(createSyncJobIndexData(SyncJobType.INDEX_DATA, failedIndexData, SyncJobStatus.FAILED));
-
+            e.printStackTrace();
             throw new IllegalArgumentException("지수 데이터 연동 실패");
         }
     }
-
 
     private SyncJob createSyncJobIndexData(SyncJobType jobType, IndexData indexData, SyncJobStatus status) {
         String clientIp = clientIpResolver.getClientIp();
@@ -115,29 +142,6 @@ public class IndexDataSyncJobService {
                 LocalDateTime.now(),
                 status,
                 indexData.getIndexInfo()
-        );
-    }
-
-    private IndexInfo getDummyIndexInfo(StockDataResult stockDataResult) {
-        return new IndexInfo(
-                stockDataResult.indexClassification(),
-                stockDataResult.indexName(),
-                0,
-                null,
-                0,
-                false,
-                null
-        );
-    }
-
-    private SyncJob getDummySyncJob(StockDataResult stockDataResult, IndexInfo indexInfo) {
-        return new SyncJob(
-                SyncJobType.INDEX_DATA,
-                stockDataResult.baseDate(),
-                "dummyWorker",
-                null,
-                null,
-                indexInfo
         );
     }
 

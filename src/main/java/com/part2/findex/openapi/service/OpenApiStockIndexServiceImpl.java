@@ -53,7 +53,7 @@ public class OpenApiStockIndexServiceImpl implements OpenApiStockIndexService {
         for (IndexDataOpenAPIRequest openAPIRequest : openAPIRequests) {
             StockIndexResponse stockIndicesBetweenDateForTotalCount = getStockIndicesBetweenDate(
                     0,
-                    openAPIRequest.name(),
+                    openAPIRequest.indexName(),
                     openAPIRequest.startDate(),
                     openAPIRequest.endDate().plusDays(1)
             );
@@ -63,7 +63,7 @@ public class OpenApiStockIndexServiceImpl implements OpenApiStockIndexService {
                     .totalCount();
             StockIndexResponse stockIndicesBetweenDate = getStockIndicesBetweenDate(
                     totalCount,
-                    openAPIRequest.name(),
+                    openAPIRequest.indexName(),
                     openAPIRequest.startDate(),
                     openAPIRequest.endDate().plusDays(1)
             );

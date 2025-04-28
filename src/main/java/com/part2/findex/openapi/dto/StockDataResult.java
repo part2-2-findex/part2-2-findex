@@ -22,7 +22,7 @@ public record StockDataResult(
     public static StockDataResult from(StockItem stockItem) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         LocalDate baseDate = LocalDate.parse(stockItem.basDt(), formatter);
-        
+
         return new StockDataResult(
                 stockItem.idxNm(),
                 stockItem.idxCsf(),
