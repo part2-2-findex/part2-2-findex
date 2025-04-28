@@ -20,19 +20,16 @@ public class IndexDataBatchScheduler {
     private final AutoSyncConfigRepository autoSyncConfigRepository;
     private final IndexSyncOrchestratorService indexSyncOrchestratorService;
 
-    @Scheduled(cron = "0 * * * * *") // 1분마다 테스트 해주세요
+    @Scheduled(cron = "0 0 14 * * *")
     public void syncIndexData() {
-        log.info("✅ 지수 데이터 자동 연동 배치 시작");
         List<Long> enabledIndexInfoIds = autoSyncConfigRepository.findByEnabledTrue()
                 .stream()
                 .map(AutoSyncConfig::getIndexInfo)
                 .map(IndexInfo::getId)
                 .toList();
 
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(); // TODO: 4/28/25 요청 날짜 DTO, API가 안되는 주말, 공휴일 삭제
         IndexDataSyncRequest indexDataSyncRequest = new IndexDataSyncRequest(enabledIndexInfoIds, today, today);
         indexSyncOrchestratorService.synchronizeIndexData(indexDataSyncRequest);
-
-        log.info("✅ 지수 데이터 자동 연동 배치 완료");
     }
 }
