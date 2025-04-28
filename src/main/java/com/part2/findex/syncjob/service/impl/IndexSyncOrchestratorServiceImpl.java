@@ -57,9 +57,9 @@ public class IndexSyncOrchestratorServiceImpl implements IndexSyncOrchestratorSe
         List<SyncJob> updatedIndexInfoSyncJobs = indexInfoSyncJobService.getExistingNotSyncIndexInfoSyncJobs(allIndexInfo, existingStockIndexInfoResults, existingIndexInfoSyncJobs);
         List<SyncJob> newIndexInfoSyncJobs = indexInfoSyncJobService.getNotExistingIndexInfoSyncJobs(allLastDateIndexInfoFromOpenAPI, existingIndexInfos);
 
-        updatedIndexInfoSyncJobs.addAll(newIndexInfoSyncJobs);
-        List<SyncJob> savedSyncJobs = syncJobRepository.saveAllAndFlush(updatedIndexInfoSyncJobs);
+        List<SyncJob> savedSyncJobs = syncJobRepository.saveAllAndFlush(newIndexInfoSyncJobs);
         savedSyncJobs.addAll(existingIndexInfoSyncJobs);
+        savedSyncJobs.addAll(updatedIndexInfoSyncJobs);
 
         return savedSyncJobs.stream()
                 .map(SyncJobResult::from)
