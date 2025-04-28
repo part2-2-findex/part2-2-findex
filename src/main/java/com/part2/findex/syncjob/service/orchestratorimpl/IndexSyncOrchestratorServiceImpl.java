@@ -53,9 +53,8 @@ public class IndexSyncOrchestratorServiceImpl implements IndexSyncOrchestratorSe
     public List<SyncJobResult> synchronizeIndexInfo() {
         LocalDate targetDate = targetDateService.getLatestBusinessDay();
         List<StockIndexInfoResult> allLastDateIndexInfoFromOpenAPI = openApiStockIndexService.getAllLastDateIndexInfoFromOpenAPI(targetDate);
-
         List<IndexInfo> existingAllIndexInfos = indexInfoRepository.findAll();
-        List<StockIndexInfoResult> existingStockIndexInfoResults = indexInfoSyncJobService.filterExistingIndexInfoResults(allLastDateIndexInfoFromOpenAPI, existingAllIndexInfos);
+        List<StockIndexInfoResult> existingStockIndexInfoResults = indexInfoSyncJobService.getExistingIndexInfoResults(allLastDateIndexInfoFromOpenAPI, existingAllIndexInfos);
 
         List<SyncJob> existingIndexInfoSyncJobs = indexInfoSyncJobService.getExistingIndexInfoSyncJobs(existingStockIndexInfoResults);
         List<SyncJob> updatedIndexInfoSyncJobs = indexInfoSyncJobService.updateExistingIndexInfosAndCreateSyncJobs(existingAllIndexInfos, existingStockIndexInfoResults, existingIndexInfoSyncJobs);

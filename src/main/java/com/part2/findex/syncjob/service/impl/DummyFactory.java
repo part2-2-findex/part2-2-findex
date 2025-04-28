@@ -26,7 +26,19 @@ public class DummyFactory {
         );
     }
 
-    public SyncJob createDummySyncJob(StockDataResult stockDataResult, IndexInfo indexInfo) {
+    public IndexInfo createDummyIndexInfo(StockIndexInfoResult stockIndexInfoResult) {
+        return new IndexInfo(
+                stockIndexInfoResult.indexClassification(),
+                stockIndexInfoResult.indexName(),
+                0,
+                null,
+                0,
+                false,
+                null
+        );
+    }
+
+    public SyncJob createDummyIndexDataSyncJob(StockDataResult stockDataResult, IndexInfo indexInfo) {
         return new SyncJob(
                 SyncJobType.INDEX_DATA,
                 stockDataResult.baseDate(),
@@ -37,26 +49,14 @@ public class DummyFactory {
         );
     }
 
-    public SyncJob createDummyIndexInfoSyncJob(StockIndexInfoResult stockIndexInfoResult, IndexInfo tempIndexInfo) {
+    public SyncJob createDummyIndexInfoSyncJob(StockIndexInfoResult stockIndexInfoResult, IndexInfo IndexInfo) {
         return new SyncJob(
                 SyncJobType.INDEX_INFO,
                 LocalDate.parse(stockIndexInfoResult.baseDateTime(), DateTimeFormatter.ofPattern("yyyyMMdd")),
                 null,
                 null,
                 SyncJobStatus.SUCCESS,
-                tempIndexInfo
-        );
-    }
-
-    public IndexInfo createDummyIndexInfo(StockIndexInfoResult stockIndexInfoResult) {
-        return new IndexInfo(
-                stockIndexInfoResult.indexClassification(),
-                stockIndexInfoResult.indexName(),
-                stockIndexInfoResult.employedItemsCount(),
-                stockIndexInfoResult.basePointInTime(),
-                stockIndexInfoResult.baseIndex(),
-                false,
-                null
+                IndexInfo
         );
     }
 }

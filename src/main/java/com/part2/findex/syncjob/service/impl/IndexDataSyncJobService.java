@@ -47,7 +47,7 @@ public class IndexDataSyncJobService {
         return allIndexDataBetweenDates.stream()
                 .filter(stockDataResult -> {
                     IndexInfo indexInfoSignature = dummyFactory.createDummyIndexInfoFromStockData(stockDataResult);
-                    SyncJob stockResultSyncJob = dummyFactory.createDummySyncJob(stockDataResult, indexInfoSignature);
+                    SyncJob stockResultSyncJob = dummyFactory.createDummyIndexDataSyncJob(stockDataResult, indexInfoSignature);
 
                     return !existingSyncJobs.contains(stockResultSyncJob);
                 })
