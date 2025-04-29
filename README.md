@@ -1,12 +1,14 @@
 # 📈 2팀 - FINDEX
+<img src="https://github.com/user-attachments/assets/5571812e-ef31-4ec6-80e0-b79c31b15c90" width="800">
+
 - 프로젝트 계획서 (https://deserted-parade-33d.notion.site/1e38717c1db680ff9ca5c19611c88d8b?pvs=4)
 
 ## 🏃 팀원 구성
-- 황지환 (@GunsanHaribo)
-- 박찬형 (@chanhyeong0403)
-- 양진호 (@yangjinho826)
-- 이경빈 (@Leekb0804)
-- 정연호 (@VincentJeong77)
+- 황지환 [(@GunsanHaribo)](https://github.com/GunsanHaribo)  
+- 박찬형 [(@chanhyeong0403)](https://github.com/chanhyeong0403)  
+- 양진호 [(@yangjinho826)](https://github.com/yangjinho826)  
+- 이경빈 [(@Leekb0804)](https://github.com/Leekb0804)  
+- 정연호 [(@VincentJeong77)](https://github.com/VincentJeong77)
 
 ## 📄 프로젝트 소개
 - Findex는 외부 Open API와 연동하여 금융 지수 데이터를 제공하는 대시보드 서비스입니다.
