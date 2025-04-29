@@ -1,5 +1,5 @@
 # 📈 2팀 - FINDEX
-<img src="https://github.com/user-attachments/assets/5571812e-ef31-4ec6-80e0-b79c31b15c90" width="800">
+<img src="https://github.com/user-attachments/assets/cb7c263f-2405-4f7e-bc3b-ceec6eed8d3f" width="800">
 
 - 프로젝트 계획서 (https://deserted-parade-33d.notion.site/1e38717c1db680ff9ca5c19611c88d8b?pvs=4)
 
