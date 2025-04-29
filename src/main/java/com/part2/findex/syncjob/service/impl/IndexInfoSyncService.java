@@ -1,0 +1,74 @@
+package com.part2.findex.syncjob.service.impl;
+
+import com.part2.findex.autosync.entity.AutoSyncConfig;
+import com.part2.findex.autosync.repository.AutoSyncConfigRepository;
+import com.part2.findex.indexinfo.entity.IndexInfo;
+import com.part2.findex.indexinfo.entity.IndexInfoBusinessKey;
+import com.part2.findex.syncjob.dto.StockIndexInfoResult;
+import com.part2.findex.syncjob.entity.SyncJob;
+import com.part2.findex.syncjob.entity.SyncJobStatus;
+import com.part2.findex.syncjob.entity.SyncJobType;
+import com.part2.findex.syncjob.mapper.IndexInfoMapper;
+import com.part2.findex.syncjob.repository.SyncJobRepository;
+import com.part2.findex.syncjob.service.common.ClientIpResolver;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Map;
+
+@Service
+@RequiredArgsConstructor
+public class IndexInfoSyncService {
+    private static final double BASE_INDEX_TOLERANCE = 0.000001;
+    private final ClientIpResolver clientIpResolver;
+    private final AutoSyncConfigRepository autoSyncConfigRepository;
+    private final SyncJobRepository syncJobRepository;
+
+    public SyncJob saveNewIndexInfoSyncJobAndSetAutoSync(SyncJobType jobType, SyncJobStatus status, IndexInfo savedIndexInfo, String baseTime) {
+        setAutoSync(savedIndexInfo);
+        return syncJobRepository.save(createSyncJob(jobType, savedIndexInfo, status, baseTime));
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public SyncJob saveIndexInfoSyncJob(SyncJobType jobType, SyncJobStatus status, IndexInfo savedIndexInfo, String baseTime) {
+        return syncJobRepository.save(createSyncJob(jobType, savedIndexInfo, status, baseTime));
+    }
+
+    public IndexInfo updateIndexInfo(Map<IndexInfoBusinessKey, IndexInfo> allIndexInfos, StockIndexInfoResult stockIndexInfoResultToUpdate) {
+        IndexInfo IndexInfoToUpdate = allIndexInfos.get(IndexInfoMapper.toIndexInfoBusinessKey(stockIndexInfoResultToUpdate));
+        IndexInfoToUpdate.update(stockIndexInfoResultToUpdate.employedItemsCount(), stockIndexInfoResultToUpdate.basePointInTime(), stockIndexInfoResultToUpdate.baseIndex(), null, BASE_INDEX_TOLERANCE);
+        return IndexInfoToUpdate;
+    }
+
+    private void setAutoSync(IndexInfo savedIndexInfo) {
+        AutoSyncConfig config = AutoSyncConfig.builder()
+                .indexInfo(savedIndexInfo)
+                .enabled(false)
+                .build();
+        autoSyncConfigRepository.save(config);
+    }
+
+    private SyncJob createSyncJob(SyncJobType jobType, IndexInfo indexInfo, SyncJobStatus status, String stockIndexBaseDate) {
+        String clientIp = clientIpResolver.getClientIp();
+        LocalDate baseDate = getLocalDate(stockIndexBaseDate);
+
+        return new SyncJob(jobType, baseDate, clientIp, LocalDateTime.now(), status, indexInfo);
+    }
+
+    private LocalDate getLocalDate(String basePointInTime) {
+        LocalDate baseDate;
+        if (basePointInTime.contains("-")) {
+            baseDate = LocalDate.parse(basePointInTime);
+        } else {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+            baseDate = LocalDate.parse(basePointInTime, formatter);
+        }
+
+        return baseDate;
+    }
+}
