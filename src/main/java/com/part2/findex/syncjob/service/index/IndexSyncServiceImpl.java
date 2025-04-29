@@ -1,4 +1,4 @@
-package com.part2.findex.syncjob.service.orchestratorimpl;
+package com.part2.findex.syncjob.service.index;
 
 import com.part2.findex.indexinfo.entity.IndexInfo;
 import com.part2.findex.indexinfo.repository.IndexInfoRepository;
@@ -11,11 +11,10 @@ import com.part2.findex.syncjob.entity.SyncJobKey;
 import com.part2.findex.syncjob.entity.SyncJobType;
 import com.part2.findex.syncjob.repository.SyncJobRepository;
 import com.part2.findex.syncjob.repository.SyncJobSpecification;
-import com.part2.findex.syncjob.service.IndexSyncOrchestratorService;
 import com.part2.findex.syncjob.service.common.DummyFactory;
 import com.part2.findex.syncjob.service.common.TargetDateService;
-import com.part2.findex.syncjob.service.impl.IndexDataSyncService;
-import com.part2.findex.syncjob.service.impl.IndexInfoSyncJobService;
+import com.part2.findex.syncjob.service.index.data.IndexDataSyncService;
+import com.part2.findex.syncjob.service.index.info.IndexInfoSyncService;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -40,10 +39,10 @@ import static com.part2.findex.syncjob.constant.SortField.targetDate;
 
 @Service
 @RequiredArgsConstructor
-public class IndexSyncOrchestratorServiceImpl implements IndexSyncOrchestratorService {
+public class IndexSyncServiceImpl implements IndexSyncService {
     private final OpenApiStockIndexService openApiStockIndexService;
-    private final IndexInfoSyncJobService indexInfoSyncJobService;
-    private final IndexDataSyncService indexDataSyncJobService;
+    private final IndexInfoSyncService indexInfoSyncJobService;
+    private final IndexDataSyncService indexDataSyncService;
     private final TargetDateService targetDateService;
     private final IndexInfoRepository indexInfoRepository;
     private final SyncJobRepository syncJobRepository;
@@ -75,8 +74,8 @@ public class IndexSyncOrchestratorServiceImpl implements IndexSyncOrchestratorSe
         List<StockDataResult> allStockDataBetweenDates = requestOpenAPIBetweenDate(indexDataSyncRequest, requestedIndexInfos);
 
         List<SyncJob> completedIndexDataSyncJobs = syncJobRepository.findByTargetDateBetweenAndIndexInfoIdInAndJobType(indexDataSyncRequest.baseDateFrom(), indexDataSyncRequest.baseDateTo(), indexDataSyncRequest.indexInfoIds(), SyncJobType.INDEX_DATA);
-        List<StockDataResult> newStockDataResults = indexDataSyncJobService.filterExistingStockData(allStockDataBetweenDates, completedIndexDataSyncJobs);
-        List<SyncJob> newIndexDataSyncJobs = indexDataSyncJobService.createSyncJobsForNewIndexData(newStockDataResults, requestedIndexInfos);
+        List<StockDataResult> newStockDataResults = indexDataSyncService.filterExistingStockData(allStockDataBetweenDates, completedIndexDataSyncJobs);
+        List<SyncJob> newIndexDataSyncJobs = indexDataSyncService.createSyncJobsForNewIndexData(newStockDataResults, requestedIndexInfos);
 
         completedIndexDataSyncJobs.addAll(newIndexDataSyncJobs);
         return completedIndexDataSyncJobs.stream()

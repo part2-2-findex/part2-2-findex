@@ -1,11 +1,10 @@
-package com.part2.findex.syncjob.service.impl;
+package com.part2.findex.syncjob.service.index.data;
 
 import com.part2.findex.indexdata.entity.IndexData;
 import com.part2.findex.indexdata.repository.IndexDataRepository;
 import com.part2.findex.indexinfo.entity.IndexInfo;
 import com.part2.findex.indexinfo.entity.IndexInfoBusinessKey;
 import com.part2.findex.indexinfo.entity.SourceType;
-import com.part2.findex.indexinfo.repository.IndexInfoRepository;
 import com.part2.findex.openapi.dto.StockDataResult;
 import com.part2.findex.syncjob.entity.SyncJob;
 import com.part2.findex.syncjob.entity.SyncJobStatus;

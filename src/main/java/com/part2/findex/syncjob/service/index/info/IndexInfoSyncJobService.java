@@ -1,4 +1,4 @@
-package com.part2.findex.syncjob.service.impl;
+package com.part2.findex.syncjob.service.index.info;
 
 import com.part2.findex.autosync.entity.AutoSyncConfig;
 import com.part2.findex.autosync.repository.AutoSyncConfigRepository;
@@ -18,12 +18,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Map;
+
+import static com.part2.findex.syncjob.service.common.LocalDateParser.parseLocalDate;
 
 @Service
 @RequiredArgsConstructor
-public class IndexInfoSyncService {
+public class IndexInfoSyncJobService {
     private static final double BASE_INDEX_TOLERANCE = 0.000001;
     private final ClientIpResolver clientIpResolver;
     private final AutoSyncConfigRepository autoSyncConfigRepository;
@@ -55,20 +56,8 @@ public class IndexInfoSyncService {
 
     private SyncJob createSyncJob(SyncJobType jobType, IndexInfo indexInfo, SyncJobStatus status, String stockIndexBaseDate) {
         String clientIp = clientIpResolver.getClientIp();
-        LocalDate baseDate = getLocalDate(stockIndexBaseDate);
+        LocalDate baseDate = parseLocalDate(stockIndexBaseDate);
 
         return new SyncJob(jobType, baseDate, clientIp, LocalDateTime.now(), status, indexInfo);
-    }
-
-    private LocalDate getLocalDate(String basePointInTime) {
-        LocalDate baseDate;
-        if (basePointInTime.contains("-")) {
-            baseDate = LocalDate.parse(basePointInTime);
-        } else {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-            baseDate = LocalDate.parse(basePointInTime, formatter);
-        }
-
-        return baseDate;
     }
 }

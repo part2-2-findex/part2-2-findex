@@ -1,4 +1,4 @@
-package com.part2.findex.syncjob.service.impl;
+package com.part2.findex.syncjob.service.index.data;
 
 import com.part2.findex.indexdata.entity.IndexData;
 import com.part2.findex.syncjob.entity.SyncJob;
@@ -13,7 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+
+import static com.part2.findex.syncjob.service.common.LocalDateParser.parseLocalDate;
 
 @Service
 @RequiredArgsConstructor
@@ -32,17 +33,4 @@ public class IndexDataSyncJobService {
 
         return new SyncJob(jobType, baseDate, clientIp, LocalDateTime.now(), status, indexData.getIndexInfo());
     }
-
-    private LocalDate parseLocalDate(String basePointInTime) {
-        LocalDate baseDate;
-        if (basePointInTime.contains("-")) {
-            baseDate = LocalDate.parse(basePointInTime);
-        } else {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-            baseDate = LocalDate.parse(basePointInTime, formatter);
-        }
-
-        return baseDate;
-    }
-
 }

@@ -1,4 +1,4 @@
-package com.part2.findex.syncjob.service.impl;
+package com.part2.findex.syncjob.service.index.info;
 
 import com.part2.findex.indexinfo.entity.IndexInfo;
 import com.part2.findex.indexinfo.entity.IndexInfoBusinessKey;
@@ -22,10 +22,10 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class IndexInfoSyncJobService {
+public class IndexInfoSyncService {
 
     private final EntityBatchFlusher entityBatchFlusher;
-    private final IndexInfoSyncService indexInfoSyncService;
+    private final IndexInfoSyncJobService indexInfoSyncService;
     private final DummyFactory dummyFactory;
 
     public List<StockIndexInfoResult> getExistingIndexInfoResults(List<StockIndexInfoResult> allLastDateIndexInfoFromOpenAPI, List<IndexInfo> existingAllIndexInfos) {
