@@ -13,8 +13,6 @@ import com.part2.findex.syncjob.repository.SyncJobRepository;
 import com.part2.findex.syncjob.service.common.ClientIpResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -30,12 +28,11 @@ public class IndexInfoSyncJobService {
     private final AutoSyncConfigRepository autoSyncConfigRepository;
     private final SyncJobRepository syncJobRepository;
 
-    public SyncJob saveNewIndexInfoSyncJobAndSetAutoSync(SyncJobType jobType, SyncJobStatus status, IndexInfo savedIndexInfo, String baseTime) {
-        setAutoSync(savedIndexInfo);
-        return syncJobRepository.save(createSyncJob(jobType, savedIndexInfo, status, baseTime));
+    public SyncJob saveIndexInfoSyncJobAndAutoSync(SyncJobType jobType, IndexInfo savedIndexInfo, SyncJobStatus status, String baseTime) {
+        saveAutoSync(savedIndexInfo);
+        return saveIndexInfoSyncJob(jobType, status, savedIndexInfo, baseTime);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public SyncJob saveIndexInfoSyncJob(SyncJobType jobType, SyncJobStatus status, IndexInfo savedIndexInfo, String baseTime) {
         return syncJobRepository.save(createSyncJob(jobType, savedIndexInfo, status, baseTime));
     }
@@ -46,7 +43,7 @@ public class IndexInfoSyncJobService {
         return IndexInfoToUpdate;
     }
 
-    private void setAutoSync(IndexInfo savedIndexInfo) {
+    private void saveAutoSync(IndexInfo savedIndexInfo) {
         AutoSyncConfig config = AutoSyncConfig.builder()
                 .indexInfo(savedIndexInfo)
                 .enabled(false)

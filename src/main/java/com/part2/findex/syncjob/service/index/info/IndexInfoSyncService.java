@@ -3,6 +3,7 @@ package com.part2.findex.syncjob.service.index.info;
 import com.part2.findex.indexinfo.entity.IndexInfo;
 import com.part2.findex.indexinfo.entity.IndexInfoBusinessKey;
 import com.part2.findex.indexinfo.entity.SourceType;
+import com.part2.findex.indexinfo.repository.IndexInfoRepository;
 import com.part2.findex.syncjob.dto.StockIndexInfoResult;
 import com.part2.findex.syncjob.entity.SyncJob;
 import com.part2.findex.syncjob.entity.SyncJobStatus;
@@ -24,8 +25,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class IndexInfoSyncService {
 
+    private final IndexInfoSyncJobService indexInfoSyncJobService;
+    private final IndexInfoRepository indexInfoRepository;
     private final EntityBatchFlusher entityBatchFlusher;
-    private final IndexInfoSyncJobService indexInfoSyncService;
     private final DummyFactory dummyFactory;
 
     public List<StockIndexInfoResult> getExistingIndexInfoResults(List<StockIndexInfoResult> allLastDateIndexInfoFromOpenAPI, List<IndexInfo> existingAllIndexInfos) {
@@ -40,12 +42,12 @@ public class IndexInfoSyncService {
 
     public List<SyncJob> updateExistingIndexInfosAndSaveSyncJobs(List<IndexInfo> allIndexInfo, List<StockIndexInfoResult> existingStockIndexInfoResults, List<SyncJob> existingIndexInfoSyncJobs) {
         List<StockIndexInfoResult> stockIndexInfoResultsToUpdate = getStockIndexInfoResultToUpdate(existingStockIndexInfoResults, existingIndexInfoSyncJobs);
-
         Map<IndexInfoBusinessKey, IndexInfo> allIndexInfos = allIndexInfo.stream()
                 .collect(Collectors.toMap(IndexInfo::getIndexInfoBusinessKey, Function.identity()));
+
         return entityBatchFlusher.processBatch(stockIndexInfoResultsToUpdate, stockIndexInfoResultToUpdate -> {
-            IndexInfo updatedIndexInfo = indexInfoSyncService.updateIndexInfo(allIndexInfos, stockIndexInfoResultToUpdate);
-            return indexInfoSyncService.saveIndexInfoSyncJob(SyncJobType.INDEX_INFO, SyncJobStatus.SUCCESS, updatedIndexInfo, stockIndexInfoResultToUpdate.baseDateTime());
+            IndexInfo updatedIndexInfo = indexInfoSyncJobService.updateIndexInfo(allIndexInfos, stockIndexInfoResultToUpdate);
+            return indexInfoSyncJobService.saveIndexInfoSyncJob(SyncJobType.INDEX_INFO, SyncJobStatus.SUCCESS, updatedIndexInfo, stockIndexInfoResultToUpdate.baseDateTime());
         });
     }
 
@@ -58,7 +60,16 @@ public class IndexInfoSyncService {
                 })
                 .toList();
 
-        return entityBatchFlusher.processBatch(newStockIndexInfoResults, this::saveIndexInfoSyncJob);
+        return entityBatchFlusher.processBatch(newStockIndexInfoResults, this::saveNewIndexInfoSyncJob);
+    }
+
+    private SyncJob saveNewIndexInfoSyncJob(StockIndexInfoResult stockIndexInfoResult) {
+        try {
+            IndexInfo savedIndexInfo = indexInfoRepository.save(convertToNewIndexInfo(stockIndexInfoResult));
+            return indexInfoSyncJobService.saveIndexInfoSyncJobAndAutoSync(SyncJobType.INDEX_INFO, savedIndexInfo, SyncJobStatus.SUCCESS, stockIndexInfoResult.baseDateTime());
+        } catch (Exception e) {
+            throw new IllegalStateException("지수 정보 연동에 실패 했습니다.");
+        }
     }
 
     private List<StockIndexInfoResult> getStockIndexInfoResultToUpdate(List<StockIndexInfoResult> existingStockIndexInfoResults, List<SyncJob> existingIndexInfoSyncJobs) {
@@ -71,17 +82,6 @@ public class IndexInfoSyncService {
                 })
                 .toList();
     }
-
-    private SyncJob saveIndexInfoSyncJob(StockIndexInfoResult stockIndexInfoResult) {
-        try {
-            IndexInfo savedIndexInfo = convertToNewIndexInfo(stockIndexInfoResult);
-            return indexInfoSyncService.saveNewIndexInfoSyncJobAndSetAutoSync(SyncJobType.INDEX_INFO, SyncJobStatus.SUCCESS, savedIndexInfo, stockIndexInfoResult.baseDateTime());
-        } catch (Exception e) {
-            IndexInfo failedIndexInfo = convertToNewIndexInfo(stockIndexInfoResult);
-            return indexInfoSyncService.saveIndexInfoSyncJob(SyncJobType.INDEX_INFO, SyncJobStatus.FAILED, failedIndexInfo, stockIndexInfoResult.baseDateTime());
-        }
-    }
-
 
     private IndexInfo convertToNewIndexInfo(StockIndexInfoResult stockIndexInfo) {
         return new IndexInfo(stockIndexInfo.indexClassification(), stockIndexInfo.indexName(), stockIndexInfo.employedItemsCount(), stockIndexInfo.basePointInTime(), stockIndexInfo.baseIndex(), false, SourceType.OPEN_API);
