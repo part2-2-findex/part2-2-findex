@@ -4,7 +4,6 @@ import com.part2.findex.indexinfo.entity.IndexInfo;
 import com.part2.findex.indexinfo.repository.IndexInfoRepository;
 import com.part2.findex.openapi.dto.StockDataResult;
 import com.part2.findex.openapi.service.OpenApiStockIndexService;
-import com.part2.findex.syncjob.constant.SortField;
 import com.part2.findex.syncjob.dto.*;
 import com.part2.findex.syncjob.entity.SyncJob;
 import com.part2.findex.syncjob.entity.SyncJobKey;
@@ -15,7 +14,6 @@ import com.part2.findex.syncjob.service.common.DummyFactory;
 import com.part2.findex.syncjob.service.common.TargetDateService;
 import com.part2.findex.syncjob.service.index.data.IndexDataSyncService;
 import com.part2.findex.syncjob.service.index.info.IndexInfoSyncService;
-import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
@@ -87,52 +84,14 @@ public class IndexSyncServiceImpl implements IndexSyncService {
     @Override
     public CursorPageResponseSyncJob getSyncJobs(SyncJobQueryRequest request) {
         Specification<SyncJob> baseFilter = SyncJobSpecification.filter(request.jobType(), request.indexInfoId(), request.baseDateFrom(), request.baseDateTo(), request.worker(), request.jobTimeFrom(), request.jobTimeTo(), request.status());
-
         Sort sort = getSortOrders(request);
-        Specification<SyncJob> cusurSpecification = getSyncJobSpecification(request, baseFilter, sort);
+        Specification<SyncJob> cusurSpecification = SyncJobSpecification.getSyncJobSpecification(request, baseFilter, sort);
 
         Pageable pageableWithDirection = PageRequest.of(0, request.size(), sort);
         Page<SyncJob> syncJobPage = syncJobRepository.findAll(cusurSpecification, pageableWithDirection);
+
         Page<SyncJob> totalPage = syncJobRepository.findAll(baseFilter, pageableWithDirection);
-
         return CursorPageResponseSyncJob.of(syncJobPage, request.sortField(), totalPage.getTotalElements());
-    }
-
-    private Specification<SyncJob> getSyncJobSpecification(SyncJobQueryRequest request, Specification<SyncJob> baseFilter, Sort sort) {
-        Specification<SyncJob> finalFilter = Specification.where(baseFilter);
-
-        if (request.cursor() != null && request.sortField().equals(jobTime.name())) {
-            LocalDateTime cursor = LocalDateTime.parse(request.cursor());
-
-            if (sort.getOrderFor(jobTime.name()).isAscending()) {
-                finalFilter = finalFilter.and((root, query, cb) -> cb.greaterThan(root.get(request.sortField()), cursor));
-            } else {
-                finalFilter = finalFilter.and((root, query, cb) -> cb.lessThan(root.get(request.sortField()), cursor));
-            }
-        }
-        if (request.cursor() != null && request.sortField().equals(SortField.targetDate.name())) {
-            LocalDate cursor = LocalDate.parse(request.cursor());
-
-            finalFilter = finalFilter.and((root, query, cb) -> {
-                if (sort.getOrderFor(targetDate.name()).isAscending()) {
-                    Predicate greaterTargetDate = cb.greaterThan(root.get("targetDate"), cursor);
-                    Predicate equalTargetDateAndGreaterId = cb.and(
-                            cb.equal(root.get("targetDate"), cursor),
-                            cb.greaterThan(root.get("id"), request.idAfter())
-                    );
-                    return cb.or(greaterTargetDate, equalTargetDateAndGreaterId);
-                } else {
-                    Predicate lessTargetDate = cb.lessThan(root.get("targetDate"), cursor);
-                    Predicate equalTargetDateAndLessId = cb.and(
-                            cb.equal(root.get("targetDate"), cursor),
-                            cb.lessThan(root.get("id"), request.idAfter())
-                    );
-                    return cb.or(lessTargetDate, equalTargetDateAndLessId);
-                }
-            });
-        }
-
-        return finalFilter;
     }
 
     private Sort getSortOrders(SyncJobQueryRequest request) {
