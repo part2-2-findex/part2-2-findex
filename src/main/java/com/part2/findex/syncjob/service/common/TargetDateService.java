@@ -1,4 +1,4 @@
-package com.part2.findex.syncjob.service.impl;
+package com.part2.findex.syncjob.service.common;
 
 import org.springframework.stereotype.Service;
 

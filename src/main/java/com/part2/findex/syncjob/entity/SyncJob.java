@@ -1,8 +1,6 @@
 package com.part2.findex.syncjob.entity;
 
 import com.part2.findex.indexinfo.entity.IndexInfo;
-import com.part2.findex.syncjob.constant.SyncJobStatus;
-import com.part2.findex.syncjob.constant.SyncJobType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;

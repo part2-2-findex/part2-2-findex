@@ -1,8 +1,8 @@
 package com.part2.findex.syncjob.repository;
 
-import com.part2.findex.syncjob.constant.SyncJobStatus;
-import com.part2.findex.syncjob.constant.SyncJobType;
 import com.part2.findex.syncjob.entity.SyncJob;
+import com.part2.findex.syncjob.entity.SyncJobStatus;
+import com.part2.findex.syncjob.entity.SyncJobType;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 

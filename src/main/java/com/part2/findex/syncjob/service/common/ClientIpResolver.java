@@ -1,4 +1,4 @@
-package com.part2.findex.syncjob.service.impl;
+package com.part2.findex.syncjob.service.common;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -11,7 +11,7 @@ public class ClientIpResolver {
             ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
             return attributes.getRequest().getRemoteAddr();
         } catch (Exception ignored) {
-            return "unknown";
+            return "system";
         }
     }
 }

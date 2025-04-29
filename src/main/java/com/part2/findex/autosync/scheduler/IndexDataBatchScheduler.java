@@ -4,8 +4,8 @@ import com.part2.findex.autosync.entity.AutoSyncConfig;
 import com.part2.findex.autosync.repository.AutoSyncConfigRepository;
 import com.part2.findex.indexinfo.entity.IndexInfo;
 import com.part2.findex.syncjob.dto.IndexDataSyncRequest;
-import com.part2.findex.syncjob.service.IndexSyncOrchestratorService;
-import com.part2.findex.syncjob.service.impl.TargetDateService;
+import com.part2.findex.syncjob.service.common.TargetDateService;
+import com.part2.findex.syncjob.service.index.IndexSyncService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,7 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class IndexDataBatchScheduler {
     private final AutoSyncConfigRepository autoSyncConfigRepository;
-    private final IndexSyncOrchestratorService indexSyncOrchestratorService;
+    private final IndexSyncService indexSyncService;
     private final TargetDateService targetDateService;
 
     @Scheduled(cron = "0 0 14 * * *")
@@ -32,6 +32,6 @@ public class IndexDataBatchScheduler {
 
         LocalDate targetDate = targetDateService.getLatestBusinessDay();
         IndexDataSyncRequest indexDataSyncRequest = new IndexDataSyncRequest(enabledIndexInfoIds, targetDate, targetDate);
-        indexSyncOrchestratorService.synchronizeIndexData(indexDataSyncRequest);
+        indexSyncService.synchronizeIndexData(indexDataSyncRequest);
     }
 }
