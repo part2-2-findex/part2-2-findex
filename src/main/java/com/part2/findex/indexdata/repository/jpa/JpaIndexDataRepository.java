@@ -18,8 +18,8 @@ public class JpaIndexDataRepository implements IndexDataRepository {
     private final SpringDataIndexDataRepository indexDataRepository;
 
     @Override
-    public void save(IndexData indexData) {
-        indexDataRepository.save(indexData);
+    public IndexData save(IndexData indexData) {
+        return indexDataRepository.save(indexData);
     }
 
     @Override

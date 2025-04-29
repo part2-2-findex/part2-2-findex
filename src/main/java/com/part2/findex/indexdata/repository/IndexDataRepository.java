@@ -20,7 +20,7 @@ public interface IndexDataRepository {
 
     void deleteById(Long indexDataId);
 
-    void save(IndexData indexData);
+    IndexData save(IndexData indexData);
 
     Long countAllByFilters(Long indexInfoId, LocalDate startDate, LocalDate endDate);
 }

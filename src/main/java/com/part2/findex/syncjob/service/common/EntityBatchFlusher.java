@@ -1,4 +1,4 @@
-package com.part2.findex.syncjob.service.impl;
+package com.part2.findex.syncjob.service.common;
 
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +10,7 @@ import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
-public class IndexSyncBatchService {
+public class EntityBatchFlusher {
     private static final int BATCH_SIZE = 50;
     private final EntityManager entityManager;
 

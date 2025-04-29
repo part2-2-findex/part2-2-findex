@@ -12,6 +12,9 @@ import com.part2.findex.syncjob.entity.SyncJobKey;
 import com.part2.findex.syncjob.entity.SyncJobStatus;
 import com.part2.findex.syncjob.entity.SyncJobType;
 import com.part2.findex.syncjob.repository.SyncJobRepository;
+import com.part2.findex.syncjob.service.common.ClientIpResolver;
+import com.part2.findex.syncjob.service.common.DummyFactory;
+import com.part2.findex.syncjob.service.common.EntityBatchFlusher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +33,7 @@ import java.util.stream.Collectors;
 public class IndexInfoSyncJobService {
     private static final double BASE_INDEX_TOLERANCE = 0.000001;
     private final ClientIpResolver clientIpResolver;
-    private final IndexSyncBatchService indexSyncBatchService;
+    private final EntityBatchFlusher entityBatchFlusher;
     private final IndexInfoRepository indexInfoRepository;
     private final AutoSyncConfigRepository autoSyncConfigRepository;
     private final SyncJobRepository syncJobRepository;
@@ -108,7 +111,6 @@ public class IndexInfoSyncJobService {
         return savedIndexInfo;
     }
 
-
     private SyncJobKey createSyncJobKey(StockIndexInfoResult stockIndexInfoResult) {
         return new SyncJobKey(
                 SyncJobType.INDEX_INFO,
@@ -118,13 +120,14 @@ public class IndexInfoSyncJobService {
     }
 
     private List<SyncJob> processWithIndexInfoSyncJobs(List<StockIndexInfoResult> items, Function<StockIndexInfoResult, IndexInfo> processor) {
-        return indexSyncBatchService.processBatch(items, item -> {
+        return entityBatchFlusher.processBatch(items, item -> {
             try {
                 IndexInfo indexInfo = processor.apply(item);
                 return createSyncJob(SyncJobType.INDEX_INFO, indexInfo, SyncJobStatus.SUCCESS, item.baseDateTime());
             } catch (Exception e) {
                 IndexInfo failedIndexInfo = convertToNewIndexInfo(item);
                 syncJobRepository.save(createSyncJob(SyncJobType.INDEX_INFO, failedIndexInfo, SyncJobStatus.FAILED, item.baseDateTime()));
+                e.printStackTrace();
                 throw new IllegalArgumentException("지수정보 연동 실패");
             }
         });

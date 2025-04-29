@@ -5,7 +5,7 @@ import com.part2.findex.autosync.repository.AutoSyncConfigRepository;
 import com.part2.findex.indexinfo.entity.IndexInfo;
 import com.part2.findex.syncjob.dto.IndexDataSyncRequest;
 import com.part2.findex.syncjob.service.IndexSyncOrchestratorService;
-import com.part2.findex.syncjob.service.impl.TargetDateService;
+import com.part2.findex.syncjob.service.common.TargetDateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

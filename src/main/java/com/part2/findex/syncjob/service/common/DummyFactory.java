@@ -1,4 +1,4 @@
-package com.part2.findex.syncjob.service.impl;
+package com.part2.findex.syncjob.service.common;
 
 import com.part2.findex.indexinfo.entity.IndexInfo;
 import com.part2.findex.openapi.dto.StockDataResult;
@@ -6,12 +6,12 @@ import com.part2.findex.syncjob.dto.StockIndexInfoResult;
 import com.part2.findex.syncjob.entity.SyncJob;
 import com.part2.findex.syncjob.entity.SyncJobStatus;
 import com.part2.findex.syncjob.entity.SyncJobType;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-@Service
+@Component
 public class DummyFactory {
 
     public IndexInfo createDummyIndexInfoFromStockData(StockDataResult stockDataResult) {
