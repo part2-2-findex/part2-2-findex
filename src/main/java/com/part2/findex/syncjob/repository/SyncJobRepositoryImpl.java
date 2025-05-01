@@ -2,7 +2,7 @@ package com.part2.findex.syncjob.repository;
 
 import com.part2.findex.syncjob.entity.QSyncJob;
 import com.part2.findex.syncjob.entity.SyncJob;
-import com.part2.findex.syncjob.entity.SyncJobKey;
+import com.part2.findex.syncjob.entity.SyncJobBusinessKey;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -18,11 +18,11 @@ public class SyncJobRepositoryImpl implements SyncJobRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<SyncJob> findByKeys(List<SyncJobKey> keys) {
+    public List<SyncJob> findByKeys(List<SyncJobBusinessKey> keys) {
         QSyncJob syncJob = QSyncJob.syncJob;
 
         BooleanBuilder builder = new BooleanBuilder();
-        for (SyncJobKey key : keys) {
+        for (SyncJobBusinessKey key : keys) {
             builder.or(
                     syncJob.jobType.eq(key.jobType())
                             .and(syncJob.targetDate.eq(key.targetDate()))

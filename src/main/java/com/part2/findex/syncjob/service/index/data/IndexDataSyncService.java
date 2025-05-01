@@ -6,14 +6,15 @@ import com.part2.findex.indexinfo.entity.IndexInfo;
 import com.part2.findex.indexinfo.entity.IndexInfoBusinessKey;
 import com.part2.findex.indexinfo.entity.SourceType;
 import com.part2.findex.openapi.dto.StockDataResult;
+import com.part2.findex.syncjob.dto.IndexDataSyncRequest;
 import com.part2.findex.syncjob.entity.SyncJob;
 import com.part2.findex.syncjob.entity.SyncJobStatus;
 import com.part2.findex.syncjob.entity.SyncJobType;
 import com.part2.findex.syncjob.mapper.IndexInfoMapper;
+import com.part2.findex.syncjob.repository.SyncJobRepository;
 import com.part2.findex.syncjob.service.common.DummyFactory;
 import com.part2.findex.syncjob.service.common.EntityBatchFlusher;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -25,16 +26,36 @@ import java.util.stream.Collectors;
 
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class IndexDataSyncService {
 
     private final IndexDataSyncJobService indexDataSyncJobService;
     private final IndexDataRepository indexDataRepository;
+    private final SyncJobRepository syncJobRepository;
     private final EntityBatchFlusher entityBatchFlusher;
     private final DummyFactory dummyFactory;
 
-    public List<StockDataResult> filterExistingStockData(List<StockDataResult> allIndexDataBetweenDates, List<SyncJob> existingIndexDataSyncJobs) {
+    public List<SyncJob> syncIndexDataAndCreateJobs(IndexDataSyncRequest indexDataSyncRequest, List<IndexInfo> requestedIndexInfos, List<StockDataResult> requestedIndexData) {
+        List<SyncJob> completedIndexDataSyncJobs = syncJobRepository.findByTargetDateBetweenAndIndexInfoIdInAndJobType(indexDataSyncRequest.baseDateFrom(), indexDataSyncRequest.baseDateTo(), indexDataSyncRequest.indexInfoIds(), SyncJobType.INDEX_DATA);
+        List<StockDataResult> stockDataForRequestedIndices = filterSameNameRequestedIndexData(requestedIndexData, requestedIndexInfos);
+        List<StockDataResult> newStockData = filterExistingStockData(stockDataForRequestedIndices, completedIndexDataSyncJobs);
+        List<SyncJob> newIndexDataSyncJobs = createSyncJobsForNewIndexData(newStockData, requestedIndexInfos);
+        completedIndexDataSyncJobs.addAll(newIndexDataSyncJobs);
+
+        return completedIndexDataSyncJobs;
+    }
+
+    private List<StockDataResult> filterSameNameRequestedIndexData(List<StockDataResult> allIndexDataBetweenDates, List<IndexInfo> requestedIndexInfos) {
+        Set<IndexInfo> existingIndexInfos = new HashSet<>(requestedIndexInfos);
+        return allIndexDataBetweenDates.stream()
+                .filter(stockDataResult -> {
+                    IndexInfo dummyIndexInfo = dummyFactory.createDummyIndexInfoFromStockData(stockDataResult);
+                    return existingIndexInfos.contains(dummyIndexInfo);
+                })
+                .toList();
+    }
+
+    private List<StockDataResult> filterExistingStockData(List<StockDataResult> allIndexDataBetweenDates, List<SyncJob> existingIndexDataSyncJobs) {
         Set<SyncJob> existingSyncJobs = new HashSet<>(existingIndexDataSyncJobs);
         return allIndexDataBetweenDates.stream()
                 .filter(stockDataResult -> {
@@ -45,7 +66,7 @@ public class IndexDataSyncService {
                 .toList();
     }
 
-    public List<SyncJob> createSyncJobsForNewIndexData(List<StockDataResult> newStockDataResults, List<IndexInfo> requestedIndexInfos) {
+    private List<SyncJob> createSyncJobsForNewIndexData(List<StockDataResult> newStockDataResults, List<IndexInfo> requestedIndexInfos) {
         Map<IndexInfoBusinessKey, IndexInfo> existingIndexInfos = requestedIndexInfos.stream()
                 .collect(Collectors.toMap(IndexInfo::getIndexInfoBusinessKey, Function.identity()));
 
@@ -68,4 +89,5 @@ public class IndexDataSyncService {
     private IndexData convertToIndexData(StockDataResult stockDataResult, IndexInfo indexInfo) {
         return new IndexData(indexInfo, stockDataResult.baseDate(), SourceType.OPEN_API, stockDataResult.marketPrice(), stockDataResult.closingPrice(), stockDataResult.highPrice(), stockDataResult.lowPrice(), stockDataResult.versus(), stockDataResult.fluctuationRate(), stockDataResult.tradingQuantity(), stockDataResult.tradingPrice(), stockDataResult.marketTotalAmount());
     }
+
 }
