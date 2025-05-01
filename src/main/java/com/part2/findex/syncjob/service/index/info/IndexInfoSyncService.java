@@ -35,7 +35,7 @@ public class IndexInfoSyncService {
     private final EntityBatchFlusher entityBatchFlusher;
     private final DummyFactory dummyFactory;
 
-    public List<SyncJob> getIndexInfoSyncJobs(List<IndexInfo> existingAllIndexInfos, List<StockIndexInfoResult> allStockInfoInLastDate) {
+    public List<SyncJob> syncIndexInfosAndCreateJobs(List<IndexInfo> existingAllIndexInfos, List<StockIndexInfoResult> allStockInfoInLastDate) {
         List<StockIndexInfoResult> existingStockInfoResults = getExistingIndexInfoResults(allStockInfoInLastDate, existingAllIndexInfos);
         List<SyncJob> completedIndexSyncJobs = getCompletedIndexInfoSyncJobs(existingStockInfoResults);
         List<SyncJob> updatedIndexInfoSyncJobs = updateExistingIndexInfosAndSaveSyncJobs(existingAllIndexInfos, existingStockInfoResults, completedIndexSyncJobs);

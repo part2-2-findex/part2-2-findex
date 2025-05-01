@@ -6,14 +6,15 @@ import com.part2.findex.indexinfo.entity.IndexInfo;
 import com.part2.findex.indexinfo.entity.IndexInfoBusinessKey;
 import com.part2.findex.indexinfo.entity.SourceType;
 import com.part2.findex.openapi.dto.StockDataResult;
+import com.part2.findex.syncjob.dto.IndexDataSyncRequest;
 import com.part2.findex.syncjob.entity.SyncJob;
 import com.part2.findex.syncjob.entity.SyncJobStatus;
 import com.part2.findex.syncjob.entity.SyncJobType;
 import com.part2.findex.syncjob.mapper.IndexInfoMapper;
+import com.part2.findex.syncjob.repository.SyncJobRepository;
 import com.part2.findex.syncjob.service.common.DummyFactory;
 import com.part2.findex.syncjob.service.common.EntityBatchFlusher;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -25,19 +26,20 @@ import java.util.stream.Collectors;
 
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class IndexDataSyncService {
 
     private final IndexDataSyncJobService indexDataSyncJobService;
     private final IndexDataRepository indexDataRepository;
+    private final SyncJobRepository syncJobRepository;
     private final EntityBatchFlusher entityBatchFlusher;
     private final DummyFactory dummyFactory;
 
-    public List<SyncJob> getNewIndexDataSyncJobs(List<SyncJob> completedIndexDataSyncJobs, List<IndexInfo> requestedIndexInfos, List<StockDataResult> requestStockIndexData) {
-        List<StockDataResult> stockDataForRequestedIndices = filterSameNameRequestedIndexData(requestStockIndexData, requestedIndexInfos);
-        List<StockDataResult> stockDataToUpdate = filterExistingStockData(stockDataForRequestedIndices, completedIndexDataSyncJobs);
-        List<SyncJob> newIndexDataSyncJobs = createSyncJobsForNewIndexData(stockDataToUpdate, requestedIndexInfos);
+    public List<SyncJob> syncIndexDataAndCreateJobs(IndexDataSyncRequest indexDataSyncRequest, List<IndexInfo> requestedIndexInfos, List<StockDataResult> requestedIndexData) {
+        List<SyncJob> completedIndexDataSyncJobs = syncJobRepository.findByTargetDateBetweenAndIndexInfoIdInAndJobType(indexDataSyncRequest.baseDateFrom(), indexDataSyncRequest.baseDateTo(), indexDataSyncRequest.indexInfoIds(), SyncJobType.INDEX_DATA);
+        List<StockDataResult> stockDataForRequestedIndices = filterSameNameRequestedIndexData(requestedIndexData, requestedIndexInfos);
+        List<StockDataResult> newStockData = filterExistingStockData(stockDataForRequestedIndices, completedIndexDataSyncJobs);
+        List<SyncJob> newIndexDataSyncJobs = createSyncJobsForNewIndexData(newStockData, requestedIndexInfos);
         completedIndexDataSyncJobs.addAll(newIndexDataSyncJobs);
 
         return completedIndexDataSyncJobs;

@@ -5,12 +5,9 @@ import com.part2.findex.indexinfo.repository.IndexInfoRepository;
 import com.part2.findex.openapi.dto.StockDataResult;
 import com.part2.findex.syncjob.dto.*;
 import com.part2.findex.syncjob.entity.SyncJob;
-import com.part2.findex.syncjob.entity.SyncJobBusinessKey;
-import com.part2.findex.syncjob.entity.SyncJobType;
 import com.part2.findex.syncjob.repository.SyncJobRepository;
 import com.part2.findex.syncjob.repository.SyncJobSpecification;
 import com.part2.findex.syncjob.service.IndexSyncOpenAPI;
-import com.part2.findex.syncjob.service.common.DummyFactory;
 import com.part2.findex.syncjob.service.index.data.IndexDataSyncService;
 import com.part2.findex.syncjob.service.index.info.IndexInfoSyncService;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +19,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static com.part2.findex.syncjob.constant.SortDirectionConstant.ASCENDING_SORT_DIRECTION;
@@ -47,7 +42,7 @@ public class IndexSyncServiceImpl implements IndexSyncService {
         List<IndexInfo> existingAllIndexInfos = indexInfoRepository.findAll();
         List<StockIndexInfoResult> allStockInfoInLastDate = indexSyncOpenAPI.loadAllLastDateIndexInfoFromOpenAPI();
 
-        return indexInfoSyncJobService.getIndexInfoSyncJobs(existingAllIndexInfos, allStockInfoInLastDate)
+        return indexInfoSyncJobService.syncIndexInfosAndCreateJobs(existingAllIndexInfos, allStockInfoInLastDate)
                 .stream()
                 .map(SyncJobResult::from)
                 .toList();
@@ -58,9 +53,8 @@ public class IndexSyncServiceImpl implements IndexSyncService {
     public List<SyncJobResult> synchronizeIndexData(IndexDataSyncRequest indexDataSyncRequest) {
         List<IndexInfo> requestedIndexInfos = indexInfoRepository.findAllById(indexDataSyncRequest.indexInfoIds());
         List<StockDataResult> requestedIndexData = indexSyncOpenAPI.loadIndexDataFromOpenAPI(indexDataSyncRequest, requestedIndexInfos);
-        List<SyncJob> completedIndexDataSyncJobs = syncJobRepository.findByTargetDateBetweenAndIndexInfoIdInAndJobType(indexDataSyncRequest.baseDateFrom(), indexDataSyncRequest.baseDateTo(), indexDataSyncRequest.indexInfoIds(), SyncJobType.INDEX_DATA);
 
-        return indexDataSyncService.getNewIndexDataSyncJobs(completedIndexDataSyncJobs, requestedIndexInfos, requestedIndexData)
+        return indexDataSyncService.syncIndexDataAndCreateJobs(indexDataSyncRequest, requestedIndexInfos, requestedIndexData)
                 .stream()
                 .map(SyncJobResult::from)
                 .toList();
