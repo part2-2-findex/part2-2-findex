@@ -34,7 +34,26 @@ public class IndexDataSyncService {
     private final EntityBatchFlusher entityBatchFlusher;
     private final DummyFactory dummyFactory;
 
-    public List<StockDataResult> filterExistingStockData(List<StockDataResult> allIndexDataBetweenDates, List<SyncJob> existingIndexDataSyncJobs) {
+    public List<SyncJob> getNewIndexDataSyncJobs(List<SyncJob> completedIndexDataSyncJobs, List<IndexInfo> requestedIndexInfos, List<StockDataResult> requestStockIndexData) {
+        List<StockDataResult> stockDataForRequestedIndices = filterSameNameRequestedIndexData(requestStockIndexData, requestedIndexInfos);
+        List<StockDataResult> stockDataToUpdate = filterExistingStockData(stockDataForRequestedIndices, completedIndexDataSyncJobs);
+        List<SyncJob> newIndexDataSyncJobs = createSyncJobsForNewIndexData(stockDataToUpdate, requestedIndexInfos);
+        completedIndexDataSyncJobs.addAll(newIndexDataSyncJobs);
+
+        return completedIndexDataSyncJobs;
+    }
+
+    private List<StockDataResult> filterSameNameRequestedIndexData(List<StockDataResult> allIndexDataBetweenDates, List<IndexInfo> requestedIndexInfos) {
+        Set<IndexInfo> existingIndexInfos = new HashSet<>(requestedIndexInfos);
+        return allIndexDataBetweenDates.stream()
+                .filter(stockDataResult -> {
+                    IndexInfo dummyIndexInfo = dummyFactory.createDummyIndexInfoFromStockData(stockDataResult);
+                    return existingIndexInfos.contains(dummyIndexInfo);
+                })
+                .toList();
+    }
+
+    private List<StockDataResult> filterExistingStockData(List<StockDataResult> allIndexDataBetweenDates, List<SyncJob> existingIndexDataSyncJobs) {
         Set<SyncJob> existingSyncJobs = new HashSet<>(existingIndexDataSyncJobs);
         return allIndexDataBetweenDates.stream()
                 .filter(stockDataResult -> {
@@ -45,7 +64,7 @@ public class IndexDataSyncService {
                 .toList();
     }
 
-    public List<SyncJob> createSyncJobsForNewIndexData(List<StockDataResult> newStockDataResults, List<IndexInfo> requestedIndexInfos) {
+    private List<SyncJob> createSyncJobsForNewIndexData(List<StockDataResult> newStockDataResults, List<IndexInfo> requestedIndexInfos) {
         Map<IndexInfoBusinessKey, IndexInfo> existingIndexInfos = requestedIndexInfos.stream()
                 .collect(Collectors.toMap(IndexInfo::getIndexInfoBusinessKey, Function.identity()));
 
