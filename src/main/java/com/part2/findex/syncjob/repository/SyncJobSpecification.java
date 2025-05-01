@@ -1,6 +1,5 @@
 package com.part2.findex.syncjob.repository;
 
-import com.part2.findex.syncjob.constant.SortField;
 import com.part2.findex.syncjob.dto.SyncJobQueryRequest;
 import com.part2.findex.syncjob.entity.SyncJob;
 import com.part2.findex.syncjob.entity.SyncJobStatus;
@@ -14,8 +13,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.part2.findex.syncjob.constant.SortField.jobTime;
-import static com.part2.findex.syncjob.constant.SortField.targetDate;
+import static com.part2.findex.syncjob.constant.SortDirectionConstant.JOB_TIME_SORT_FIELD;
+import static com.part2.findex.syncjob.constant.SortDirectionConstant.TARGET_DATE_SORT_FIELD;
 
 public class SyncJobSpecification {
 
@@ -71,30 +70,30 @@ public class SyncJobSpecification {
     public static Specification<SyncJob> getSyncJobSpecification(SyncJobQueryRequest request, Specification<SyncJob> baseFilter, Sort sort) {
         Specification<SyncJob> finalFilter = Specification.where(baseFilter);
 
-        if (request.cursor() != null && request.sortField().equals(jobTime.name())) {
+        if (request.cursor() != null && request.sortField().equals(JOB_TIME_SORT_FIELD)) {
             LocalDateTime cursor = LocalDateTime.parse(request.cursor());
 
-            if (sort.getOrderFor(jobTime.name()).isAscending()) {
+            if (sort.getOrderFor(JOB_TIME_SORT_FIELD).isAscending()) {
                 finalFilter = finalFilter.and((root, query, cb) -> cb.greaterThan(root.get(request.sortField()), cursor));
             } else {
                 finalFilter = finalFilter.and((root, query, cb) -> cb.lessThan(root.get(request.sortField()), cursor));
             }
         }
-        if (request.cursor() != null && request.sortField().equals(SortField.targetDate.name())) {
+        if (request.cursor() != null && request.sortField().equals(TARGET_DATE_SORT_FIELD)) {
             LocalDate cursor = LocalDate.parse(request.cursor());
 
             finalFilter = finalFilter.and((root, query, cb) -> {
-                if (sort.getOrderFor(targetDate.name()).isAscending()) {
-                    Predicate greaterTargetDate = cb.greaterThan(root.get("targetDate"), cursor);
+                if (sort.getOrderFor(TARGET_DATE_SORT_FIELD).isAscending()) {
+                    Predicate greaterTargetDate = cb.greaterThan(root.get(TARGET_DATE_SORT_FIELD), cursor);
                     Predicate equalTargetDateAndGreaterId = cb.and(
-                            cb.equal(root.get("targetDate"), cursor),
+                            cb.equal(root.get(TARGET_DATE_SORT_FIELD), cursor),
                             cb.greaterThan(root.get("id"), request.idAfter())
                     );
                     return cb.or(greaterTargetDate, equalTargetDateAndGreaterId);
                 } else {
-                    Predicate lessTargetDate = cb.lessThan(root.get("targetDate"), cursor);
+                    Predicate lessTargetDate = cb.lessThan(root.get(TARGET_DATE_SORT_FIELD), cursor);
                     Predicate equalTargetDateAndLessId = cb.and(
-                            cb.equal(root.get("targetDate"), cursor),
+                            cb.equal(root.get(TARGET_DATE_SORT_FIELD), cursor),
                             cb.lessThan(root.get("id"), request.idAfter())
                     );
                     return cb.or(lessTargetDate, equalTargetDateAndLessId);

@@ -3,11 +3,12 @@ package com.part2.findex.syncjob.service.index;
 import com.part2.findex.indexinfo.entity.IndexInfo;
 import com.part2.findex.indexinfo.repository.IndexInfoRepository;
 import com.part2.findex.openapi.dto.StockDataResult;
+import com.part2.findex.openapi.service.OpenApiStockIndexService;
 import com.part2.findex.syncjob.dto.*;
 import com.part2.findex.syncjob.entity.SyncJob;
+import com.part2.findex.syncjob.entity.SyncJobSortStrategy;
 import com.part2.findex.syncjob.repository.SyncJobRepository;
 import com.part2.findex.syncjob.repository.SyncJobSpecification;
-import com.part2.findex.openapi.service.OpenApiStockIndexService;
 import com.part2.findex.syncjob.service.index.data.IndexDataSyncService;
 import com.part2.findex.syncjob.service.index.info.IndexInfoSyncService;
 import lombok.RequiredArgsConstructor;
@@ -21,17 +22,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static com.part2.findex.syncjob.constant.SortDirectionConstant.ASCENDING_SORT_DIRECTION;
-import static com.part2.findex.syncjob.constant.SortDirectionConstant.DESCENDING_SORT_DIRECTION;
-import static com.part2.findex.syncjob.constant.SortField.jobTime;
-import static com.part2.findex.syncjob.constant.SortField.targetDate;
-
 @Service
 @RequiredArgsConstructor
 public class IndexSyncServiceImpl implements IndexSyncService {
 
     private final OpenApiStockIndexService openApiStockIndexService;
-    private final IndexInfoSyncService indexInfoSyncJobService;
+    private final IndexInfoSyncService indexInfoSyncService;
     private final IndexDataSyncService indexDataSyncService;
     private final IndexInfoRepository indexInfoRepository;
     private final SyncJobRepository syncJobRepository;
@@ -40,9 +36,9 @@ public class IndexSyncServiceImpl implements IndexSyncService {
     @Override
     public List<SyncJobResult> synchronizeIndexInfo() {
         List<IndexInfo> existingAllIndexInfos = indexInfoRepository.findAll();
-        List<StockIndexInfoResult> allStockInfoInLastDate = openApiStockIndexService.loadAllLastDateIndexInfoFromOpenAPI();
+        List<StockIndexInfoResult> requestedIndexInfosFromOpenAPI = openApiStockIndexService.loadAllLastDateIndexInfoFromOpenAPI();
 
-        return indexInfoSyncJobService.syncIndexInfosAndCreateJobs(existingAllIndexInfos, allStockInfoInLastDate)
+        return indexInfoSyncService.syncIndexInfosAndCreateJobs(existingAllIndexInfos, requestedIndexInfosFromOpenAPI)
                 .stream()
                 .map(SyncJobResult::from)
                 .toList();
@@ -52,9 +48,9 @@ public class IndexSyncServiceImpl implements IndexSyncService {
     @Override
     public List<SyncJobResult> synchronizeIndexData(IndexDataSyncRequest indexDataSyncRequest) {
         List<IndexInfo> requestedIndexInfos = indexInfoRepository.findAllById(indexDataSyncRequest.indexInfoIds());
-        List<StockDataResult> requestedIndexData = openApiStockIndexService.loadIndexDataFromOpenAPI(indexDataSyncRequest, requestedIndexInfos);
+        List<StockDataResult> requestedIndexDataFromOpenAPI = openApiStockIndexService.loadIndexDataFromOpenAPI(indexDataSyncRequest, requestedIndexInfos);
 
-        return indexDataSyncService.syncIndexDataAndCreateJobs(indexDataSyncRequest, requestedIndexInfos, requestedIndexData)
+        return indexDataSyncService.syncIndexDataAndCreateJobs(indexDataSyncRequest, requestedIndexInfos, requestedIndexDataFromOpenAPI)
                 .stream()
                 .map(SyncJobResult::from)
                 .toList();
@@ -64,40 +60,14 @@ public class IndexSyncServiceImpl implements IndexSyncService {
     @Override
     public CursorPageResponseSyncJob getSyncJobs(SyncJobQueryRequest request) {
         Specification<SyncJob> baseFilter = SyncJobSpecification.filter(request.jobType(), request.indexInfoId(), request.baseDateFrom(), request.baseDateTo(), request.worker(), request.jobTimeFrom(), request.jobTimeTo(), request.status());
-        Sort sort = getSortOrders(request);
+        Sort sort = SyncJobSortStrategy.fromField(request.sortField());
         Specification<SyncJob> cusurSpecification = SyncJobSpecification.getSyncJobSpecification(request, baseFilter, sort);
 
         Pageable pageableWithDirection = PageRequest.of(0, request.size(), sort);
         Page<SyncJob> syncJobPage = syncJobRepository.findAll(cusurSpecification, pageableWithDirection);
-
         Page<SyncJob> totalPage = syncJobRepository.findAll(baseFilter, pageableWithDirection);
-        return CursorPageResponseSyncJob.of(syncJobPage, request.sortField(), totalPage.getTotalElements());
-    }
 
-    private Sort getSortOrders(SyncJobQueryRequest request) {
-        Sort sort = Sort.by(
-                Sort.Order.desc(jobTime.name())
-        );
-        if (request.sortDirection().equals(ASCENDING_SORT_DIRECTION) && request.sortField().equals(jobTime.name())) {
-            sort = Sort.by(
-                    Sort.Order.asc(jobTime.name())
-            );
-        }
-        if (request.sortField().equals(targetDate.name())) {
-            if (request.sortDirection().equals(ASCENDING_SORT_DIRECTION)) {
-                sort = Sort.by(
-                        Sort.Order.asc(targetDate.name()),
-                        Sort.Order.asc("id")
-                );
-            }
-            if (request.sortDirection().equals(DESCENDING_SORT_DIRECTION)) {
-                sort = Sort.by(
-                        Sort.Order.desc(targetDate.name()),
-                        Sort.Order.desc("id")
-                );
-            }
-        }
-        return sort;
+        return CursorPageResponseSyncJob.of(syncJobPage, request.sortField(), totalPage.getTotalElements());
     }
 
 }
