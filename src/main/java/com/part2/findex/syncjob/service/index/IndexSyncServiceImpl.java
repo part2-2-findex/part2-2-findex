@@ -7,7 +7,7 @@ import com.part2.findex.syncjob.dto.*;
 import com.part2.findex.syncjob.entity.SyncJob;
 import com.part2.findex.syncjob.repository.SyncJobRepository;
 import com.part2.findex.syncjob.repository.SyncJobSpecification;
-import com.part2.findex.syncjob.service.IndexSyncOpenAPI;
+import com.part2.findex.openapi.service.OpenApiStockIndexService;
 import com.part2.findex.syncjob.service.index.data.IndexDataSyncService;
 import com.part2.findex.syncjob.service.index.info.IndexInfoSyncService;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +30,7 @@ import static com.part2.findex.syncjob.constant.SortField.targetDate;
 @RequiredArgsConstructor
 public class IndexSyncServiceImpl implements IndexSyncService {
 
-    private final IndexSyncOpenAPI indexSyncOpenAPI;
+    private final OpenApiStockIndexService openApiStockIndexService;
     private final IndexInfoSyncService indexInfoSyncJobService;
     private final IndexDataSyncService indexDataSyncService;
     private final IndexInfoRepository indexInfoRepository;
@@ -40,7 +40,7 @@ public class IndexSyncServiceImpl implements IndexSyncService {
     @Override
     public List<SyncJobResult> synchronizeIndexInfo() {
         List<IndexInfo> existingAllIndexInfos = indexInfoRepository.findAll();
-        List<StockIndexInfoResult> allStockInfoInLastDate = indexSyncOpenAPI.loadAllLastDateIndexInfoFromOpenAPI();
+        List<StockIndexInfoResult> allStockInfoInLastDate = openApiStockIndexService.loadAllLastDateIndexInfoFromOpenAPI();
 
         return indexInfoSyncJobService.syncIndexInfosAndCreateJobs(existingAllIndexInfos, allStockInfoInLastDate)
                 .stream()
@@ -52,7 +52,7 @@ public class IndexSyncServiceImpl implements IndexSyncService {
     @Override
     public List<SyncJobResult> synchronizeIndexData(IndexDataSyncRequest indexDataSyncRequest) {
         List<IndexInfo> requestedIndexInfos = indexInfoRepository.findAllById(indexDataSyncRequest.indexInfoIds());
-        List<StockDataResult> requestedIndexData = indexSyncOpenAPI.loadIndexDataFromOpenAPI(indexDataSyncRequest, requestedIndexInfos);
+        List<StockDataResult> requestedIndexData = openApiStockIndexService.loadIndexDataFromOpenAPI(indexDataSyncRequest, requestedIndexInfos);
 
         return indexDataSyncService.syncIndexDataAndCreateJobs(indexDataSyncRequest, requestedIndexInfos, requestedIndexData)
                 .stream()
