@@ -19,6 +19,7 @@ import static com.part2.findex.syncjob.service.common.LocalDateParser.parseLocal
 @Service
 @RequiredArgsConstructor
 public class IndexDataSyncJobService {
+
     private final ClientIpResolver clientIpResolver;
     private final SyncJobRepository syncJobRepository;
 
@@ -33,4 +34,5 @@ public class IndexDataSyncJobService {
 
         return new SyncJob(jobType, baseDate, clientIp, LocalDateTime.now(), status, indexData.getIndexInfo());
     }
+
 }

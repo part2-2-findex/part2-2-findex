@@ -115,4 +115,5 @@ public class IndexInfoSyncService {
     private SyncJobBusinessKey createIndexInfoSyncJobKey(StockIndexInfoResult stockIndexInfoResult) {
         return new SyncJobBusinessKey(SyncJobType.INDEX_INFO, LocalDate.parse(stockIndexInfoResult.baseDateTime(), DateTimeFormatter.ofPattern("yyyyMMdd")), dummyFactory.createDummyIndexInfo(stockIndexInfoResult));
     }
+
 }

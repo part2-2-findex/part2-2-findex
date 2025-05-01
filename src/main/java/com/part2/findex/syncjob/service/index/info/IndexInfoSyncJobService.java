@@ -23,6 +23,7 @@ import static com.part2.findex.syncjob.service.common.LocalDateParser.parseLocal
 @Service
 @RequiredArgsConstructor
 public class IndexInfoSyncJobService {
+
     private static final double BASE_INDEX_TOLERANCE = 0.000001;
     private final ClientIpResolver clientIpResolver;
     private final AutoSyncConfigRepository autoSyncConfigRepository;
@@ -57,4 +58,5 @@ public class IndexInfoSyncJobService {
 
         return new SyncJob(jobType, baseDate, clientIp, LocalDateTime.now(), status, indexInfo);
     }
+
 }

@@ -89,4 +89,5 @@ public class IndexDataSyncService {
     private IndexData convertToIndexData(StockDataResult stockDataResult, IndexInfo indexInfo) {
         return new IndexData(indexInfo, stockDataResult.baseDate(), SourceType.OPEN_API, stockDataResult.marketPrice(), stockDataResult.closingPrice(), stockDataResult.highPrice(), stockDataResult.lowPrice(), stockDataResult.versus(), stockDataResult.fluctuationRate(), stockDataResult.tradingQuantity(), stockDataResult.tradingPrice(), stockDataResult.marketTotalAmount());
     }
+
 }

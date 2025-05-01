@@ -16,6 +16,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class IndexSyncOpenAPI {
+
     private final OpenApiStockIndexService openApiStockIndexService;
     private final TargetDateService targetDateService;
 
@@ -30,4 +31,5 @@ public class IndexSyncOpenAPI {
 
         return openApiStockIndexService.getAllIndexDataBetweenDates(indexDataRequestByName);
     }
+
 }
