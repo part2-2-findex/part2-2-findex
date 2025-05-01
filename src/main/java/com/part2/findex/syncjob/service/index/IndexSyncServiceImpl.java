@@ -40,7 +40,6 @@ public class IndexSyncServiceImpl implements IndexSyncService {
     private final IndexDataSyncService indexDataSyncService;
     private final IndexInfoRepository indexInfoRepository;
     private final SyncJobRepository syncJobRepository;
-    private final DummyFactory dummyFactory;
 
     @Transactional
     @Override
@@ -48,16 +47,8 @@ public class IndexSyncServiceImpl implements IndexSyncService {
         List<IndexInfo> existingAllIndexInfos = indexInfoRepository.findAll();
         List<StockIndexInfoResult> allStockInfoInLastDate = indexSyncOpenAPI.loadAllLastDateIndexInfoFromOpenAPI();
 
-        // List<StockIndexInfoResult> allStockInfoInLastDate
-        List<StockIndexInfoResult> existingStockInfoResults = indexInfoSyncJobService.getExistingIndexInfoResults(allStockInfoInLastDate, existingAllIndexInfos);
-        List<SyncJob> completedIndexSyncJobs = getCompletedIndexInfoSyncJobs(existingStockInfoResults);
-        List<SyncJob> updatedIndexInfoSyncJobs = indexInfoSyncJobService.updateExistingIndexInfosAndSaveSyncJobs(existingAllIndexInfos, existingStockInfoResults, completedIndexSyncJobs);
-        List<SyncJob> newIndexInfoSyncJobs = indexInfoSyncJobService.createNewIndexInfosAndSaveSyncJobs(allStockInfoInLastDate, existingAllIndexInfos);
-        completedIndexSyncJobs.addAll(updatedIndexInfoSyncJobs);
-        completedIndexSyncJobs.addAll(newIndexInfoSyncJobs);
-
-
-        return completedIndexSyncJobs.stream()
+        return indexInfoSyncJobService.getIndexInfoSyncJobs(existingAllIndexInfos, allStockInfoInLastDate)
+                .stream()
                 .map(SyncJobResult::from)
                 .toList();
     }
@@ -115,15 +106,4 @@ public class IndexSyncServiceImpl implements IndexSyncService {
         return sort;
     }
 
-    private List<SyncJob> getCompletedIndexInfoSyncJobs(List<StockIndexInfoResult> existingStockIndexInfoResults) {
-        List<SyncJobBusinessKey> syncJobBusinessKey = existingStockIndexInfoResults.stream()
-                .map(this::createIndexInfoSyncJobKey)
-                .toList();
-
-        return syncJobRepository.findByKeys(syncJobBusinessKey);
-    }
-
-    private SyncJobBusinessKey createIndexInfoSyncJobKey(StockIndexInfoResult stockIndexInfoResult) {
-        return new SyncJobBusinessKey(SyncJobType.INDEX_INFO, LocalDate.parse(stockIndexInfoResult.baseDateTime(), DateTimeFormatter.ofPattern("yyyyMMdd")), dummyFactory.createDummyIndexInfo(stockIndexInfoResult));
-    }
 }
